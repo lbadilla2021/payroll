@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Payroll Chile - Superadmin</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <div class="layout">
+      <aside class="sidebar">
+        <h2>Superadmin</h2>
+        <button class="menu-item active" data-view="tenants">Crear tenant</button>
+        <button class="menu-item" data-view="users">Crear usuario tenant</button>
+        <button id="logout" class="menu-item">Salir</button>
+      </aside>
+      <section class="content">
+        <header>
+          <h1 id="view-title">Crear tenant</h1>
+          <span id="me"></span>
+        </header>
+
+        <div id="view-tenants" class="view">
+          <form id="tenant-form" class="panel-form">
+            <label>Nombre tenant</label>
+            <input type="text" id="tenant-name" required />
+            <label>Código tenant</label>
+            <input type="text" id="tenant-code" required />
+            <button type="submit">Crear tenant</button>
+          </form>
+        </div>
+
+        <div id="view-users" class="view hidden">
+          <form id="user-form" class="panel-form">
+            <label>Nombre completo</label>
+            <input type="text" id="user-full-name" required />
+            <label>Email</label>
+            <input type="email" id="user-email" required />
+            <label>Contraseña</label>
+            <input type="password" id="user-password" required />
+            <label>Tenant</label>
+            <select id="tenant-select" required></select>
+            <button type="submit">Crear usuario tenant_admin</button>
+          </form>
+        </div>
+
+        <p id="app-message" class="message"></p>
+      </section>
+    </div>
+    <script src="/js/app.js"></script>
+  </body>
+</html>
