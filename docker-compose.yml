@@ -1,0 +1,38 @@
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-payroll}
+      POSTGRES_USER: ${POSTGRES_USER:-payroll}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-payroll}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-payroll} -d ${POSTGRES_DB:-payroll}"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  backend:
+    build:
+      context: ./backend
+    environment:
+      DATABASE_URL: ${DATABASE_URL:-postgresql+psycopg2://payroll:payroll@db:5432/payroll}
+      JWT_SECRET: ${JWT_SECRET:-super-secret-change}
+      TOKEN_EXPIRE_MINUTES: ${TOKEN_EXPIRE_MINUTES:-60}
+      SUPERADMIN_EMAIL: ${SUPERADMIN_EMAIL:-superadmin@payroll.local}
+      SUPERADMIN_PASSWORD: ${SUPERADMIN_PASSWORD:-admin123}
+    depends_on:
+      db:
+        condition: service_healthy
+
+  frontend:
+    build:
+      context: ./frontend
+    ports:
+      - '8080:80'
+    depends_on:
+      - backend
+
+volumes:
+  postgres_data:
