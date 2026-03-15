@@ -23,7 +23,7 @@ Aplicación en `http://localhost:8080`.
 
 ## Credenciales iniciales
 
-Se crea automáticamente un superadmin al iniciar el backend:
+Se crea/actualiza automáticamente un superadmin al iniciar el backend:
 
 - Email: `SUPERADMIN_EMAIL` (por defecto `superadmin@payroll.local`)
 - Password: `SUPERADMIN_PASSWORD` (por defecto `admin123`)
@@ -31,3 +31,14 @@ Se crea automáticamente un superadmin al iniciar el backend:
 ## Migraciones
 
 Las migraciones SQL se ejecutan al inicio desde `backend/migrations/*.sql`.
+
+## Si aparece `HTTP 502` al autenticar
+
+Generalmente indica que el backend no está sano todavía.
+
+```bash
+docker compose ps
+docker compose logs -f backend frontend
+```
+
+Si cambiaste credenciales y tienes volumen viejo de Postgres, vuelve a levantar para que el init script reconcilie el superadmin con el `.env` actual.

@@ -34,7 +34,11 @@ def ensure_superadmin() -> None:
     try:
         existing = db.query(User).filter(User.email == settings.superadmin_email).first()
         if existing:
-            password_matches = verify_password(settings.superadmin_password, existing.password_hash)
+            try:
+                password_matches = verify_password(settings.superadmin_password, existing.password_hash)
+            except Exception:
+                password_matches = False
+
             needs_update = (
                 not password_matches
                 or existing.role != 'superadmin'
@@ -49,6 +53,7 @@ def ensure_superadmin() -> None:
                 existing.is_active = True
                 db.commit()
             return
+
         user = User(
             email=settings.superadmin_email,
             full_name='Super Admin',
