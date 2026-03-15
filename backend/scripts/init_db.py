@@ -7,7 +7,7 @@ from sqlalchemy.exc import OperationalError
 from app.config import settings
 from app.database import engine, SessionLocal
 from app.models import User
-from app.security import hash_password
+from app.security import hash_password, verify_password
 
 
 def wait_for_db(max_retries: int = 30, delay_s: int = 2) -> None:
@@ -34,6 +34,20 @@ def ensure_superadmin() -> None:
     try:
         existing = db.query(User).filter(User.email == settings.superadmin_email).first()
         if existing:
+            password_matches = verify_password(settings.superadmin_password, existing.password_hash)
+            needs_update = (
+                not password_matches
+                or existing.role != 'superadmin'
+                or existing.tenant_id is not None
+                or not existing.is_active
+            )
+            if needs_update:
+                existing.full_name = 'Super Admin'
+                existing.password_hash = hash_password(settings.superadmin_password)
+                existing.role = 'superadmin'
+                existing.tenant_id = None
+                existing.is_active = True
+                db.commit()
             return
         user = User(
             email=settings.superadmin_email,

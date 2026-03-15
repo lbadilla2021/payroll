@@ -26,7 +26,7 @@ form.addEventListener('submit', async (event) => {
     const data = await safeParseJson(response);
 
     if (!response.ok) {
-      message.textContent = data.detail || 'No fue posible autenticar. Revisa backend/API.';
+      message.textContent = data.detail || `No fue posible autenticar (HTTP ${response.status}).`;
       return;
     }
 
