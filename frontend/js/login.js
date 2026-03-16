@@ -9,6 +9,29 @@ async function safeParseJson(response) {
   return response.json().catch(() => ({}));
 }
 
+function normalizeApiError(detail, status) {
+  if (typeof detail === 'string' && detail.trim()) {
+    return detail;
+  }
+
+  if (Array.isArray(detail) && detail.length > 0) {
+    const first = detail[0];
+    if (first && typeof first === 'object' && typeof first.msg === 'string') {
+      return first.msg;
+    }
+    return 'Solicitud inválida. Revisa los datos ingresados.';
+  }
+
+  if (detail && typeof detail === 'object') {
+    if (typeof detail.msg === 'string') {
+      return detail.msg;
+    }
+    return 'Error de validación en la solicitud.';
+  }
+
+  return `No fue posible autenticar (HTTP ${status}).`;
+}
+
 form.addEventListener('submit', async (event) => {
   event.preventDefault();
   message.textContent = '';
@@ -26,7 +49,7 @@ form.addEventListener('submit', async (event) => {
     const data = await safeParseJson(response);
 
     if (!response.ok) {
-      message.textContent = data.detail || `No fue posible autenticar (HTTP ${response.status}).`;
+      message.textContent = normalizeApiError(data.detail, response.status);
       return;
     }
 
