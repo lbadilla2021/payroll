@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Payroll Chile - Superadmin</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <div class="layout app-layout">
+      <aside class="sidebar">
+        <div>
+          <h2 class="brand-title">Payroll Chile</h2>
+          <p class="brand-subtitle">Panel Superadmin</p>
+          <nav class="menu-list">
+            <button class="menu-item active" data-view="tenants">Crear tenant</button>
+            <button class="menu-item" data-view="users">Crear usuario tenant</button>
+          </nav>
+        </div>
+
+        <div class="profile-area">
+          <button id="profile-trigger" class="profile-trigger" aria-label="Abrir menú de perfil">
+            <span id="profile-initial" class="profile-initial">S</span>
+            <span class="profile-meta">
+              <span id="profile-trigger-name" class="profile-trigger-name">Super Admin</span>
+              <span class="profile-trigger-role">SUPERADMIN</span>
+            </span>
+          </button>
+
+          <div id="profile-menu" class="profile-menu hidden" role="menu">
+            <div class="profile-menu-header">
+              <span id="profile-menu-initial" class="profile-menu-initial">S</span>
+              <div>
+                <p id="profile-name" class="profile-name">Super Admin</p>
+                <p id="profile-email" class="profile-email">superadmin@payroll.local</p>
+              </div>
+            </div>
+
+            <div class="profile-divider"></div>
+
+            <button id="profile-config" class="profile-menu-item">
+              <span class="menu-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none"><path d="M12 8.5a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7Zm8 3.5-.9-.4a7.8 7.8 0 0 0-.4-1l.5-.9-1.8-1.8-.9.5a7.8 7.8 0 0 0-1-.4L15 5h-3l-.4.9a7.8 7.8 0 0 0-1 .4l-.9-.5-1.8 1.8.5.9a7.8 7.8 0 0 0-.4 1L4 12l.9.4a7.8 7.8 0 0 0 .4 1l-.5.9 1.8 1.8.9-.5a7.8 7.8 0 0 0 1 .4L9 19h3l.4-.9a7.8 7.8 0 0 0 1-.4l.9.5 1.8-1.8-.5-.9a7.8 7.8 0 0 0 .4-1L20 12Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>
+              </span>
+              <span>Configuración</span>
+            </button>
+
+            <div class="profile-menu-item dark-mode-item">
+              <span class="menu-inline-label"><span class="menu-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 1 0 9.8 9.8Z" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Modo Oscuro</span>
+              <label class="switch">
+                <input id="theme-toggle" type="checkbox" />
+                <span class="slider"></span>
+              </label>
+            </div>
+
+            <button id="profile-help" class="profile-menu-item with-arrow">
+              <span class="menu-inline-label"><span class="menu-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.6"/><path d="M9.8 9.3a2.4 2.4 0 1 1 3.9 2c-.9.7-1.7 1.1-1.7 2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><circle cx="12" cy="16.7" r=".8" fill="currentColor"/></svg></span>Ayuda</span>
+              <span>›</span>
+            </button>
+
+            <button id="profile-password" class="profile-menu-item with-arrow">
+              <span class="menu-inline-label"><span class="menu-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><rect x="5" y="11" width="14" height="9" rx="2" stroke="currentColor" stroke-width="1.6"/><path d="M8.5 11V8.8a3.5 3.5 0 1 1 7 0V11" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><circle cx="12" cy="15.5" r="1" fill="currentColor"/></svg></span>Cambiar Contraseña</span>
+              <span>›</span>
+            </button>
+
+            <div class="profile-divider"></div>
+
+            <button id="logout" class="profile-menu-item danger">
+              <span class="menu-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M10 7H6a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><path d="M14 8l4 4-4 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M18 12H9" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></span>
+              <span>Cerrar Sesión</span>
+            </button>
+          </div>
+        </div>
+      </aside>
+
+      <section class="content">
+        <header class="content-header">
+          <h1 id="view-title">Crear tenant</h1>
+          <span id="me" class="user-pill"></span>
+        </header>
+
+        <div id="view-tenants" class="view">
+          <form id="tenant-form" class="panel-form">
+            <label>Nombre tenant</label>
+            <input type="text" id="tenant-name" required />
+            <label>Código tenant</label>
+            <input type="text" id="tenant-code" required />
+            <button type="submit">Crear tenant</button>
+          </form>
+        </div>
+
+        <div id="view-users" class="view hidden">
+          <form id="user-form" class="panel-form">
+            <label>Nombre completo</label>
+            <input type="text" id="user-full-name" required />
+            <label>Email</label>
+            <input type="email" id="user-email" required />
+            <label>Contraseña</label>
+            <input type="password" id="user-password" required />
+            <label>Tenant</label>
+            <select id="tenant-select" required></select>
+            <button type="submit">Crear usuario tenant_admin</button>
+          </form>
+        </div>
+
+        <p id="app-message" class="message"></p>
+      </section>
+    </div>
+    <script src="/js/app.js"></script>
+  </body>
+</html>
