@@ -21,12 +21,37 @@ def wait_for_db(max_retries: int = 30, delay_s: int = 2) -> None:
     raise RuntimeError('Database unavailable after retries')
 
 
+def _split_sql_statements(sql: str) -> list[str]:
+    statements: list[str] = []
+    current: list[str] = []
+
+    for line in sql.splitlines():
+        stripped = line.strip()
+        if not stripped or stripped.startswith('--'):
+            continue
+
+        current.append(line)
+        if stripped.endswith(';'):
+            statement = '\n'.join(current).strip().rstrip(';').strip()
+            if statement:
+                statements.append(statement)
+            current = []
+
+    if current:
+        statement = '\n'.join(current).strip().rstrip(';').strip()
+        if statement:
+            statements.append(statement)
+
+    return statements
+
+
 def run_migrations() -> None:
     migrations_dir = Path(__file__).resolve().parents[1] / 'migrations'
     with engine.begin() as conn:
         for migration_file in sorted(migrations_dir.glob('*.sql')):
             sql = migration_file.read_text(encoding='utf-8')
-            conn.execute(text(sql))
+            for statement in _split_sql_statements(sql):
+                conn.execute(text(statement))
 
 
 def ensure_superadmin() -> None:
