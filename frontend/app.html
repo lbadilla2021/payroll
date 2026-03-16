@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Payroll Chile - Superadmin</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <div class="layout app-layout">
+      <aside class="sidebar">
+        <div>
+          <h2 class="brand-title">Payroll Chile</h2>
+          <p class="brand-subtitle">Panel Superadmin</p>
+          <nav class="menu-list">
+            <button class="menu-item active" data-view="tenants">Crear tenant</button>
+            <button class="menu-item" data-view="users">Crear usuario tenant</button>
+          </nav>
+        </div>
+
+        <div class="profile-area">
+          <button id="profile-trigger" class="profile-trigger" aria-label="Abrir menú de perfil">
+            <span id="profile-initial" class="profile-initial">S</span>
+            <span class="profile-meta">
+              <span id="profile-trigger-name" class="profile-trigger-name">Super Admin</span>
+              <span class="profile-trigger-role">SUPERADMIN</span>
+            </span>
+          </button>
+
+          <div id="profile-menu" class="profile-menu hidden" role="menu">
+            <div class="profile-menu-header">
+              <span id="profile-menu-initial" class="profile-menu-initial">S</span>
+              <div>
+                <p id="profile-name" class="profile-name">Super Admin</p>
+                <p id="profile-email" class="profile-email">superadmin@payroll.local</p>
+              </div>
+            </div>
+
+            <div class="profile-divider"></div>
+
+            <button id="profile-config" class="profile-menu-item">
+              <span>⚙️</span>
+              <span>Configuración</span>
+            </button>
+
+            <div class="profile-menu-item dark-mode-item">
+              <span class="menu-inline-label">🌗 Modo Oscuro</span>
+              <label class="switch">
+                <input id="theme-toggle" type="checkbox" />
+                <span class="slider"></span>
+              </label>
+            </div>
+
+            <button id="profile-help" class="profile-menu-item with-arrow">
+              <span>❓ Ayuda</span>
+              <span>›</span>
+            </button>
+
+            <button id="profile-password" class="profile-menu-item with-arrow">
+              <span>🔐 Cambiar Contraseña</span>
+              <span>›</span>
+            </button>
+
+            <div class="profile-divider"></div>
+
+            <button id="logout" class="profile-menu-item danger">
+              <span>↪</span>
+              <span>Cerrar Sesión</span>
+            </button>
+          </div>
+        </div>
+      </aside>
+
+      <section class="content">
+        <header class="content-header">
+          <h1 id="view-title">Crear tenant</h1>
+          <span id="me" class="user-pill"></span>
+        </header>
+
+        <div id="view-tenants" class="view">
+          <form id="tenant-form" class="panel-form">
+            <label>Nombre tenant</label>
+            <input type="text" id="tenant-name" required />
+            <label>Código tenant</label>
+            <input type="text" id="tenant-code" required />
+            <button type="submit">Crear tenant</button>
+          </form>
+        </div>
+
+        <div id="view-users" class="view hidden">
+          <form id="user-form" class="panel-form">
+            <label>Nombre completo</label>
+            <input type="text" id="user-full-name" required />
+            <label>Email</label>
+            <input type="email" id="user-email" required />
+            <label>Contraseña</label>
+            <input type="password" id="user-password" required />
+            <label>Tenant</label>
+            <select id="tenant-select" required></select>
+            <button type="submit">Crear usuario tenant_admin</button>
+          </form>
+        </div>
+
+        <p id="app-message" class="message"></p>
+      </section>
+    </div>
+    <script src="/js/app.js"></script>
+  </body>
+</html>
