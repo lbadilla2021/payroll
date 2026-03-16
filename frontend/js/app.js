@@ -10,6 +10,9 @@ const profileTrigger = document.getElementById('profile-trigger');
 const profileMenu = document.getElementById('profile-menu');
 const profileInitial = document.getElementById('profile-initial');
 const profileEmail = document.getElementById('profile-email');
+const profileName = document.getElementById('profile-name');
+const profileMenuInitial = document.getElementById('profile-menu-initial');
+const profileTriggerName = document.getElementById('profile-trigger-name');
 const themeToggle = document.getElementById('theme-toggle');
 
 const headers = {
@@ -62,7 +65,11 @@ async function loadMe() {
 
     meEl.textContent = `${me.full_name} (${me.email})`;
     profileEmail.textContent = me.email;
-    profileInitial.textContent = getInitial(me.full_name, me.email);
+    profileName.textContent = me.full_name || 'Usuario';
+    profileTriggerName.textContent = me.full_name || 'Usuario';
+    const initial = getInitial(me.full_name, me.email);
+    profileInitial.textContent = initial;
+    profileMenuInitial.textContent = initial;
   } catch {
     localStorage.removeItem('token');
     window.location.href = '/';

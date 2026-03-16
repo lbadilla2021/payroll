@@ -21,22 +21,52 @@
         <div class="profile-area">
           <button id="profile-trigger" class="profile-trigger" aria-label="Abrir menú de perfil">
             <span id="profile-initial" class="profile-initial">S</span>
-            <span class="profile-label">Perfil</span>
+            <span class="profile-meta">
+              <span id="profile-trigger-name" class="profile-trigger-name">Super Admin</span>
+              <span class="profile-trigger-role">SUPERADMIN</span>
+            </span>
           </button>
 
           <div id="profile-menu" class="profile-menu hidden" role="menu">
-            <p id="profile-email" class="profile-email">superadmin@payroll.local</p>
-            <button id="profile-config" class="profile-menu-item">Configuración</button>
+            <div class="profile-menu-header">
+              <span id="profile-menu-initial" class="profile-menu-initial">S</span>
+              <div>
+                <p id="profile-name" class="profile-name">Super Admin</p>
+                <p id="profile-email" class="profile-email">superadmin@payroll.local</p>
+              </div>
+            </div>
+
+            <div class="profile-divider"></div>
+
+            <button id="profile-config" class="profile-menu-item">
+              <span>⚙️</span>
+              <span>Configuración</span>
+            </button>
+
             <div class="profile-menu-item dark-mode-item">
-              <span>Modo Oscuro</span>
+              <span class="menu-inline-label">🌗 Modo Oscuro</span>
               <label class="switch">
                 <input id="theme-toggle" type="checkbox" />
                 <span class="slider"></span>
               </label>
             </div>
-            <button id="profile-help" class="profile-menu-item">Ayuda</button>
-            <button id="profile-password" class="profile-menu-item">Cambiar Contraseña</button>
-            <button id="logout" class="profile-menu-item danger">Cerrar Sesión</button>
+
+            <button id="profile-help" class="profile-menu-item with-arrow">
+              <span>❓ Ayuda</span>
+              <span>›</span>
+            </button>
+
+            <button id="profile-password" class="profile-menu-item with-arrow">
+              <span>🔐 Cambiar Contraseña</span>
+              <span>›</span>
+            </button>
+
+            <div class="profile-divider"></div>
+
+            <button id="logout" class="profile-menu-item danger">
+              <span>↪</span>
+              <span>Cerrar Sesión</span>
+            </button>
           </div>
         </div>
       </aside>
