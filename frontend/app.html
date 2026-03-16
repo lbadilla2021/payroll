@@ -7,17 +7,44 @@
     <link rel="stylesheet" href="/styles.css" />
   </head>
   <body>
-    <div class="layout">
+    <div class="layout app-layout">
       <aside class="sidebar">
-        <h2>Superadmin</h2>
-        <button class="menu-item active" data-view="tenants">Crear tenant</button>
-        <button class="menu-item" data-view="users">Crear usuario tenant</button>
-        <button id="logout" class="menu-item">Salir</button>
+        <div>
+          <h2 class="brand-title">Payroll Chile</h2>
+          <p class="brand-subtitle">Panel Superadmin</p>
+          <nav class="menu-list">
+            <button class="menu-item active" data-view="tenants">Crear tenant</button>
+            <button class="menu-item" data-view="users">Crear usuario tenant</button>
+          </nav>
+        </div>
+
+        <div class="profile-area">
+          <button id="profile-trigger" class="profile-trigger" aria-label="Abrir menú de perfil">
+            <span id="profile-initial" class="profile-initial">S</span>
+            <span class="profile-label">Perfil</span>
+          </button>
+
+          <div id="profile-menu" class="profile-menu hidden" role="menu">
+            <p id="profile-email" class="profile-email">superadmin@payroll.local</p>
+            <button id="profile-config" class="profile-menu-item">Configuración</button>
+            <div class="profile-menu-item dark-mode-item">
+              <span>Modo Oscuro</span>
+              <label class="switch">
+                <input id="theme-toggle" type="checkbox" />
+                <span class="slider"></span>
+              </label>
+            </div>
+            <button id="profile-help" class="profile-menu-item">Ayuda</button>
+            <button id="profile-password" class="profile-menu-item">Cambiar Contraseña</button>
+            <button id="logout" class="profile-menu-item danger">Cerrar Sesión</button>
+          </div>
+        </div>
       </aside>
+
       <section class="content">
-        <header>
+        <header class="content-header">
           <h1 id="view-title">Crear tenant</h1>
-          <span id="me"></span>
+          <span id="me" class="user-pill"></span>
         </header>
 
         <div id="view-tenants" class="view">

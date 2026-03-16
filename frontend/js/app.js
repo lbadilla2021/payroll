@@ -6,14 +6,31 @@ if (!token) {
 const appMessage = document.getElementById('app-message');
 const meEl = document.getElementById('me');
 const tenantSelect = document.getElementById('tenant-select');
+const profileTrigger = document.getElementById('profile-trigger');
+const profileMenu = document.getElementById('profile-menu');
+const profileInitial = document.getElementById('profile-initial');
+const profileEmail = document.getElementById('profile-email');
+const themeToggle = document.getElementById('theme-toggle');
 
 const headers = {
   'Content-Type': 'application/json',
   Authorization: `Bearer ${token}`,
 };
 
+function applyTheme(theme) {
+  const darkEnabled = theme === 'dark';
+  document.body.classList.toggle('dark', darkEnabled);
+  themeToggle.checked = darkEnabled;
+  localStorage.setItem('theme', darkEnabled ? 'dark' : 'light');
+}
+
+function initTheme() {
+  const theme = localStorage.getItem('theme') || 'light';
+  applyTheme(theme);
+}
+
 function showMessage(text, isError = true) {
-  appMessage.style.color = isError ? '#b42318' : '#067647';
+  appMessage.style.color = isError ? '#b42318' : '#12b76a';
   appMessage.textContent = text;
 }
 
@@ -28,6 +45,12 @@ async function api(path, options = {}) {
   return data;
 }
 
+function getInitial(fullName, email) {
+  if (fullName?.trim()) return fullName.trim()[0].toUpperCase();
+  if (email?.trim()) return email.trim()[0].toUpperCase();
+  return 'U';
+}
+
 async function loadMe() {
   try {
     const me = await api('/api/auth/me');
@@ -36,7 +59,10 @@ async function loadMe() {
       window.location.href = '/';
       return;
     }
+
     meEl.textContent = `${me.full_name} (${me.email})`;
+    profileEmail.textContent = me.email;
+    profileInitial.textContent = getInitial(me.full_name, me.email);
   } catch {
     localStorage.removeItem('token');
     window.location.href = '/';
@@ -103,10 +129,41 @@ document.querySelectorAll('.menu-item[data-view]').forEach((button) => {
   });
 });
 
+profileTrigger.addEventListener('click', (event) => {
+  event.stopPropagation();
+  profileMenu.classList.toggle('hidden');
+});
+
+document.addEventListener('click', (event) => {
+  if (!profileMenu.classList.contains('hidden') && !profileMenu.contains(event.target) && !profileTrigger.contains(event.target)) {
+    profileMenu.classList.add('hidden');
+  }
+});
+
+themeToggle.addEventListener('change', () => {
+  applyTheme(themeToggle.checked ? 'dark' : 'light');
+});
+
+document.getElementById('profile-config').addEventListener('click', () => {
+  showMessage('Configuración estará disponible próximamente.', false);
+  profileMenu.classList.add('hidden');
+});
+
+document.getElementById('profile-help').addEventListener('click', () => {
+  showMessage('Ayuda: contacta al equipo de plataforma de remuneraciones.', false);
+  profileMenu.classList.add('hidden');
+});
+
+document.getElementById('profile-password').addEventListener('click', () => {
+  showMessage('Cambio de contraseña estará disponible próximamente.', false);
+  profileMenu.classList.add('hidden');
+});
+
 document.getElementById('logout').addEventListener('click', () => {
   localStorage.removeItem('token');
   window.location.href = '/';
 });
 
+initTheme();
 loadMe();
 loadTenants().catch(() => null);

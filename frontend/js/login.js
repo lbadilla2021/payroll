@@ -1,6 +1,11 @@
 const form = document.getElementById('login-form');
 const message = document.getElementById('message');
 
+function initTheme() {
+  const theme = localStorage.getItem('theme') || 'light';
+  document.body.classList.toggle('dark', theme === 'dark');
+}
+
 async function safeParseJson(response) {
   const contentType = response.headers.get('content-type') || '';
   if (!contentType.includes('application/json')) {
@@ -59,3 +64,5 @@ form.addEventListener('submit', async (event) => {
     message.textContent = 'Error de conexión con el servidor.';
   }
 });
+
+initTheme();
