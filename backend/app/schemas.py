@@ -1,11 +1,27 @@
+import re
 from typing import Optional
 
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, field_validator
+
+
+EMAIL_PATTERN = re.compile(r'^[^@\s]+@[^@\s]+\.[^@\s]+$')
+
+
+def _normalize_email(value: str) -> str:
+    email = value.strip().lower()
+    if not EMAIL_PATTERN.match(email):
+        raise ValueError('Email inválido')
+    return email
 
 
 class LoginRequest(BaseModel):
-    email: EmailStr
+    email: str
     password: str
+
+    @field_validator('email')
+    @classmethod
+    def validate_email_field(cls, value: str) -> str:
+        return _normalize_email(value)
 
 
 class TokenResponse(BaseModel):
@@ -15,7 +31,7 @@ class TokenResponse(BaseModel):
 
 class UserInfo(BaseModel):
     id: int
-    email: EmailStr
+    email: str
     full_name: str
     role: str
     tenant_id: Optional[int]
@@ -40,16 +56,21 @@ class TenantOut(BaseModel):
 
 
 class UserCreate(BaseModel):
-    email: EmailStr
+    email: str
     full_name: str
     password: str
     role: str
     tenant_id: Optional[int] = None
 
+    @field_validator('email')
+    @classmethod
+    def validate_email_field(cls, value: str) -> str:
+        return _normalize_email(value)
+
 
 class UserOut(BaseModel):
     id: int
-    email: EmailStr
+    email: str
     full_name: str
     role: str
     tenant_id: Optional[int]
