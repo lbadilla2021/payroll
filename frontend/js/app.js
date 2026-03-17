@@ -1,19 +1,13 @@
 const appMessage = document.getElementById('app-message');
 
 async function api(path, options = {}) {
-  let response;
-  try {
-    response = await window.PayrollSession.fetchWithAuth(path, options);
-  } catch {
-    await logoutAndRedirect();
-    throw new Error('Sesión expirada');
-  }
-
+  const response = await window.PayrollSession.fetchWithAuth(path, options);
   const data = await response.json().catch(() => ({}));
 
   if (!response.ok) {
     if (response.status === 401) {
-      await logoutAndRedirect();
+      window.PayrollSession.clearSession();
+      window.location.href = '/';
       throw new Error('Sesión expirada');
     }
 
@@ -30,9 +24,15 @@ function showMessage(text, ok = false) {
 
 async function logoutAndRedirect() {
   try {
-    await window.PayrollSession.fetchWithAuth('/api/auth/logout', { method: 'POST' });
+    await fetch('/api/auth/logout', {
+      method: 'POST',
+      credentials: 'include',
+      headers: {
+        Authorization: `Bearer ${window.PayrollSession.getAccessToken() || ''}`,
+      },
+    });
   } catch {
-    // ignore network/auth errors and clear local memory anyway
+    // ignore network errors
   }
 
   window.PayrollSession.clearSession();
@@ -41,7 +41,9 @@ async function logoutAndRedirect() {
 
 async function bootstrapSession() {
   try {
-    const me = await window.PayrollSession.bootstrapSession();
+    await window.PayrollSession.refreshAccessToken();
+    const me = await api('/api/auth/me', { method: 'GET' });
+
     document.getElementById('me').textContent = me.full_name;
     document.getElementById('profile-email').textContent = me.email_normalized;
     document.getElementById('profile-name').textContent = me.full_name;

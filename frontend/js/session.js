@@ -13,6 +13,10 @@ window.PayrollSession = (() => {
     accessToken = null;
   }
 
+  function redirectToLogin() {
+    window.location.href = '/';
+  }
+
   function withAuthHeaders(headers = {}, token = accessToken) {
     const normalized = new Headers(headers);
     if (token) {
@@ -42,23 +46,6 @@ window.PayrollSession = (() => {
     return data.access_token;
   }
 
-  async function bootstrapSession() {
-    const token = await refreshAccessToken();
-
-    const meResponse = await fetch('/api/auth/me', {
-      method: 'GET',
-      credentials: 'include',
-      headers: withAuthHeaders({}, token),
-    });
-
-    if (!meResponse.ok) {
-      clearSession();
-      throw new Error('No autenticado');
-    }
-
-    return meResponse.json();
-  }
-
   async function fetchWithAuth(url, options = {}) {
     const token = getAccessToken();
 
@@ -69,16 +56,22 @@ window.PayrollSession = (() => {
     });
 
     if (response.status === 401) {
-      const freshToken = await refreshAccessToken();
-
-      response = await fetch(url, {
-        ...options,
-        headers: withAuthHeaders(options.headers || {}, freshToken),
-        credentials: 'include',
-      });
+      try {
+        const freshToken = await refreshAccessToken();
+        response = await fetch(url, {
+          ...options,
+          headers: withAuthHeaders(options.headers || {}, freshToken),
+          credentials: 'include',
+        });
+      } catch {
+        clearSession();
+        redirectToLogin();
+        throw new Error('Sesión expirada');
+      }
 
       if (response.status === 401) {
         clearSession();
+        redirectToLogin();
         throw new Error('Sesión expirada');
       }
     }
@@ -91,7 +84,6 @@ window.PayrollSession = (() => {
     getAccessToken,
     clearSession,
     refreshAccessToken,
-    bootstrapSession,
     fetchWithAuth,
   };
 })();

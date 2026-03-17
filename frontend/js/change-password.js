@@ -11,7 +11,7 @@ async function api(path, options = {}) {
 form.addEventListener('submit', async (event) => {
   event.preventDefault();
   try {
-    await window.PayrollSession.bootstrapSession();
+    await window.PayrollSession.refreshAccessToken();
     const payload = {
       current_password: document.getElementById('current_password').value,
       new_password: document.getElementById('new_password').value,
