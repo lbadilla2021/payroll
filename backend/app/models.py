@@ -1,4 +1,4 @@
-from sqlalchemy import Boolean, CheckConstraint, Column, DateTime, ForeignKey, Integer, String, Text, func
+from sqlalchemy import Boolean, Column, DateTime, ForeignKey, Index, Integer, String, UniqueConstraint, func
 from sqlalchemy.orm import relationship
 
 from app.database import Base
@@ -18,70 +18,67 @@ class User(Base):
     __tablename__ = 'users'
 
     id = Column(Integer, primary_key=True, index=True)
-    email = Column(String(255), nullable=False, index=True)
+    tenant_id = Column(Integer, ForeignKey('tenants.id', ondelete='CASCADE'), nullable=True, index=True)
+    email_normalized = Column(String(255), nullable=False)
     full_name = Column(String(150), nullable=False)
     password_hash = Column(String(255), nullable=False)
-    role = Column(String(32), nullable=False)
-    tenant_id = Column(Integer, ForeignKey('tenants.id', ondelete='SET NULL'), nullable=True, index=True)
     is_active = Column(Boolean, nullable=False, default=True)
-    auth_version = Column(Integer, nullable=False, default=0)
-    password_changed_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+    is_superadmin = Column(Boolean, nullable=False, default=False)
+    is_tenant_admin = Column(Boolean, nullable=False, default=False)
+    auth_version = Column(Integer, nullable=False, default=1)
     created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
-
-    __table_args__ = (
-        CheckConstraint("role IN ('superadmin', 'tenant_admin')", name='ck_users_role'),
-        CheckConstraint(
-            "(role = 'superadmin' AND tenant_id IS NULL) OR (role = 'tenant_admin' AND tenant_id IS NOT NULL)",
-            name='ck_users_role_tenant',
-        ),
-    )
+    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False)
 
     tenant = relationship('Tenant')
+
+    __table_args__ = (
+        UniqueConstraint('tenant_id', 'email_normalized', name='uq_users_tenant_email_normalized'),
+        Index('ix_users_email_normalized', 'email_normalized'),
+    )
 
 
 class UserSession(Base):
     __tablename__ = 'user_sessions'
 
-    id = Column(Integer, primary_key=True)
-    session_id = Column(String(64), unique=True, nullable=False, index=True)
+    id = Column(String(64), primary_key=True, index=True)
     tenant_id = Column(Integer, ForeignKey('tenants.id', ondelete='CASCADE'), nullable=True, index=True)
     user_id = Column(Integer, ForeignKey('users.id', ondelete='CASCADE'), nullable=False, index=True)
-    refresh_token_hash = Column(String(128), nullable=False)
-    ip = Column(String(64), nullable=True)
+    refresh_token_hash = Column(String(128), nullable=False, index=True)
     user_agent = Column(String(512), nullable=True)
+    ip_address = Column(String(64), nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
-    last_activity_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
     expires_at = Column(DateTime(timezone=True), nullable=False)
-    absolute_expires_at = Column(DateTime(timezone=True), nullable=False)
-    revoked_at = Column(DateTime(timezone=True), nullable=True)
+    idle_expires_at = Column(DateTime(timezone=True), nullable=False)
+    last_seen_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+    revoked_at = Column(DateTime(timezone=True), nullable=True, index=True)
     revoke_reason = Column(String(128), nullable=True)
-    replaced_by_session_id = Column(String(64), nullable=True)
+    rotated_from_session_id = Column(String(64), nullable=True)
 
 
 class PasswordResetToken(Base):
     __tablename__ = 'password_reset_tokens'
 
-    id = Column(Integer, primary_key=True)
+    id = Column(Integer, primary_key=True, index=True)
     tenant_id = Column(Integer, ForeignKey('tenants.id', ondelete='CASCADE'), nullable=True, index=True)
     user_id = Column(Integer, ForeignKey('users.id', ondelete='CASCADE'), nullable=False, index=True)
-    email = Column(String(255), nullable=False)
-    token_hash = Column(String(128), unique=True, nullable=False, index=True)
-    expires_at = Column(DateTime(timezone=True), nullable=False)
-    consumed_at = Column(DateTime(timezone=True), nullable=True)
+    token_hash = Column(String(128), nullable=False, unique=True, index=True)
+    expires_at = Column(DateTime(timezone=True), nullable=False, index=True)
+    used_at = Column(DateTime(timezone=True), nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+    requested_ip = Column(String(64), nullable=True)
+    requested_user_agent = Column(String(512), nullable=True)
 
 
 class AuthAuditLog(Base):
     __tablename__ = 'auth_audit_logs'
 
-    id = Column(Integer, primary_key=True)
+    id = Column(Integer, primary_key=True, index=True)
+    tenant_id = Column(Integer, ForeignKey('tenants.id', ondelete='SET NULL'), nullable=True, index=True)
+    user_id = Column(Integer, ForeignKey('users.id', ondelete='SET NULL'), nullable=True, index=True)
+    email_input = Column(String(255), nullable=True)
     event_type = Column(String(64), nullable=False, index=True)
     outcome = Column(String(32), nullable=False)
     reason = Column(String(255), nullable=True)
-    tenant_id = Column(Integer, ForeignKey('tenants.id', ondelete='SET NULL'), nullable=True, index=True)
-    user_id = Column(Integer, ForeignKey('users.id', ondelete='SET NULL'), nullable=True, index=True)
-    email = Column(String(255), nullable=True, index=True)
-    ip = Column(String(64), nullable=True)
+    ip_address = Column(String(64), nullable=True)
     user_agent = Column(String(512), nullable=True)
-    metadata_json = Column(Text, nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False, index=True)
