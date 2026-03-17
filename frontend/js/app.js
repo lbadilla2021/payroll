@@ -2,6 +2,14 @@ let token = sessionStorage.getItem('access_token');
 const appMessage = document.getElementById('app-message');
 const meEl = document.getElementById('me');
 const tenantSelect = document.getElementById('tenant-select');
+const profileTrigger = document.getElementById('profile-trigger');
+const profileMenu = document.getElementById('profile-menu');
+const profileInitial = document.getElementById('profile-initial');
+const profileEmail = document.getElementById('profile-email');
+const profileName = document.getElementById('profile-name');
+const profileMenuInitial = document.getElementById('profile-menu-initial');
+const profileTriggerName = document.getElementById('profile-trigger-name');
+const themeToggle = document.getElementById('theme-toggle');
 
 async function ensureSession() {
   if (token) return;
@@ -44,13 +52,40 @@ function showMessage(text, isError = true) {
   appMessage.textContent = text;
 }
 
+function getInitial(fullName, email) {
+  if (fullName?.trim()) return fullName.trim()[0].toUpperCase();
+  if (email?.trim()) return email.trim()[0].toUpperCase();
+  return 'U';
+}
+
+function applyTheme(theme) {
+  const darkEnabled = theme === 'dark';
+  document.body.classList.toggle('dark', darkEnabled);
+  themeToggle.checked = darkEnabled;
+  localStorage.setItem('theme', darkEnabled ? 'dark' : 'light');
+}
+
+function initTheme() {
+  const theme = localStorage.getItem('theme') || 'light';
+  applyTheme(theme);
+}
+
 async function loadMe() {
   const me = await api('/api/auth/me');
   if (me.role !== 'superadmin') {
     window.location.href = '/';
     return;
   }
-  meEl.textContent = `${me.full_name} (${me.email})`;
+
+  // Requerimiento: no mostrar email en la esquina superior derecha
+  meEl.textContent = me.full_name || 'Super Admin';
+
+  profileEmail.textContent = me.email;
+  profileName.textContent = me.full_name || 'Usuario';
+  profileTriggerName.textContent = me.full_name || 'Usuario';
+  const initial = getInitial(me.full_name, me.email);
+  profileInitial.textContent = initial;
+  profileMenuInitial.textContent = initial;
 }
 
 async function loadTenants() {
@@ -101,6 +136,14 @@ document.getElementById('logout').addEventListener('click', async () => {
 
 document.getElementById('profile-password').addEventListener('click', () => {
   window.location.href = '/change-password.html';
+});
+
+document.getElementById('logout').addEventListener('click', async () => {
+  try {
+    await api('/api/auth/logout', { method: 'POST', body: JSON.stringify({ all_sessions: false }) });
+  } catch {}
+  sessionStorage.removeItem('access_token');
+  window.location.href = '/';
 });
 
 loadMe();
