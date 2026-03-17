@@ -11,7 +11,7 @@ async function api(path, options = {}) {
 form.addEventListener('submit', async (event) => {
   event.preventDefault();
   try {
-    await window.PayrollSession.refresh();
+    await window.PayrollSession.bootstrapSession();
     const payload = {
       current_password: document.getElementById('current_password').value,
       new_password: document.getElementById('new_password').value,
@@ -23,7 +23,7 @@ form.addEventListener('submit', async (event) => {
     });
     message.style.color = '#12b76a';
     message.textContent = data.message;
-    window.PayrollSession.clear();
+    window.PayrollSession.clearSession();
   } catch (e) {
     message.style.color = '#b42318';
     message.textContent = e.message;
