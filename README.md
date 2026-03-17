@@ -6,7 +6,7 @@ SaaS multitenant de remuneraciones con FastAPI + PostgreSQL y frontend vanilla.
 - Login multitenant con resolución por `tenant_code` (body), `X-Tenant-Code` o subdominio.
 - JWT access token corto con claims: `sub=user_id`, `tid`, `sid`, `ver`, `iss`, `aud`, `iat`, `exp`.
 - Refresh token rotativo en cookie `HttpOnly` (nunca en storage de frontend), guardando solo hash en DB.
-- Patrón de frontend con access token en memoria (no `localStorage` ni `sessionStorage`).
+- Patrón de frontend con access token en memoria y sin persistencia en navegador.
 - Recuperación de contraseña con token aleatorio de un solo uso (hash en DB), respuesta uniforme.
 - Cambio de contraseña autenticado con revocación de sesiones y aumento de `auth_version`.
 - Argon2id como algoritmo principal + compatibilidad/rehash progresivo de hashes legacy.
