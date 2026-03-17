@@ -24,12 +24,8 @@ function showMessage(text, ok = false) {
 
 async function logoutAndRedirect() {
   try {
-    await fetch('/api/auth/logout', {
+    await window.PayrollSession.fetchWithAuth('/api/auth/logout', {
       method: 'POST',
-      credentials: 'include',
-      headers: {
-        Authorization: `Bearer ${window.PayrollSession.getAccessToken() || ''}`,
-      },
     });
   } catch {
     // ignore network errors
