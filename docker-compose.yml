@@ -47,7 +47,7 @@ services:
 
   frontend:
     build: { context: ./frontend }
-    ports: ['8080:80']
+    ports: ['8090:80']
     depends_on: [backend]
 
 volumes:
