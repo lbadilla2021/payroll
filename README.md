@@ -1,40 +1,41 @@
 # Payroll Chile
 
-Base FastAPI + PostgreSQL + frontend vanilla para payroll multitenant con seguridad reforzada.
+SaaS multitenant de remuneraciones con FastAPI + PostgreSQL y frontend vanilla.
 
-## Cambios de seguridad implementados
+## Seguridad implementada
+- Login multitenant con `tenant_code` (o resolución por host/header), sin búsquedas ambiguas por email.
+- JWT access token corto con claims: `sub=user_id`, `tid`, `sid`, `ver`, `iss`, `aud`, `iat`, `exp`.
+- Refresh token rotativo en cookie `HttpOnly` (`Secure` configurable por entorno), guardando solo hash en DB.
+- Recuperación de contraseña por email con token aleatorio de un solo uso (hash en DB).
+- Cambio de contraseña autenticado + revocación de sesiones + incremento de `auth_version`.
+- Argon2id como hash principal y rehash progresivo para hashes legacy.
+- Auditoría en `auth_audit_logs` y rate limiting por IP/email/tenant.
+- CORS restringido por `CORS_ALLOWED_ORIGINS` y headers de seguridad.
 
-- Login tenant-aware (`tenant_code`, header `X-Tenant-Code` o subdominio).
-- Sesiones robustas: access token corto + refresh token rotativo en cookie `HttpOnly`.
-- Expiración por inactividad y expiración absoluta de sesión configurables.
-- Recuperación de contraseña con token de un solo uso almacenado como hash.
-- Cambio de contraseña autenticado con invalidación de sesiones activas.
-- Auditoría de eventos críticos (`auth_audit_logs`).
-- Rate limiting en login y forgot password por IP/cuenta/tenant.
-- Endurecimiento de CORS (no abierto por defecto).
-- Multi-tenant isolation por diseño (`users` único por `(tenant_id,email)`).
-
-## Variables de entorno
-
-Ver `.env.example` para configuración completa:
-- Tokens/sesión: `ACCESS_TOKEN_MINUTES`, `REFRESH_TOKEN_DAYS`, `SESSION_IDLE_TIMEOUT_MINUTES`, `SESSION_ABSOLUTE_TIMEOUT_DAYS`.
-- Password reset: `PASSWORD_RESET_TOKEN_MINUTES`, `PASSWORD_RESET_REQUESTS_PER_HOUR`.
-- Login throttling: `LOGIN_MAX_ATTEMPTS`, `LOGIN_WINDOW_MINUTES`.
-- Password policy: `PASSWORD_MIN_LENGTH`, `BLOCKLIST_PATH`.
-- SMTP: `SMTP_*` y `APP_BASE_URL`.
+## Variables `.env`
+Usa `.env.example` como plantilla. Variables clave:
+- Sesión: `ACCESS_TOKEN_MINUTES`, `REFRESH_TOKEN_DAYS`, `SESSION_IDLE_TIMEOUT_MINUTES`, `SESSION_ABSOLUTE_TIMEOUT_MINUTES`.
+- Password reset: `PASSWORD_RESET_TOKEN_MINUTES`, `PASSWORD_RESET_REQUESTS_PER_HOUR`, `ENABLE_PASSWORD_RECOVERY`, `SMTP_*`.
+- Seguridad: `JWT_SECRET`, `JWT_ISSUER`, `JWT_AUDIENCE`, `PASSWORD_MIN_LENGTH`, `CORS_ALLOWED_ORIGINS`.
 - Cookies: `COOKIE_SECURE`, `COOKIE_SAMESITE`, `COOKIE_DOMAIN`.
-- CORS: `CORS_ALLOWED_ORIGINS`.
 
 ## Flujos
+- Login: `POST /api/auth/login`
+- Refresh: `POST /api/auth/refresh`
+- Logout: `POST /api/auth/logout`, `POST /api/auth/logout-all`
+- Perfil: `GET /api/auth/me`
+- Forgot password: `POST /api/auth/forgot-password`
+- Reset password: `POST /api/auth/reset-password`
+- Change password: `POST /api/auth/change-password`
 
-- `/` login
-- `/forgot-password.html` solicitar reset
-- `/reset-password.html?token=...` reset
-- `/change-password.html` cambio autenticado
+## Aislamiento de tenants
+- Usuarios se identifican por `tenant_id + email_normalized`.
+- Tokens, sesiones y resets se validan contra `tenant_id`.
+- No hay reutilización cross-tenant de tokens de reset ni de sesiones.
 
-## Ejecutar
-
-```bash
-cp .env.example .env
-docker compose up --build
-```
+## Producción
+1. Configura `ENVIRONMENT=production`.
+2. Usa `JWT_SECRET` robusto y `SUPERADMIN_PASSWORD` no default.
+3. Define `CORS_ALLOWED_ORIGINS` explícito (nunca `*`).
+4. Activa `COOKIE_SECURE=true` detrás de HTTPS.
+5. Configura SMTP real y monitoreo de auditoría/rate-limit.
