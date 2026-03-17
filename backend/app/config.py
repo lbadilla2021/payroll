@@ -36,8 +36,8 @@ class Settings(BaseSettings):
 
     smtp_host: str = 'localhost'
     smtp_port: int = 587
-    smtp_username: str = ''
-    smtp_password: str = ''
+    smtp_username: str = 'mailhog'
+    smtp_password: str = 'mailhog'
     smtp_from: str = 'no-reply@payroll.local'
     smtp_from_name: str = 'Payroll Security'
     smtp_use_tls: bool = True

@@ -60,8 +60,20 @@ class ChangePasswordRequest(BaseModel):
         return self
 
 
-class LogoutRequest(BaseModel):
-    all_sessions: bool = False
+class GenericMessage(BaseModel):
+    message: str
+
+
+class UserInfo(BaseModel):
+    id: int
+    tenant_id: Optional[int]
+    email_normalized: str
+    full_name: str
+    is_superadmin: bool
+    is_tenant_admin: bool
+
+    class Config:
+        from_attributes = True
 
 
 class GenericMessage(BaseModel):

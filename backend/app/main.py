@@ -9,16 +9,15 @@ from app import audit
 from app.config import settings
 from app.database import get_db
 from app.deps import get_current_session, get_current_user, require_superadmin, resolve_tenant_context
-from app.email_service import send_password_reset_email
+from app.email_utils import send_password_reset_email
 from app.models import PasswordResetToken, Tenant, User, UserSession
-from app.rate_limit import allow_forgot_password, allow_login
+from app.rate_limit import check_forgot_limits, check_login_limits, check_reset_limits
 from app.schemas import (
     AuthResponse,
     ChangePasswordRequest,
     ForgotPasswordRequest,
     GenericMessage,
     LoginRequest,
-    LogoutRequest,
     ResetPasswordRequest,
     TenantCreate,
     TenantOut,
@@ -83,12 +82,7 @@ def enforce_password_policy_or_raise(password: str):
 
 
 def build_auth_response(user: User, session: UserSession, response: Response, refresh_token: str) -> AuthResponse:
-    access = create_access_token(
-        user_id=user.id,
-        tenant_id=user.tenant_id,
-        session_id=session.id,
-        auth_version=user.auth_version,
-    )
+    access = create_access_token(user_id=user.id, tenant_id=user.tenant_id, session_id=session.id, auth_version=user.auth_version)
     response.set_cookie(
         key='refresh_token',
         value=refresh_token,
@@ -132,7 +126,11 @@ def login(payload: LoginRequest, request: Request, response: Response, db: Sessi
     tenant = resolve_tenant_context(request, payload.tenant_code, db)
     tenant_bucket = tenant.code if tenant else (payload.tenant_code or 'none').lower()
     ip = request.client.host if request.client else 'unknown'
-    if not allow_login(ip, tenant_bucket, payload.email):
+
+    allowed, blocked_dim = check_login_limits(db, ip=ip, tenant_bucket=tenant_bucket, email=payload.email)
+    if not allowed:
+        audit.rate_limit_block(db, request=request, reason=f'login_{blocked_dim}', tenant_id=tenant.id if tenant else None, email_input=payload.email)
+        db.commit()
         raise HTTPException(status_code=429, detail='Demasiados intentos')
 
     generic_error = HTTPException(status_code=401, detail='Credenciales inválidas')
@@ -141,11 +139,7 @@ def login(payload: LoginRequest, request: Request, response: Response, db: Sessi
         db.commit()
         raise generic_error
 
-    user = (
-        db.query(User)
-        .filter(User.tenant_id == tenant.id, User.email_normalized == payload.email.lower(), User.is_active.is_(True))
-        .first()
-    )
+    user = db.query(User).filter(User.tenant_id == tenant.id, User.email_normalized == payload.email.lower(), User.is_active.is_(True)).first()
     if not user:
         audit.login_failure(db, request=request, reason='invalid_credentials', tenant_id=tenant.id, email_input=payload.email)
         db.commit()
@@ -190,6 +184,7 @@ def refresh(request: Request, response: Response, db: Session = Depends(get_db))
 
     session.revoked_at = now
     session.revoke_reason = 'rotated'
+    audit.session_revoked(db, request=request, tenant_id=user.tenant_id, user_id=user.id, reason='rotated')
     new_session, new_refresh = create_session(db, user, request, rotated_from=session.id)
     audit.refresh_success(db, request=request, tenant_id=user.tenant_id, user_id=user.id)
     db.commit()
@@ -205,18 +200,12 @@ def me(current_user: User = Depends(get_current_user), session: UserSession = De
 
 
 @app.post('/api/auth/logout', response_model=GenericMessage)
-def logout(payload: LogoutRequest, request: Request, response: Response, current_user: User = Depends(get_current_user), session: UserSession = Depends(get_current_session), db: Session = Depends(get_db)):
+def logout(request: Request, response: Response, current_user: User = Depends(get_current_user), session: UserSession = Depends(get_current_session), db: Session = Depends(get_db)):
     now = now_utc()
-    if payload.all_sessions:
-        db.query(UserSession).filter(UserSession.user_id == current_user.id, UserSession.tenant_id == current_user.tenant_id, UserSession.revoked_at.is_(None)).update({'revoked_at': now, 'revoke_reason': 'logout_all'})
-        audit.logout_all(db, request=request, tenant_id=current_user.tenant_id, user_id=current_user.id)
-        audit.session_revoked(db, request=request, tenant_id=current_user.tenant_id, user_id=current_user.id, reason='logout_all')
-    else:
-        session.revoked_at = now
-        session.revoke_reason = 'logout'
-        audit.logout(db, request=request, tenant_id=current_user.tenant_id, user_id=current_user.id)
-        audit.session_revoked(db, request=request, tenant_id=current_user.tenant_id, user_id=current_user.id, reason='logout')
-
+    session.revoked_at = now
+    session.revoke_reason = 'logout'
+    audit.logout(db, request=request, tenant_id=current_user.tenant_id, user_id=current_user.id)
+    audit.session_revoked(db, request=request, tenant_id=current_user.tenant_id, user_id=current_user.id, reason='logout')
     response.delete_cookie('refresh_token', path='/api/auth', domain=settings.cookie_domain)
     db.commit()
     return GenericMessage(message='Sesión cerrada')
@@ -239,15 +228,15 @@ def forgot_password(payload: ForgotPasswordRequest, request: Request, db: Sessio
     tenant_bucket = tenant.code if tenant else (payload.tenant_code or 'none').lower()
     ip = request.client.host if request.client else 'unknown'
 
-    if not allow_forgot_password(ip, tenant_bucket, payload.email):
+    allowed, blocked_dim = check_forgot_limits(db, ip=ip, tenant_bucket=tenant_bucket, email=payload.email)
+    if not allowed:
+        audit.rate_limit_block(db, request=request, reason=f'forgot_{blocked_dim}', tenant_id=tenant.id if tenant else None, email_input=payload.email)
+        db.commit()
         raise HTTPException(status_code=429, detail='Demasiadas solicitudes')
 
+    user = None
     if tenant:
-        user = (
-            db.query(User)
-            .filter(User.tenant_id == tenant.id, User.email_normalized == payload.email.lower(), User.is_active.is_(True))
-            .first()
-        )
+        user = db.query(User).filter(User.tenant_id == tenant.id, User.email_normalized == payload.email.lower(), User.is_active.is_(True)).first()
         if user and settings.enable_password_recovery:
             db.query(PasswordResetToken).filter(PasswordResetToken.user_id == user.id, PasswordResetToken.used_at.is_(None)).update({'used_at': now_utc()})
             raw = generate_reset_token()
@@ -264,7 +253,7 @@ def forgot_password(payload: ForgotPasswordRequest, request: Request, db: Sessio
             reset_link = f"{settings.app_base_url}/reset-password.html?token={raw}"
             send_password_reset_email(user.email_normalized, tenant.name, reset_link, settings.password_reset_token_minutes)
 
-    audit.forgot_password_requested(db, request=request, tenant_id=tenant.id if tenant else None, email_input=payload.email)
+    audit.forgot_password_requested(db, request=request, tenant_id=tenant.id if tenant else None, user_id=user.id if user else None, email_input=payload.email)
     db.commit()
     return GenericMessage(message='Si la cuenta existe, recibirás un correo con instrucciones.')
 
@@ -272,6 +261,14 @@ def forgot_password(payload: ForgotPasswordRequest, request: Request, db: Sessio
 @app.post('/api/auth/reset-password', response_model=GenericMessage)
 def reset_password(payload: ResetPasswordRequest, request: Request, db: Session = Depends(get_db)):
     enforce_password_policy_or_raise(payload.new_password)
+
+    ip = request.client.host if request.client else 'unknown'
+    allowed, blocked_dim = check_reset_limits(db, ip=ip, tenant_bucket='unknown')
+    if not allowed:
+        audit.rate_limit_block(db, request=request, reason=f'reset_{blocked_dim}')
+        db.commit()
+        raise HTTPException(status_code=429, detail='Demasiadas solicitudes')
+
     token_hash = hash_opaque_token(payload.token)
     token_obj = db.query(PasswordResetToken).filter(PasswordResetToken.token_hash == token_hash).first()
     if not token_obj or token_obj.used_at is not None or token_obj.expires_at.replace(tzinfo=timezone.utc) < now_utc():

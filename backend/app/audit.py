@@ -37,18 +37,6 @@ def login_failure(db: Session, *, request: Request, reason: str, tenant_id: int 
     _log(db, request=request, event_type='login_failure', outcome='failure', reason=reason, tenant_id=tenant_id, user_id=user_id, email_input=email_input)
 
 
-def forgot_password_requested(db: Session, *, request: Request, tenant_id: int | None, email_input: str | None) -> None:
-    _log(db, request=request, event_type='forgot_password_requested', outcome='accepted', reason='uniform_response', tenant_id=tenant_id, email_input=email_input)
-
-
-def password_reset_success(db: Session, *, request: Request, tenant_id: int | None, user_id: int | None) -> None:
-    _log(db, request=request, event_type='password_reset_success', outcome='success', tenant_id=tenant_id, user_id=user_id)
-
-
-def password_change_success(db: Session, *, request: Request, tenant_id: int | None, user_id: int | None) -> None:
-    _log(db, request=request, event_type='password_change_success', outcome='success', tenant_id=tenant_id, user_id=user_id)
-
-
 def refresh_success(db: Session, *, request: Request, tenant_id: int | None, user_id: int | None) -> None:
     _log(db, request=request, event_type='refresh_success', outcome='success', tenant_id=tenant_id, user_id=user_id)
 
@@ -59,6 +47,22 @@ def logout(db: Session, *, request: Request, tenant_id: int | None, user_id: int
 
 def logout_all(db: Session, *, request: Request, tenant_id: int | None, user_id: int | None) -> None:
     _log(db, request=request, event_type='logout_all', outcome='success', tenant_id=tenant_id, user_id=user_id)
+
+
+def forgot_password_requested(db: Session, *, request: Request, tenant_id: int | None, user_id: int | None = None, email_input: str | None = None) -> None:
+    _log(db, request=request, event_type='forgot_password_requested', outcome='accepted', reason='uniform_response', tenant_id=tenant_id, user_id=user_id, email_input=email_input)
+
+
+def password_reset_success(db: Session, *, request: Request, tenant_id: int | None, user_id: int | None) -> None:
+    _log(db, request=request, event_type='password_reset_success', outcome='success', tenant_id=tenant_id, user_id=user_id)
+
+
+def password_change_success(db: Session, *, request: Request, tenant_id: int | None, user_id: int | None) -> None:
+    _log(db, request=request, event_type='password_change_success', outcome='success', tenant_id=tenant_id, user_id=user_id)
+
+
+def rate_limit_block(db: Session, *, request: Request, reason: str, tenant_id: int | None = None, user_id: int | None = None, email_input: str | None = None) -> None:
+    _log(db, request=request, event_type='rate_limit_block', outcome='blocked', reason=reason, tenant_id=tenant_id, user_id=user_id, email_input=email_input)
 
 
 def session_revoked(db: Session, *, request: Request, tenant_id: int | None, user_id: int | None, reason: str) -> None:

@@ -82,3 +82,16 @@ class AuthAuditLog(Base):
     ip_address = Column(String(64), nullable=True)
     user_agent = Column(String(512), nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False, index=True)
+
+
+class AuthRateLimitBucket(Base):
+    __tablename__ = 'auth_rate_limit_buckets'
+
+    key = Column(String(255), primary_key=True)
+    count = Column(Integer, nullable=False, default=0)
+    window_started_at = Column(DateTime(timezone=True), nullable=False)
+    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False)
+
+    __table_args__ = (
+        Index('ix_auth_rate_limit_updated_at', 'updated_at'),
+    )

@@ -90,3 +90,12 @@ CREATE INDEX IF NOT EXISTS ix_auth_audit_logs_tenant_id ON auth_audit_logs(tenan
 CREATE INDEX IF NOT EXISTS ix_auth_audit_logs_user_id ON auth_audit_logs(user_id);
 CREATE INDEX IF NOT EXISTS ix_auth_audit_logs_event_type ON auth_audit_logs(event_type);
 CREATE INDEX IF NOT EXISTS ix_auth_audit_logs_created_at ON auth_audit_logs(created_at);
+
+
+CREATE TABLE IF NOT EXISTS auth_rate_limit_buckets (
+    key VARCHAR(255) PRIMARY KEY,
+    count INTEGER NOT NULL DEFAULT 0,
+    window_started_at TIMESTAMPTZ NOT NULL,
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+CREATE INDEX IF NOT EXISTS ix_auth_rate_limit_updated_at ON auth_rate_limit_buckets(updated_at);

@@ -1,31 +1,16 @@
-let accessToken = sessionStorage.getItem('access_token');
 const appMessage = document.getElementById('app-message');
 
-async function refreshSession() {
-  const response = await fetch('/api/auth/refresh', { method: 'POST', credentials: 'include' });
-  if (!response.ok) {
-    sessionStorage.removeItem('access_token');
-    window.location.href = '/';
-    throw new Error('Sesión expirada');
-  }
-  const data = await response.json();
-  accessToken = data.access_token;
-  sessionStorage.setItem('access_token', accessToken);
-}
-
 async function api(path, options = {}) {
-  if (!accessToken) await refreshSession();
-  const response = await fetch(path, {
-    ...options,
-    credentials: 'include',
-    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${accessToken}`, ...(options.headers || {}) },
-  });
-  if (response.status === 401) {
-    await refreshSession();
-    return api(path, options);
+  const res = await window.PayrollSession.fetchWithAuth(path, options);
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    if (res.status === 401) {
+      window.PayrollSession.clear();
+      window.location.href = '/';
+      throw new Error('Sesión expirada');
+    }
+    throw new Error(data.detail || 'Error de API');
   }
-  const data = await response.json().catch(() => ({}));
-  if (!response.ok) throw new Error(data.detail || 'Error de API');
   return data;
 }
 
@@ -36,6 +21,7 @@ function showMessage(text, ok = false) {
 
 async function bootstrapSession() {
   try {
+    await window.PayrollSession.refresh();
     const me = await api('/api/auth/me');
     document.getElementById('me').textContent = me.full_name;
     document.getElementById('profile-email').textContent = me.email_normalized;
@@ -47,9 +33,9 @@ async function bootstrapSession() {
 
 document.getElementById('logout').addEventListener('click', async () => {
   try {
-    await api('/api/auth/logout', { method: 'POST', body: JSON.stringify({ all_sessions: false }) });
+    await api('/api/auth/logout', { method: 'POST' });
   } catch {}
-  sessionStorage.removeItem('access_token');
+  window.PayrollSession.clear();
   window.location.href = '/';
 });
 
