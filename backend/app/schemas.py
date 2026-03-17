@@ -16,79 +16,19 @@ def _normalize_email(value: str) -> str:
 
 
 class LoginRequest(BaseModel):
-    email: str
-    password: str
     tenant_code: Optional[str] = None
-
-    @field_validator('email')
-    @classmethod
-    def validate_email_field(cls, value: str) -> str:
-        return _normalize_email(value)
-
-
-class TokenResponse(BaseModel):
-    access_token: str
-    token_type: str = 'bearer'
-
-
-class UserInfo(BaseModel):
-    id: int
     email: str
-    full_name: str
-    role: str
-    tenant_id: Optional[int]
-
-    class Config:
-        from_attributes = True
-
-
-class TenantCreate(BaseModel):
-    name: str
-    code: str
-
-
-class TenantOut(BaseModel):
-    id: int
-    name: str
-    code: str
-    is_active: bool
-
-    class Config:
-        from_attributes = True
-
-
-class UserCreate(BaseModel):
-    email: str
-    full_name: str
     password: str
-    role: str
-    tenant_id: Optional[int] = None
 
     @field_validator('email')
     @classmethod
     def validate_email_field(cls, value: str) -> str:
         return _normalize_email(value)
-
-
-class UserOut(BaseModel):
-    id: int
-    email: str
-    full_name: str
-    role: str
-    tenant_id: Optional[int]
-    is_active: bool
-
-    class Config:
-        from_attributes = True
-
-
-class GenericMessage(BaseModel):
-    message: str
 
 
 class ForgotPasswordRequest(BaseModel):
-    email: str
     tenant_code: Optional[str] = None
+    email: str
 
     @field_validator('email')
     @classmethod
@@ -120,8 +60,20 @@ class ChangePasswordRequest(BaseModel):
         return self
 
 
-class LogoutRequest(BaseModel):
-    all_sessions: bool = False
+class GenericMessage(BaseModel):
+    message: str
+
+
+class UserInfo(BaseModel):
+    id: int
+    tenant_id: Optional[int]
+    email_normalized: str
+    full_name: str
+    is_superadmin: bool
+    is_tenant_admin: bool
+
+    class Config:
+        from_attributes = True
 
 
 class AuthResponse(BaseModel):
@@ -129,3 +81,43 @@ class AuthResponse(BaseModel):
     token_type: str = 'bearer'
     user: UserInfo
     expires_in_seconds: int = settings.access_token_minutes * 60
+
+
+class TenantCreate(BaseModel):
+    name: str
+    code: str
+
+
+class TenantOut(BaseModel):
+    id: int
+    name: str
+    code: str
+    is_active: bool
+
+    class Config:
+        from_attributes = True
+
+
+class UserCreate(BaseModel):
+    email: str
+    full_name: str
+    password: str
+    tenant_id: int
+
+    @field_validator('email')
+    @classmethod
+    def validate_email_field(cls, value: str) -> str:
+        return _normalize_email(value)
+
+
+class UserOut(BaseModel):
+    id: int
+    tenant_id: Optional[int]
+    email_normalized: str
+    full_name: str
+    is_active: bool
+    is_superadmin: bool
+    is_tenant_admin: bool
+
+    class Config:
+        from_attributes = True

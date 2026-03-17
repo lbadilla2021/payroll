@@ -1,36 +1,29 @@
 const form = document.getElementById('change-form');
 const message = document.getElementById('message');
 
-async function getToken() {
-  let token = sessionStorage.getItem('access_token');
-  if (token) return token;
-  const r = await fetch('/api/auth/refresh', { method: 'POST', credentials: 'include' });
-  if (!r.ok) throw new Error('Sesión expirada');
-  const data = await r.json();
-  sessionStorage.setItem('access_token', data.access_token);
-  return data.access_token;
+async function api(path, options = {}) {
+  const res = await window.PayrollSession.fetchWithAuth(path, options);
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.detail || 'Error');
+  return data;
 }
 
 form.addEventListener('submit', async (event) => {
   event.preventDefault();
   try {
-    const token = await getToken();
+    await window.PayrollSession.refresh();
     const payload = {
       current_password: document.getElementById('current_password').value,
       new_password: document.getElementById('new_password').value,
       new_password_confirm: document.getElementById('new_password_confirm').value,
     };
-    const res = await fetch('/api/auth/change-password', {
+    const data = await api('/api/auth/change-password', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
       body: JSON.stringify(payload),
-      credentials: 'include',
     });
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.detail || 'Error');
     message.style.color = '#12b76a';
     message.textContent = data.message;
-    sessionStorage.removeItem('access_token');
+    window.PayrollSession.clear();
   } catch (e) {
     message.style.color = '#b42318';
     message.textContent = e.message;
