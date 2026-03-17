@@ -5,7 +5,7 @@ from sqlalchemy import text
 from sqlalchemy.exc import OperationalError
 
 from app.config import settings
-from app.database import engine, SessionLocal
+from app.database import SessionLocal, engine
 from app.models import User
 from app.security import hash_password, verify_password
 
@@ -24,24 +24,20 @@ def wait_for_db(max_retries: int = 30, delay_s: int = 2) -> None:
 def _split_sql_statements(sql: str) -> list[str]:
     statements: list[str] = []
     current: list[str] = []
-
     for line in sql.splitlines():
         stripped = line.strip()
         if not stripped or stripped.startswith('--'):
             continue
-
         current.append(line)
         if stripped.endswith(';'):
             statement = '\n'.join(current).strip().rstrip(';').strip()
             if statement:
                 statements.append(statement)
             current = []
-
     if current:
         statement = '\n'.join(current).strip().rstrip(';').strip()
         if statement:
             statements.append(statement)
-
     return statements
 
 
@@ -57,20 +53,10 @@ def run_migrations() -> None:
 def ensure_superadmin() -> None:
     db = SessionLocal()
     try:
-        existing = db.query(User).filter(User.email == settings.superadmin_email).first()
+        existing = db.query(User).filter(User.email == settings.superadmin_email, User.role == 'superadmin').first()
         if existing:
-            try:
-                password_matches = verify_password(settings.superadmin_password, existing.password_hash)
-            except Exception:
-                password_matches = False
-
-            needs_update = (
-                not password_matches
-                or existing.role != 'superadmin'
-                or existing.tenant_id is not None
-                or not existing.is_active
-            )
-            if needs_update:
+            valid, _ = verify_password(settings.superadmin_password, existing.password_hash)
+            if not valid or existing.tenant_id is not None or not existing.is_active:
                 existing.full_name = 'Super Admin'
                 existing.password_hash = hash_password(settings.superadmin_password)
                 existing.role = 'superadmin'
@@ -80,7 +66,7 @@ def ensure_superadmin() -> None:
             return
 
         user = User(
-            email=settings.superadmin_email,
+            email=settings.superadmin_email.lower(),
             full_name='Super Admin',
             password_hash=hash_password(settings.superadmin_password),
             role='superadmin',
