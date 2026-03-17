@@ -4,6 +4,7 @@ const meEl = document.getElementById('me');
 const tenantSelect = document.getElementById('tenant-select');
 const profileTrigger = document.getElementById('profile-trigger') || document.querySelector('.profile-trigger');
 const profileMenu = document.getElementById('profile-menu') || document.querySelector('.profile-menu');
+const profileArea = document.querySelector('.profile-area');
 const profileInitial = document.getElementById('profile-initial');
 const profileEmail = document.getElementById('profile-email');
 const profileName = document.getElementById('profile-name');
@@ -144,15 +145,26 @@ document.querySelectorAll('.menu-item[data-view]').forEach((button) => {
   });
 });
 
-if (profileTrigger && profileMenu) {
-  profileTrigger.addEventListener('click', (event) => {
+if (profileArea && profileMenu) {
+  const setProfileMenuOpen = (open) => {
+    profileArea.classList.toggle('open', open);
+    profileMenu.classList.toggle('hidden', !open);
+    if (profileTrigger) profileTrigger.setAttribute('aria-expanded', open ? 'true' : 'false');
+  };
+
+  setProfileMenuOpen(false);
+
+  profileArea.addEventListener('click', (event) => {
+    const trigger = event.target.closest('#profile-trigger, .profile-trigger');
+    if (!trigger) return;
+    event.preventDefault();
     event.stopPropagation();
-    profileMenu.classList.toggle('hidden');
+    setProfileMenuOpen(profileMenu.classList.contains('hidden'));
   });
 
   document.addEventListener('click', (event) => {
-    if (!profileMenu.classList.contains('hidden') && !profileMenu.contains(event.target) && !profileTrigger.contains(event.target)) {
-      if (profileMenu) profileMenu.classList.add('hidden');
+    if (!profileArea.contains(event.target)) {
+      setProfileMenuOpen(false);
     }
   });
 }

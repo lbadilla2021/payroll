@@ -19,7 +19,7 @@
         </div>
 
         <div class="profile-area">
-          <button id="profile-trigger" class="profile-trigger" aria-label="Abrir menú de perfil">
+          <button type="button" id="profile-trigger" class="profile-trigger" aria-label="Abrir menú de perfil" aria-expanded="false">
             <span id="profile-initial" class="profile-initial">S</span>
             <span class="profile-meta">
               <span id="profile-trigger-name" class="profile-trigger-name">Super Admin</span>
@@ -38,7 +38,7 @@
 
             <div class="profile-divider"></div>
 
-            <button id="profile-config" class="profile-menu-item">
+            <button type="button" id="profile-config" class="profile-menu-item">
               <span class="menu-icon" aria-hidden="true">
                 <svg viewBox="0 0 24 24" fill="none"><path d="M12 8.5a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7Zm8 3.5-.9-.4a7.8 7.8 0 0 0-.4-1l.5-.9-1.8-1.8-.9.5a7.8 7.8 0 0 0-1-.4L15 5h-3l-.4.9a7.8 7.8 0 0 0-1 .4l-.9-.5-1.8 1.8.5.9a7.8 7.8 0 0 0-.4 1L4 12l.9.4a7.8 7.8 0 0 0 .4 1l-.5.9 1.8 1.8.9-.5a7.8 7.8 0 0 0 1 .4L9 19h3l.4-.9a7.8 7.8 0 0 0 1-.4l.9.5 1.8-1.8-.5-.9a7.8 7.8 0 0 0 .4-1L20 12Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>
               </span>
@@ -53,19 +53,19 @@
               </label>
             </div>
 
-            <button id="profile-help" class="profile-menu-item with-arrow">
+            <button type="button" id="profile-help" class="profile-menu-item with-arrow">
               <span class="menu-inline-label"><span class="menu-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.6"/><path d="M9.8 9.3a2.4 2.4 0 1 1 3.9 2c-.9.7-1.7 1.1-1.7 2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><circle cx="12" cy="16.7" r=".8" fill="currentColor"/></svg></span>Ayuda</span>
               <span>›</span>
             </button>
 
-            <button id="profile-password" class="profile-menu-item with-arrow">
+            <button type="button" id="profile-password" class="profile-menu-item with-arrow">
               <span class="menu-inline-label"><span class="menu-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><rect x="5" y="11" width="14" height="9" rx="2" stroke="currentColor" stroke-width="1.6"/><path d="M8.5 11V8.8a3.5 3.5 0 1 1 7 0V11" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><circle cx="12" cy="15.5" r="1" fill="currentColor"/></svg></span>Cambiar Contraseña</span>
               <span>›</span>
             </button>
 
             <div class="profile-divider"></div>
 
-            <button id="logout" class="profile-menu-item danger">
+            <button type="button" id="logout" class="profile-menu-item danger">
               <span class="menu-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M10 7H6a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><path d="M14 8l4 4-4 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M18 12H9" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></span>
               <span>Cerrar Sesión</span>
             </button>
