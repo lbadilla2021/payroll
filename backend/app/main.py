@@ -48,7 +48,16 @@ app.add_middleware(
 )
 
 rate_windows = defaultdict(deque)
-blocklist = {line.strip().lower() for line in Path(settings.blocklist_path).read_text(encoding='utf-8').splitlines() if line.strip()}
+
+
+def load_password_blocklist() -> set[str]:
+    path = Path(settings.blocklist_path)
+    if not path.exists():
+        return set()
+    return {line.strip().lower() for line in path.read_text(encoding='utf-8').splitlines() if line.strip()}
+
+
+blocklist = load_password_blocklist()
 
 
 def now_utc():

@@ -20,7 +20,7 @@ class Settings(BaseSettings):
     password_reset_requests_per_hour: int = 5
 
     password_min_length: int = 12
-    blocklist_path: str = 'backend/app/security/password_blocklist.txt'
+    blocklist_path: str = 'app/security/password_blocklist.txt'
     allow_global_email_uniqueness: bool = False
 
     smtp_host: str = 'localhost'

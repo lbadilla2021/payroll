@@ -21,6 +21,14 @@ CREATE TABLE IF NOT EXISTS users (
     CONSTRAINT ck_users_role_tenant CHECK ((role = 'superadmin' AND tenant_id IS NULL) OR (role = 'tenant_admin' AND tenant_id IS NOT NULL))
 );
 
+-- Backward-compatible hardening for databases created before auth/session redesign.
+ALTER TABLE users ADD COLUMN IF NOT EXISTS auth_version INTEGER NOT NULL DEFAULT 0;
+ALTER TABLE users ADD COLUMN IF NOT EXISTS password_changed_at TIMESTAMPTZ NOT NULL DEFAULT NOW();
+
+-- Old schema used global unique(email); drop it to allow strict tenant-scoped uniqueness.
+ALTER TABLE users DROP CONSTRAINT IF EXISTS users_email_key;
+DROP INDEX IF EXISTS uq_users_email;
+
 CREATE UNIQUE INDEX IF NOT EXISTS uq_users_tenant_email ON users(tenant_id, email) WHERE tenant_id IS NOT NULL;
 CREATE UNIQUE INDEX IF NOT EXISTS uq_superadmin_email ON users(email) WHERE tenant_id IS NULL;
 CREATE INDEX IF NOT EXISTS ix_users_email ON users(email);
