@@ -20,12 +20,12 @@ form.addEventListener('submit', async (event) => {
     });
 
     const data = await response.json().catch(() => ({}));
-    if (!response.ok) {
+    if (!response.ok || !data.access_token) {
       message.textContent = 'No fue posible iniciar sesión con esos datos.';
       return;
     }
 
-    window.PayrollSession.setToken(data.access_token);
+    window.PayrollSession.setAccessToken(data.access_token);
     window.location.href = '/app.html';
   } catch {
     message.textContent = 'No fue posible iniciar sesión con esos datos.';
