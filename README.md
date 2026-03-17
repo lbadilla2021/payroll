@@ -1,44 +1,40 @@
-# Payroll Chile (base mínima)
+# Payroll Chile
 
-Proyecto mínimo dockerizado para gestión multitenant con:
+Base FastAPI + PostgreSQL + frontend vanilla para payroll multitenant con seguridad reforzada.
 
-- Backend: Python + FastAPI + PostgreSQL
-- Frontend: HTML + CSS + JavaScript vanilla
-- Autenticación JWT
-- Superadmin con panel para crear tenants y usuarios por tenant
+## Cambios de seguridad implementados
 
-## Estructura
+- Login tenant-aware (`tenant_code`, header `X-Tenant-Code` o subdominio).
+- Sesiones robustas: access token corto + refresh token rotativo en cookie `HttpOnly`.
+- Expiración por inactividad y expiración absoluta de sesión configurables.
+- Recuperación de contraseña con token de un solo uso almacenado como hash.
+- Cambio de contraseña autenticado con invalidación de sesiones activas.
+- Auditoría de eventos críticos (`auth_audit_logs`).
+- Rate limiting en login y forgot password por IP/cuenta/tenant.
+- Endurecimiento de CORS (no abierto por defecto).
+- Multi-tenant isolation por diseño (`users` único por `(tenant_id,email)`).
 
-- `backend/`: API y migraciones SQL.
-- `frontend/`: login y panel principal.
+## Variables de entorno
 
-## Levantar el entorno
+Ver `.env.example` para configuración completa:
+- Tokens/sesión: `ACCESS_TOKEN_MINUTES`, `REFRESH_TOKEN_DAYS`, `SESSION_IDLE_TIMEOUT_MINUTES`, `SESSION_ABSOLUTE_TIMEOUT_DAYS`.
+- Password reset: `PASSWORD_RESET_TOKEN_MINUTES`, `PASSWORD_RESET_REQUESTS_PER_HOUR`.
+- Login throttling: `LOGIN_MAX_ATTEMPTS`, `LOGIN_WINDOW_MINUTES`.
+- Password policy: `PASSWORD_MIN_LENGTH`, `BLOCKLIST_PATH`.
+- SMTP: `SMTP_*` y `APP_BASE_URL`.
+- Cookies: `COOKIE_SECURE`, `COOKIE_SAMESITE`, `COOKIE_DOMAIN`.
+- CORS: `CORS_ALLOWED_ORIGINS`.
+
+## Flujos
+
+- `/` login
+- `/forgot-password.html` solicitar reset
+- `/reset-password.html?token=...` reset
+- `/change-password.html` cambio autenticado
+
+## Ejecutar
 
 ```bash
 cp .env.example .env
 docker compose up --build
 ```
-
-Aplicación en `http://localhost:8080`.
-
-## Credenciales iniciales
-
-Se crea/actualiza automáticamente un superadmin al iniciar el backend:
-
-- Email: `SUPERADMIN_EMAIL` (por defecto `superadmin@payroll.local`)
-- Password: `SUPERADMIN_PASSWORD` (por defecto `admin123`)
-
-## Migraciones
-
-Las migraciones SQL se ejecutan al inicio desde `backend/migrations/*.sql`.
-
-## Si aparece `HTTP 502` al autenticar
-
-Generalmente indica que el backend no está sano todavía.
-
-```bash
-docker compose ps
-docker compose logs -f backend frontend
-```
-
-Si cambiaste credenciales y tienes volumen viejo de Postgres, vuelve a levantar para que el init script reconcilie el superadmin con el `.env` actual.
