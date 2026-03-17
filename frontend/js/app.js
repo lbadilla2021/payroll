@@ -128,45 +128,10 @@ document.getElementById('user-form').addEventListener('submit', async (event) =>
   }
 });
 
-document.querySelectorAll('.menu-item[data-view]').forEach((button) => {
-  button.addEventListener('click', async () => {
-    document.querySelectorAll('.menu-item[data-view]').forEach((item) => item.classList.remove('active'));
-    button.classList.add('active');
-
-    const view = button.dataset.view;
-    document.getElementById('view-title').textContent = view === 'tenants' ? 'Crear tenant' : 'Crear usuario tenant';
-    document.getElementById('view-tenants').classList.toggle('hidden', view !== 'tenants');
-    document.getElementById('view-users').classList.toggle('hidden', view !== 'users');
-
-    if (view === 'users') {
-      await loadTenants();
-    }
-  });
-});
-
-profileTrigger.addEventListener('click', (event) => {
-  event.stopPropagation();
-  profileMenu.classList.toggle('hidden');
-});
-
-document.addEventListener('click', (event) => {
-  if (!profileMenu.classList.contains('hidden') && !profileMenu.contains(event.target) && !profileTrigger.contains(event.target)) {
-    profileMenu.classList.add('hidden');
-  }
-});
-
-themeToggle.addEventListener('change', () => {
-  applyTheme(themeToggle.checked ? 'dark' : 'light');
-});
-
-document.getElementById('profile-config').addEventListener('click', () => {
-  showMessage('Configuración estará disponible próximamente.', false);
-  profileMenu.classList.add('hidden');
-});
-
-document.getElementById('profile-help').addEventListener('click', () => {
-  showMessage('Ayuda: contacta al equipo de plataforma de remuneraciones.', false);
-  profileMenu.classList.add('hidden');
+document.getElementById('logout').addEventListener('click', async () => {
+  try { await api('/api/auth/logout', { method: 'POST', body: JSON.stringify({ all_sessions: false }) }); } catch {}
+  sessionStorage.removeItem('access_token');
+  window.location.href = '/';
 });
 
 document.getElementById('profile-password').addEventListener('click', () => {
@@ -181,6 +146,5 @@ document.getElementById('logout').addEventListener('click', async () => {
   window.location.href = '/';
 });
 
-initTheme();
 loadMe();
 loadTenants().catch(() => null);
