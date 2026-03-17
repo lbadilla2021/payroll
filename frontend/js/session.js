@@ -1,53 +1,89 @@
 window.PayrollSession = (() => {
   let accessToken = null;
 
-  const setToken = (token) => {
+  function setAccessToken(token) {
     accessToken = token || null;
-  };
-
-  const clear = () => {
-    accessToken = null;
-  };
-
-  const authHeaders = (extra = {}) => ({
-    'Content-Type': 'application/json',
-    ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
-    ...extra,
-  });
-
-  async function refresh() {
-    const res = await fetch('/api/auth/refresh', { method: 'POST', credentials: 'include' });
-    if (!res.ok) {
-      clear();
-      throw new Error('Sesión expirada');
-    }
-    const data = await res.json();
-    setToken(data.access_token);
-    return data;
   }
 
-  async function fetchWithAuth(path, options = {}) {
-    if (!accessToken) {
-      await refresh();
-    }
+  function getAccessToken() {
+    return accessToken;
+  }
 
-    let res = await fetch(path, {
-      ...options,
+  function clearSession() {
+    accessToken = null;
+  }
+
+  function redirectToLogin() {
+    window.location.href = '/';
+  }
+
+  function withAuthHeaders(headers = {}, token = accessToken) {
+    const normalized = new Headers(headers);
+    if (token) {
+      normalized.set('Authorization', `Bearer ${token}`);
+    }
+    return normalized;
+  }
+
+  async function refreshAccessToken() {
+    const refreshResponse = await fetch('/api/auth/refresh', {
+      method: 'POST',
       credentials: 'include',
-      headers: authHeaders(options.headers || {}),
     });
 
-    if (res.status === 401) {
-      await refresh();
-      res = await fetch(path, {
-        ...options,
-        credentials: 'include',
-        headers: authHeaders(options.headers || {}),
-      });
+    if (!refreshResponse.ok) {
+      clearSession();
+      throw new Error('Sesión expirada');
     }
 
-    return res;
+    const data = await refreshResponse.json().catch(() => ({}));
+    if (!data.access_token) {
+      clearSession();
+      throw new Error('Sesión inválida');
+    }
+
+    setAccessToken(data.access_token);
+    return data.access_token;
   }
 
-  return { setToken, clear, refresh, fetchWithAuth };
+  async function fetchWithAuth(url, options = {}) {
+    const token = getAccessToken();
+
+    let response = await fetch(url, {
+      ...options,
+      headers: withAuthHeaders(options.headers || {}, token),
+      credentials: 'include',
+    });
+
+    if (response.status === 401) {
+      try {
+        const freshToken = await refreshAccessToken();
+        response = await fetch(url, {
+          ...options,
+          headers: withAuthHeaders(options.headers || {}, freshToken),
+          credentials: 'include',
+        });
+      } catch {
+        clearSession();
+        redirectToLogin();
+        throw new Error('Sesión expirada');
+      }
+
+      if (response.status === 401) {
+        clearSession();
+        redirectToLogin();
+        throw new Error('Sesión expirada');
+      }
+    }
+
+    return response;
+  }
+
+  return {
+    setAccessToken,
+    getAccessToken,
+    clearSession,
+    refreshAccessToken,
+    fetchWithAuth,
+  };
 })();
