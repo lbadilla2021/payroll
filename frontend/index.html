@@ -10,22 +10,20 @@
     <main class="login-shell">
       <section class="login-hero">
         <h1>Payroll Chile</h1>
-        <p>
-          Plataforma de remuneraciones para Chile. Administra tenants, usuarios y operación centralizada
-          desde un único acceso superadmin.
-        </p>
+        <p>Plataforma segura de remuneraciones multitenant.</p>
       </section>
-
       <section class="login-card">
         <h2>Iniciar sesión</h2>
-        <p class="muted">Acceso al panel de administración</p>
         <form id="login-form">
+          <label>Tenant code</label>
+          <input type="text" id="tenant_code" placeholder="acme" />
           <label>Email</label>
           <input type="email" id="email" required />
           <label>Contraseña</label>
           <input type="password" id="password" required />
           <button type="submit">Ingresar</button>
         </form>
+        <p><a href="/forgot-password.html">Olvidé mi contraseña</a></p>
         <p id="message" class="message"></p>
       </section>
     </main>
