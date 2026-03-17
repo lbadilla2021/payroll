@@ -76,6 +76,22 @@ class UserInfo(BaseModel):
         from_attributes = True
 
 
+class GenericMessage(BaseModel):
+    message: str
+
+
+class UserInfo(BaseModel):
+    id: int
+    tenant_id: Optional[int]
+    email_normalized: str
+    full_name: str
+    is_superadmin: bool
+    is_tenant_admin: bool
+
+    class Config:
+        from_attributes = True
+
+
 class AuthResponse(BaseModel):
     access_token: str
     token_type: str = 'bearer'
