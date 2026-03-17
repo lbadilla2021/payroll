@@ -2,8 +2,8 @@ let token = sessionStorage.getItem('access_token');
 const appMessage = document.getElementById('app-message');
 const meEl = document.getElementById('me');
 const tenantSelect = document.getElementById('tenant-select');
-const profileTrigger = document.getElementById('profile-trigger');
-const profileMenu = document.getElementById('profile-menu');
+const profileTrigger = document.getElementById('profile-trigger') || document.querySelector('.profile-trigger');
+const profileMenu = document.getElementById('profile-menu') || document.querySelector('.profile-menu');
 const profileInitial = document.getElementById('profile-initial');
 const profileEmail = document.getElementById('profile-email');
 const profileName = document.getElementById('profile-name');
@@ -61,7 +61,7 @@ function getInitial(fullName, email) {
 function applyTheme(theme) {
   const darkEnabled = theme === 'dark';
   document.body.classList.toggle('dark', darkEnabled);
-  themeToggle.checked = darkEnabled;
+  if (themeToggle) themeToggle.checked = darkEnabled;
   localStorage.setItem('theme', darkEnabled ? 'dark' : 'light');
 }
 
@@ -128,10 +128,49 @@ document.getElementById('user-form').addEventListener('submit', async (event) =>
   }
 });
 
-document.getElementById('logout').addEventListener('click', async () => {
-  try { await api('/api/auth/logout', { method: 'POST', body: JSON.stringify({ all_sessions: false }) }); } catch {}
-  sessionStorage.removeItem('access_token');
-  window.location.href = '/';
+document.querySelectorAll('.menu-item[data-view]').forEach((button) => {
+  button.addEventListener('click', async () => {
+    document.querySelectorAll('.menu-item[data-view]').forEach((item) => item.classList.remove('active'));
+    button.classList.add('active');
+
+    const view = button.dataset.view;
+    document.getElementById('view-title').textContent = view === 'tenants' ? 'Crear tenant' : 'Crear usuario tenant';
+    document.getElementById('view-tenants').classList.toggle('hidden', view !== 'tenants');
+    document.getElementById('view-users').classList.toggle('hidden', view !== 'users');
+
+    if (view === 'users') {
+      await loadTenants();
+    }
+  });
+});
+
+if (profileTrigger && profileMenu) {
+  profileTrigger.addEventListener('click', (event) => {
+    event.stopPropagation();
+    profileMenu.classList.toggle('hidden');
+  });
+
+  document.addEventListener('click', (event) => {
+    if (!profileMenu.classList.contains('hidden') && !profileMenu.contains(event.target) && !profileTrigger.contains(event.target)) {
+      if (profileMenu) profileMenu.classList.add('hidden');
+    }
+  });
+}
+
+if (themeToggle) {
+  themeToggle.addEventListener('change', () => {
+    applyTheme(themeToggle.checked ? 'dark' : 'light');
+  });
+}
+
+document.getElementById('profile-config').addEventListener('click', () => {
+  showMessage('Configuración estará disponible próximamente.', false);
+  if (profileMenu) profileMenu.classList.add('hidden');
+});
+
+document.getElementById('profile-help').addEventListener('click', () => {
+  showMessage('Ayuda: contacta al equipo de plataforma de remuneraciones.', false);
+  if (profileMenu) profileMenu.classList.add('hidden');
 });
 
 document.getElementById('profile-password').addEventListener('click', () => {
