@@ -185,6 +185,5 @@ document.getElementById('logout').addEventListener('click', async () => {
   window.location.href = '/';
 });
 
-initTheme();
 loadMe();
 loadTenants().catch(() => null);
