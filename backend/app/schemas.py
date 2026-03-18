@@ -1,7 +1,7 @@
 import re
 from typing import Optional
 
-from pydantic import BaseModel, field_validator, model_validator
+from pydantic import BaseModel, ConfigDict, field_validator, model_validator
 
 from app.config import settings
 
@@ -65,31 +65,14 @@ class GenericMessage(BaseModel):
 
 
 class UserInfo(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     id: int
     tenant_id: Optional[int]
     email_normalized: str
     full_name: str
     is_superadmin: bool
     is_tenant_admin: bool
-
-    class Config:
-        from_attributes = True
-
-
-class GenericMessage(BaseModel):
-    message: str
-
-
-class UserInfo(BaseModel):
-    id: int
-    tenant_id: Optional[int]
-    email_normalized: str
-    full_name: str
-    is_superadmin: bool
-    is_tenant_admin: bool
-
-    class Config:
-        from_attributes = True
 
 
 class AuthResponse(BaseModel):
@@ -105,13 +88,12 @@ class TenantCreate(BaseModel):
 
 
 class TenantOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     id: int
     name: str
     code: str
     is_active: bool
-
-    class Config:
-        from_attributes = True
 
 
 class UserCreate(BaseModel):
@@ -127,6 +109,8 @@ class UserCreate(BaseModel):
 
 
 class UserOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     id: int
     tenant_id: Optional[int]
     email_normalized: str
@@ -134,6 +118,3 @@ class UserOut(BaseModel):
     is_active: bool
     is_superadmin: bool
     is_tenant_admin: bool
-
-    class Config:
-        from_attributes = True

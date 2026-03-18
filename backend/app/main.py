@@ -1,13 +1,15 @@
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
+from contextlib import asynccontextmanager
+
 from fastapi import Depends, FastAPI, HTTPException, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 
 from app import audit
 from app.config import settings
-from app.database import get_db
+from app.database import Base, engine, get_db
 from app.deps import get_current_session, get_current_user, require_superadmin, resolve_tenant_context
 from app.email_utils import send_password_reset_email
 from app.models import PasswordResetToken, Tenant, User, UserSession
@@ -37,7 +39,13 @@ from app.security import (
     verify_password,
 )
 
-app = FastAPI(title='Payroll Chile API')
+@asynccontextmanager
+async def lifespan(_: FastAPI):
+    Base.metadata.create_all(bind=engine)
+    yield
+
+
+app = FastAPI(title='Payroll Chile API', lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,
