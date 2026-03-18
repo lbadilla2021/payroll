@@ -28,7 +28,6 @@ def ensure_superadmin() -> None:
 
         user = User(
             tenant_id=None,
-            email=raw_email,
             email_normalized=normalized_email,
             full_name='Super Admin',
             password_hash=hash_password(settings.superadmin_password),

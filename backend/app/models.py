@@ -1,4 +1,4 @@
-from sqlalchemy import Boolean, Column, DateTime, ForeignKey, Index, Integer, String, Text, UniqueConstraint
+from sqlalchemy import Boolean, Column, DateTime, ForeignKey, Index, Integer, String, UniqueConstraint
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 
@@ -9,11 +9,10 @@ class Tenant(Base):
     __tablename__ = 'tenants'
 
     id = Column(Integer, primary_key=True, index=True)
-    name = Column(String(255), nullable=False)
-    code = Column(String(100), nullable=False, unique=True, index=True)
+    name = Column(String(120), nullable=False, unique=True)
+    code = Column(String(64), nullable=False, unique=True, index=True)
     is_active = Column(Boolean, nullable=False, default=True)
     created_at = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
-    updated_at = Column(DateTime(timezone=True), nullable=False, server_default=func.now(), onupdate=func.now())
 
     users = relationship('User', back_populates='tenant')
     sessions = relationship('UserSession', back_populates='tenant')
@@ -25,10 +24,9 @@ class User(Base):
     __tablename__ = 'users'
 
     id = Column(Integer, primary_key=True, index=True)
-    tenant_id = Column(Integer, ForeignKey('tenants.id'), nullable=True, index=True)
-    email = Column(String(255), nullable=True)
+    tenant_id = Column(Integer, ForeignKey('tenants.id', ondelete='CASCADE'), nullable=True, index=True)
     email_normalized = Column(String(255), nullable=False)
-    full_name = Column(String(255), nullable=False)
+    full_name = Column(String(150), nullable=False)
     password_hash = Column(String(255), nullable=False)
     is_active = Column(Boolean, nullable=False, default=True)
     is_superadmin = Column(Boolean, nullable=False, default=False)
@@ -51,19 +49,19 @@ class User(Base):
 class UserSession(Base):
     __tablename__ = 'user_sessions'
 
-    id = Column(String(255), primary_key=True)
-    user_id = Column(Integer, ForeignKey('users.id'), nullable=False, index=True)
-    tenant_id = Column(Integer, ForeignKey('tenants.id'), nullable=True, index=True)
-    refresh_token_hash = Column(String(64), nullable=False, unique=True, index=True)
-    user_agent = Column(Text, nullable=True)
+    id = Column(String(64), primary_key=True)
+    tenant_id = Column(Integer, ForeignKey('tenants.id', ondelete='CASCADE'), nullable=True, index=True)
+    user_id = Column(Integer, ForeignKey('users.id', ondelete='CASCADE'), nullable=False, index=True)
+    refresh_token_hash = Column(String(128), nullable=False, index=True)
+    user_agent = Column(String(512), nullable=True)
     ip_address = Column(String(64), nullable=True)
-    rotated_from_session_id = Column(String(255), nullable=True, index=True)
-    last_seen_at = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
+    created_at = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
     expires_at = Column(DateTime(timezone=True), nullable=False)
     idle_expires_at = Column(DateTime(timezone=True), nullable=False)
+    last_seen_at = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
     revoked_at = Column(DateTime(timezone=True), nullable=True)
-    revoke_reason = Column(String(100), nullable=True)
-    created_at = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
+    revoke_reason = Column(String(128), nullable=True)
+    rotated_from_session_id = Column(String(64), nullable=True)
 
     user = relationship('User', back_populates='sessions')
     tenant = relationship('Tenant', back_populates='sessions')
@@ -73,14 +71,14 @@ class PasswordResetToken(Base):
     __tablename__ = 'password_reset_tokens'
 
     id = Column(Integer, primary_key=True, index=True)
-    tenant_id = Column(Integer, ForeignKey('tenants.id'), nullable=True, index=True)
-    user_id = Column(Integer, ForeignKey('users.id'), nullable=False, index=True)
-    token_hash = Column(String(64), nullable=False, unique=True, index=True)
-    requested_ip = Column(String(64), nullable=True)
-    requested_user_agent = Column(Text, nullable=True)
+    tenant_id = Column(Integer, ForeignKey('tenants.id', ondelete='CASCADE'), nullable=True, index=True)
+    user_id = Column(Integer, ForeignKey('users.id', ondelete='CASCADE'), nullable=False, index=True)
+    token_hash = Column(String(128), nullable=False, unique=True, index=True)
     expires_at = Column(DateTime(timezone=True), nullable=False)
     used_at = Column(DateTime(timezone=True), nullable=True)
     created_at = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
+    requested_ip = Column(String(64), nullable=True)
+    requested_user_agent = Column(String(512), nullable=True)
 
     tenant = relationship('Tenant', back_populates='password_reset_tokens')
     user = relationship('User', back_populates='password_reset_tokens')
@@ -90,14 +88,14 @@ class AuthAuditLog(Base):
     __tablename__ = 'auth_audit_logs'
 
     id = Column(Integer, primary_key=True, index=True)
-    tenant_id = Column(Integer, ForeignKey('tenants.id'), nullable=True, index=True)
-    user_id = Column(Integer, ForeignKey('users.id'), nullable=True, index=True)
-    email_input = Column(String(255), nullable=True, index=True)
-    event_type = Column(String(100), nullable=False, index=True)
-    outcome = Column(String(50), nullable=False, index=True)
+    tenant_id = Column(Integer, ForeignKey('tenants.id', ondelete='SET NULL'), nullable=True, index=True)
+    user_id = Column(Integer, ForeignKey('users.id', ondelete='SET NULL'), nullable=True, index=True)
+    email_input = Column(String(255), nullable=True)
+    event_type = Column(String(64), nullable=False, index=True)
+    outcome = Column(String(32), nullable=False)
     reason = Column(String(255), nullable=True)
     ip_address = Column(String(64), nullable=True)
-    user_agent = Column(Text, nullable=True)
+    user_agent = Column(String(512), nullable=True)
     created_at = Column(DateTime(timezone=True), nullable=False, server_default=func.now(), index=True)
 
     tenant = relationship('Tenant', back_populates='audit_logs')
@@ -107,9 +105,7 @@ class AuthAuditLog(Base):
 class AuthRateLimitBucket(Base):
     __tablename__ = 'auth_rate_limit_buckets'
 
-    id = Column(Integer, primary_key=True, index=True)
-    key = Column(String(255), nullable=False, unique=True, index=True)
+    key = Column(String(255), primary_key=True)
     count = Column(Integer, nullable=False, default=0)
     window_started_at = Column(DateTime(timezone=True), nullable=False)
-    created_at = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
     updated_at = Column(DateTime(timezone=True), nullable=False, server_default=func.now(), onupdate=func.now())
