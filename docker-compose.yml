@@ -1,3 +1,5 @@
+version: "3.9"
+
 services:
   db:
     image: postgres:16-alpine
@@ -7,9 +9,17 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-payroll}
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    networks:
+      - payroll-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-payroll}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
   backend:
-    build: { context: ./backend }
+    build:
+      context: ./backend
     environment:
       DATABASE_URL: ${DATABASE_URL}
       ENVIRONMENT: ${ENVIRONMENT:-development}
@@ -43,12 +53,37 @@ services:
       SMTP_USE_TLS: ${SMTP_USE_TLS:-false}
       SUPERADMIN_EMAIL: ${SUPERADMIN_EMAIL:-superadmin@payroll.local}
       SUPERADMIN_PASSWORD: ${SUPERADMIN_PASSWORD}
-    depends_on: [db]
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - payroll-network
+    command: >
+      sh -c "
+      echo 'Esperando DB...' &&
+      sleep 3 &&
+      uvicorn app.main:app --host 0.0.0.0 --port 8000
+      "
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   frontend:
-    build: { context: ./frontend }
-    ports: ['8090:80']
-    depends_on: [backend]
+    build:
+      context: ./frontend
+    ports:
+      - "8090:80"
+    depends_on:
+      backend:
+        condition: service_healthy
+    networks:
+      - payroll-network
 
 volumes:
   postgres_data:
+
+networks:
+  payroll-network:
+    driver: bridge

@@ -1,65 +1,53 @@
-from pathlib import Path
-import time
-
-from sqlalchemy import text
-from sqlalchemy.exc import OperationalError
-
-from app.config import settings
-from app.database import SessionLocal, engine
-from app.models import User
-from app.security import hash_password, verify_password
+from sqlalchemy import select
+from app.db.session import SessionLocal
+from app.models.user import User
+from app.core.security import hash_password
+from app.core.config import settings
 
 
-def wait_for_db(max_retries: int = 30, delay_s: int = 2) -> None:
-    for _ in range(max_retries):
-        try:
-            with engine.connect() as conn:
-                conn.execute(text('SELECT 1'))
-                return
-        except OperationalError:
-            time.sleep(delay_s)
-    raise RuntimeError('Database unavailable after retries')
+def normalize_email(email: str) -> str:
+    return email.strip().lower()
 
 
-def run_migrations() -> None:
-    migrations_dir = Path(__file__).resolve().parents[1] / 'migrations'
-    with engine.begin() as conn:
-        for migration_file in sorted(migrations_dir.glob('*.sql')):
-            sql = migration_file.read_text(encoding='utf-8')
-            conn.execute(text(sql))
-
-
-def ensure_superadmin() -> None:
+def ensure_superadmin():
     db = SessionLocal()
+
     try:
-        user = db.query(User).filter(User.is_superadmin.is_(True), User.email_normalized == settings.superadmin_email.lower()).first()
-        if user:
-            valid, _ = verify_password(settings.superadmin_password, user.password_hash)
-            if not valid:
-                user.password_hash = hash_password(settings.superadmin_password)
-            user.is_active = True
-            db.commit()
+        raw_email = settings.superadmin_email.strip()
+        normalized_email = normalize_email(raw_email)
+
+        if not settings.superadmin_password:
+            raise RuntimeError("SUPERADMIN_PASSWORD no configurada")
+
+        existing = db.execute(
+            select(User).where(User.email_normalized == normalized_email)
+        ).scalar_one_or_none()
+
+        if existing:
+            print("✔ Superadmin ya existe")
             return
 
-        db.add(
-            User(
-                tenant_id=None,
-                email_normalized=settings.superadmin_email.lower(),
-                full_name='Super Admin',
-                password_hash=hash_password(settings.superadmin_password),
-                is_active=True,
-                is_superadmin=True,
-                is_tenant_admin=False,
-                auth_version=1,
-            )
+        user = User(
+            tenant_id=None,
+            email=raw_email,
+            email_normalized=normalized_email,
+            full_name="Super Admin",
+            password_hash=hash_password(settings.superadmin_password),
+            is_active=True,
+            is_superadmin=True,
+            is_tenant_admin=False,
+            auth_version=1,
         )
+
+        db.add(user)
         db.commit()
+
+        print("✔ Superadmin creado correctamente")
+
+    except Exception as e:
+        db.rollback()
+        print(f"❌ Error creando superadmin: {e}")
+        raise
+
     finally:
         db.close()
-
-
-if __name__ == '__main__':
-    wait_for_db()
-    run_migrations()
-    ensure_superadmin()
-    print('Database initialized.')
