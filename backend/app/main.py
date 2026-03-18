@@ -342,6 +342,7 @@ def create_user(payload: UserCreate, _: User = Depends(require_superadmin), db: 
 
     user = User(
         tenant_id=payload.tenant_id,
+        email=payload.email.strip(),
         email_normalized=email_normalized,
         full_name=payload.full_name.strip(),
         password_hash=hash_password(payload.password),
