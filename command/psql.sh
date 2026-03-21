@@ -1,1 +1,0 @@
-docker compose exec db psql -U payroll -d payroll

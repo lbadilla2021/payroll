@@ -1,113 +1,223 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="es">
-  
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Payroll Chile - Superadmin</title>
-    <link rel="stylesheet" href="/styles.css" />
-  </head>
-  <body>
-    <div class="layout app-layout">
-      <aside class="sidebar">
-        <div>
-          <h2 class="brand-title">Payroll Chile</h2>
-          <p class="brand-subtitle">Panel Superadmin</p>
-          <nav class="menu-list">
-            <button class="menu-item active" data-view="tenants">Crear tenant</button>
-            <button class="menu-item" data-view="users">Crear usuario tenant</button>
-          </nav>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard — SaaS Platform</title>
+  <link rel="stylesheet" href="/static/css/main.css">
+</head>
+<body>
+
+<div id="app-shell">
+
+  <!-- ── Sidebar ── -->
+  <nav class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <div class="brand-mark">S</div>
+      <span class="brand-name">SaaS Platform</span>
+    </div>
+
+    <div class="sidebar-nav" id="sidebar-nav">
+      <!-- Nav rendered by JS based on role -->
+    </div>
+
+    <div class="sidebar-footer">
+      <div class="profile-trigger" id="profile-trigger">
+        <div class="avatar" id="sidebar-avatar">?</div>
+        <div class="profile-info">
+          <div class="profile-name" id="sidebar-name">Cargando...</div>
+          <div class="profile-role" id="sidebar-role"></div>
+        </div>
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+
+      <!-- Profile context menu -->
+      <div class="profile-menu" id="profile-menu">
+        <div class="theme-toggle-row">
+          <span class="menu-item" style="padding:0;gap:8px;cursor:default;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+            Modo oscuro
+          </span>
+          <div class="toggle-switch" id="theme-toggle" onclick="import('/static/js/ui.js').then(m=>m.toggleTheme())"></div>
+        </div>
+        <div class="menu-divider"></div>
+        <div class="menu-item" onclick="window.location.href='/change-password.html'">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          Cambiar contraseña
+        </div>
+        <div class="menu-item" onclick="window.location.href='/settings.html'">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+          Configuración
+        </div>
+        <div class="menu-divider"></div>
+        <div class="menu-item danger" id="logout-btn">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+          Cerrar sesión
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ── Main ── -->
+  <div class="main-content">
+    <header class="topbar">
+      <span class="topbar-title" id="page-title">Dashboard</span>
+      <div class="topbar-spacer"></div>
+      <div id="topbar-actions"></div>
+    </header>
+
+    <main class="page-area" id="page-content">
+      <!-- Loading skeleton -->
+      <div id="page-loading" style="display:flex;align-items:center;justify-content:center;height:200px;">
+        <div class="spinner" style="width:32px;height:32px;"></div>
+      </div>
+    </main>
+  </div>
+
+</div>
+
+<div id="toast-container"></div>
+
+<script type="module">
+import api from '/static/js/api.js';
+import { requireAuth, logout, renderProfile, isSuperadmin } from '/static/js/auth.js';
+import { initTheme, initProfileMenu, toggleTheme } from '/static/js/ui.js';
+import { toast } from '/static/js/toast.js';
+
+// ── Init ──────────────────────────────────────────────────────────────────────
+initTheme();
+const user = await requireAuth();
+renderProfile(user);
+initProfileMenu();
+
+// Theme toggle state
+const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+document.getElementById('theme-toggle')?.classList.toggle('on', isDark);
+
+// Logout
+document.getElementById('logout-btn').addEventListener('click', async () => {
+  await logout();
+});
+
+// ── Navigation ────────────────────────────────────────────────────────────────
+const NAV_COMMON = [
+  { icon: `<svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>`, label: 'Dashboard', page: 'dashboard', href: '/app.html' },
+];
+const NAV_SUPERADMIN = [
+  { label: 'Administración', section: true },
+  { icon: `<svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>`, label: 'Tenants', page: 'tenants', href: '/tenants.html' },
+  { icon: `<svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>`, label: 'Usuarios', page: 'users', href: '/users.html' },
+];
+const NAV_ADMIN = [
+  { label: 'Mi organización', section: true },
+  { icon: `<svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>`, label: 'Usuarios', page: 'users', href: '/users.html' },
+];
+
+function buildNav() {
+  const nav = document.getElementById('sidebar-nav');
+  const items = [...NAV_COMMON, ...(isSuperadmin() ? NAV_SUPERADMIN : NAV_ADMIN)];
+  const currentPage = document.body.dataset.page || 'dashboard';
+
+  nav.innerHTML = items.map(item => {
+    if (item.section) return `<div class="nav-section-label">${item.label}</div>`;
+    return `
+      <div class="nav-item ${item.page === currentPage ? 'active' : ''}" onclick="window.location.href='${item.href}'">
+        ${item.icon}
+        <span>${item.label}</span>
+      </div>`;
+  }).join('');
+}
+
+buildNav();
+
+// ── Dashboard content ─────────────────────────────────────────────────────────
+document.getElementById('page-title').textContent = 'Dashboard';
+
+async function loadDashboard() {
+  const content = document.getElementById('page-content');
+  try {
+    let stats = {};
+    if (isSuperadmin()) {
+      const [tenantsData, usersData] = await Promise.all([
+        api.get('/tenants?size=1'),
+        api.get('/users?size=1'),
+      ]);
+      stats.tenants = tenantsData.total;
+      stats.users   = usersData.total;
+    }
+
+    content.innerHTML = `
+      <div style="max-width:1100px;">
+        <div style="margin-bottom:var(--space-6);">
+          <h2 style="font-size:20px;font-weight:700;color:var(--text-primary);margin-bottom:4px;">
+            Hola, ${user.first_name} 👋
+          </h2>
+          <p style="color:var(--text-muted);font-size:14px;">
+            ${new Date().toLocaleDateString('es-CL', { weekday:'long', year:'numeric', month:'long', day:'numeric' })}
+          </p>
         </div>
 
-        <div class="profile-area">
-          <button type="button" id="profile-trigger" class="profile-trigger" aria-label="Abrir menú de perfil" aria-expanded="false">
-            <span id="profile-initial" class="profile-initial">S</span>
-            <span class="profile-meta">
-              <span id="profile-trigger-name" class="profile-trigger-name">Super Admin</span>
-              <span class="profile-trigger-role">SUPERADMIN</span>
-            </span>
-          </button>
-
-          <div id="profile-menu" class="profile-menu hidden" role="menu">
-            <div class="profile-menu-header">
-              <span id="profile-menu-initial" class="profile-menu-initial">S</span>
-              <div>
-                <p id="profile-name" class="profile-name">Super Admin</p>
-                <p id="profile-email" class="profile-email">superadmin@payroll.local</p>
-              </div>
-            </div>
-
-            <div class="profile-divider"></div>
-
-            <button type="button" id="profile-config" class="profile-menu-item">
-              <span class="menu-icon" aria-hidden="true">
-                <svg viewBox="0 0 24 24" fill="none"><path d="M12 8.5a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7Zm8 3.5-.9-.4a7.8 7.8 0 0 0-.4-1l.5-.9-1.8-1.8-.9.5a7.8 7.8 0 0 0-1-.4L15 5h-3l-.4.9a7.8 7.8 0 0 0-1 .4l-.9-.5-1.8 1.8.5.9a7.8 7.8 0 0 0-.4 1L4 12l.9.4a7.8 7.8 0 0 0 .4 1l-.5.9 1.8 1.8.9-.5a7.8 7.8 0 0 0 1 .4L9 19h3l.4-.9a7.8 7.8 0 0 0 1-.4l.9.5 1.8-1.8-.5-.9a7.8 7.8 0 0 0 .4-1L20 12Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>
-              </span>
-              <span>Configuración</span>
-            </button>
-
-            <div class="profile-menu-item dark-mode-item">
-              <span class="menu-inline-label"><span class="menu-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 1 0 9.8 9.8Z" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Modo Oscuro</span>
-              <label class="switch">
-                <input id="theme-toggle" type="checkbox" />
-                <span class="slider"></span>
-              </label>
-            </div>
-
-            <button type="button" id="profile-help" class="profile-menu-item with-arrow">
-              <span class="menu-inline-label"><span class="menu-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.6"/><path d="M9.8 9.3a2.4 2.4 0 1 1 3.9 2c-.9.7-1.7 1.1-1.7 2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><circle cx="12" cy="16.7" r=".8" fill="currentColor"/></svg></span>Ayuda</span>
-              <span>›</span>
-            </button>
-
-            <button type="button" id="profile-password" class="profile-menu-item with-arrow">
-              <span class="menu-inline-label"><span class="menu-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><rect x="5" y="11" width="14" height="9" rx="2" stroke="currentColor" stroke-width="1.6"/><path d="M8.5 11V8.8a3.5 3.5 0 1 1 7 0V11" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><circle cx="12" cy="15.5" r="1" fill="currentColor"/></svg></span>Cambiar Contraseña</span>
-              <span>›</span>
-            </button>
-
-            <div class="profile-divider"></div>
-
-            <button type="button" id="logout" class="profile-menu-item danger">
-              <span class="menu-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M10 7H6a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><path d="M14 8l4 4-4 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M18 12H9" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></span>
-              <span>Cerrar Sesión</span>
-            </button>
+        ${isSuperadmin() ? `
+        <div class="stats-grid">
+          <div class="stat-card">
+            <span class="stat-label">Tenants activos</span>
+            <span class="stat-value">${stats.tenants ?? '—'}</span>
+            <span class="stat-sub">Total registrados</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-label">Usuarios totales</span>
+            <span class="stat-value">${stats.users ?? '—'}</span>
+            <span class="stat-sub">Todas las organizaciones</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-label">Tu rol</span>
+            <span class="stat-value" style="font-size:18px;">Superadmin</span>
+            <span class="stat-sub">Acceso global</span>
           </div>
         </div>
-      </aside>
-
-      <section class="content">
-        <header class="content-header">
-          <h1 id="view-title">Crear tenant</h1>
-          <span id="me" class="user-pill"></span>
-        </header>
-
-        <div id="view-tenants" class="view">
-          <form id="tenant-form" class="panel-form">
-            <label>Nombre tenant</label>
-            <input type="text" id="tenant-name" required />
-            <label>Código tenant</label>
-            <input type="text" id="tenant-code" required />
-            <button type="submit">Crear tenant</button>
-          </form>
+        ` : `
+        <div class="stats-grid">
+          <div class="stat-card">
+            <span class="stat-label">Tu rol</span>
+            <span class="stat-value" style="font-size:18px;">Administrador</span>
+            <span class="stat-sub">Tu organización</span>
+          </div>
         </div>
+        `}
 
-        <div id="view-users" class="view hidden">
-          <form id="user-form" class="panel-form">
-            <label>Nombre completo</label>
-            <input type="text" id="user-full-name" required />
-            <label>Email</label>
-            <input type="email" id="user-email" required />
-            <label>Contraseña</label>
-            <input type="password" id="user-password" required />
-            <label>Tenant</label>
-            <select id="tenant-select" required></select>
-            <button type="submit">Crear usuario tenant_admin</button>
-          </form>
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">Accesos rápidos</span>
+          </div>
+          <div class="card-body">
+            <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:var(--space-3);">
+              ${isSuperadmin() ? `
+              <div onclick="window.location.href='/tenants.html'" style="padding:var(--space-4);border:1px solid var(--border);border-radius:var(--radius-md);cursor:pointer;transition:all var(--transition-fast);" onmouseover="this.style.background='var(--bg-hover)'" onmouseout="this.style.background=''">
+                <div style="font-size:22px;margin-bottom:8px;">🏢</div>
+                <div style="font-weight:600;font-size:13.5px;color:var(--text-primary);">Gestionar Tenants</div>
+                <div style="font-size:12px;color:var(--text-muted);">Crear y administrar organizaciones</div>
+              </div>` : ''}
+              <div onclick="window.location.href='/users.html'" style="padding:var(--space-4);border:1px solid var(--border);border-radius:var(--radius-md);cursor:pointer;transition:all var(--transition-fast);" onmouseover="this.style.background='var(--bg-hover)'" onmouseout="this.style.background=''">
+                <div style="font-size:22px;margin-bottom:8px;">👥</div>
+                <div style="font-weight:600;font-size:13.5px;color:var(--text-primary);">Gestionar Usuarios</div>
+                <div style="font-size:12px;color:var(--text-muted);">Administrar accesos y roles</div>
+              </div>
+              <div onclick="window.location.href='/change-password.html'" style="padding:var(--space-4);border:1px solid var(--border);border-radius:var(--radius-md);cursor:pointer;transition:all var(--transition-fast);" onmouseover="this.style.background='var(--bg-hover)'" onmouseout="this.style.background=''">
+                <div style="font-size:22px;margin-bottom:8px;">🔒</div>
+                <div style="font-weight:600;font-size:13.5px;color:var(--text-primary);">Cambiar contraseña</div>
+                <div style="font-size:12px;color:var(--text-muted);">Actualizar credenciales</div>
+              </div>
+            </div>
+          </div>
         </div>
+      </div>
+    `;
+  } catch (err) {
+    content.innerHTML = `<div class="empty-state"><div class="empty-state-icon">⚠</div><h3>Error al cargar</h3><p>${err.message}</p></div>`;
+  }
+}
 
-        <p id="app-message" class="message"></p>
-      </section>
-    </div>
-    <script src="/js/session.js"></script>
-    <script src="/js/app.js"></script>
-  </body>
+loadDashboard();
+</script>
+</body>
 </html>

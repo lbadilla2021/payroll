@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Usuarios — SaaS Platform</title>
+  <link rel="stylesheet" href="/static/css/main.css">
+</head>
+<body data-page="users">
+
+<div id="app-shell">
+  <nav class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <div class="brand-mark">S</div>
+      <span class="brand-name">SaaS Platform</span>
+    </div>
+    <div class="sidebar-nav" id="sidebar-nav"></div>
+    <div class="sidebar-footer">
+      <div class="profile-trigger" id="profile-trigger">
+        <div class="avatar" id="sidebar-avatar">?</div>
+        <div class="profile-info">
+          <div class="profile-name" id="sidebar-name">…</div>
+          <div class="profile-role" id="sidebar-role"></div>
+        </div>
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <div class="profile-menu" id="profile-menu">
+        <div class="menu-item" onclick="window.location.href='/change-password.html'">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          Cambiar contraseña
+        </div>
+        <div class="menu-divider"></div>
+        <div class="menu-item danger" id="logout-btn">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+          Cerrar sesión
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <div class="main-content">
+    <header class="topbar">
+      <span class="topbar-title">Usuarios</span>
+      <div class="topbar-spacer"></div>
+      <button class="btn btn-primary btn-sm" id="btn-new-user">
+        <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Nuevo usuario
+      </button>
+    </header>
+
+    <main class="page-area">
+      <div style="max-width:1100px;">
+        <div class="toolbar" style="margin-bottom:var(--space-4);">
+          <div class="search-input-wrapper">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input class="form-input" type="text" id="search-input" placeholder="Buscar usuarios…" style="width:100%;">
+          </div>
+          <select class="form-input form-select" id="filter-status" style="width:auto;min-width:130px;">
+            <option value="">Todos los estados</option>
+            <option value="true">Activos</option>
+            <option value="false">Inactivos</option>
+          </select>
+          <!-- Superadmin: filter by tenant -->
+          <select class="form-input form-select" id="filter-tenant" style="width:auto;min-width:180px;display:none;">
+            <option value="">Todos los tenants</option>
+          </select>
+          <span id="total-count" style="font-size:13px;color:var(--text-muted);white-space:nowrap;"></span>
+        </div>
+
+        <div class="card">
+          <div class="table-wrapper">
+            <table>
+              <thead>
+                <tr>
+                  <th>Usuario</th>
+                  <th>Rol</th>
+                  <th id="th-tenant">Tenant</th>
+                  <th>Último acceso</th>
+                  <th>Estado</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody id="users-tbody">
+                <tr><td colspan="6"><div style="padding:40px;text-align:center;"><div class="spinner" style="margin:0 auto;"></div></div></td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div id="pagination" style="padding:var(--space-3) var(--space-4);border-top:1px solid var(--border);"></div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- User Panel -->
+<div class="panel" id="user-panel">
+  <div class="panel-header">
+    <button class="btn btn-ghost btn-icon" onclick="import('/static/js/ui.js').then(m=>m.closePanel('user-panel'))">
+      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+    <span class="modal-title" id="user-panel-title">Nuevo usuario</span>
+  </div>
+  <div class="panel-body">
+    <div class="form-row cols-2">
+      <div class="form-group">
+        <label class="form-label">Nombre *</label>
+        <input class="form-input" type="text" id="f-first-name" placeholder="Juan">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Apellido *</label>
+        <input class="form-input" type="text" id="f-last-name" placeholder="Pérez">
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Correo electrónico *</label>
+      <input class="form-input" type="email" id="f-email" placeholder="juan@empresa.com">
+    </div>
+    <div class="form-group" id="f-password-group">
+      <label class="form-label">Contraseña *</label>
+      <input class="form-input" type="password" id="f-password" placeholder="Mín. 10 caracteres">
+      <span class="form-hint">Mínimo 10 caracteres · Mayúscula · Minúscula · Número · Especial</span>
+    </div>
+    <div class="form-row cols-2">
+      <div class="form-group">
+        <label class="form-label">Rol *</label>
+        <select class="form-input form-select" id="f-role">
+          <option value="viewer">Viewer</option>
+          <option value="admin">Administrador</option>
+          <option value="superadmin" id="f-role-superadmin" style="display:none;">Superadmin</option>
+        </select>
+      </div>
+      <div class="form-group" id="f-tenant-group">
+        <label class="form-label">Tenant *</label>
+        <select class="form-input form-select" id="f-tenant-select">
+          <option value="">Seleccionar tenant…</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-row cols-2">
+      <div class="form-group">
+        <label class="form-label">Cargo</label>
+        <input class="form-input" type="text" id="f-job-title" placeholder="Gerente RRHH">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Teléfono</label>
+        <input class="form-input" type="text" id="f-user-phone" placeholder="+56 9 …">
+      </div>
+    </div>
+    <div class="form-group" id="f-force-pwd-group">
+      <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;color:var(--text-secondary);">
+        <input type="checkbox" id="f-force-pwd" style="width:16px;height:16px;">
+        Forzar cambio de contraseña en primer acceso
+      </label>
+    </div>
+    <div id="user-panel-error" class="badge badge-error" style="display:none;padding:10px 12px;border-radius:8px;font-size:13px;font-weight:400;"></div>
+  </div>
+  <div class="panel-footer">
+    <button class="btn btn-secondary" onclick="import('/static/js/ui.js').then(m=>m.closePanel('user-panel'))">Cancelar</button>
+    <button class="btn btn-primary" id="user-save-btn">Guardar</button>
+  </div>
+</div>
+
+<div id="toast-container"></div>
+
+<script type="module">
+import api from '/static/js/api.js';
+import { requireAuth, logout, renderProfile, isSuperadmin, getCurrentUser } from '/static/js/auth.js';
+import { initTheme, initProfileMenu, openPanel, closePanel, confirm, setLoading, renderPagination } from '/static/js/ui.js';
+import { toast } from '/static/js/toast.js';
+
+initTheme();
+const user = await requireAuth();
+renderProfile(user);
+initProfileMenu();
+
+const superadmin = isSuperadmin();
+
+// Build sidebar
+document.getElementById('sidebar-nav').innerHTML = `
+  <div class="nav-item" onclick="window.location.href='/app.html'">
+    <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+    Dashboard
+  </div>
+  ${superadmin ? `<div class="nav-section-label">Administración</div>
+  <div class="nav-item" onclick="window.location.href='/tenants.html'">
+    <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+    Tenants
+  </div>` : '<div class="nav-section-label">Mi organización</div>'}
+  <div class="nav-item active">
+    <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+    Usuarios
+  </div>
+`;
+
+document.getElementById('logout-btn').addEventListener('click', logout);
+
+// Show/hide tenant column for non-superadmins
+if (!superadmin) {
+  document.getElementById('th-tenant').style.display = 'none';
+  document.getElementById('f-tenant-group').style.display = 'none';
+  document.getElementById('filter-tenant').style.display = 'none';
+}
+
+// Load tenants for filter & select (superadmin only)
+let allTenants = [];
+if (superadmin) {
+  try {
+    const data = await api.get('/tenants?size=200');
+    allTenants = data.items;
+    const filterSel = document.getElementById('filter-tenant');
+    filterSel.style.display = 'block';
+    allTenants.forEach(t => {
+      filterSel.innerHTML += `<option value="${t.id}">${esc(t.name)}</option>`;
+      document.getElementById('f-tenant-select').innerHTML += `<option value="${t.id}">${esc(t.name)}</option>`;
+    });
+    // Show superadmin role option
+    document.getElementById('f-role-superadmin').style.display = 'block';
+  } catch {}
+}
+
+// ── State ─────────────────────────────────────────────────────────────────────
+let state = { page: 1, search: '', status: '', tenantId: '', editing: null };
+
+// ── Load users ────────────────────────────────────────────────────────────────
+async function loadUsers() {
+  const params = new URLSearchParams({ page: state.page, size: 20 });
+  if (state.search) params.set('search', state.search);
+  if (state.status !== '') params.set('is_active', state.status);
+  if (state.tenantId) params.set('tenant_id', state.tenantId);
+
+  try {
+    const data = await api.get(`/users?${params}`);
+    document.getElementById('total-count').textContent = `${data.total} usuario${data.total !== 1 ? 's' : ''}`;
+    renderTable(data.items);
+    renderPagination(
+      document.getElementById('pagination'),
+      { page: data.page, total: data.total, size: data.size },
+      p => { state.page = p; loadUsers(); }
+    );
+  } catch (err) { toast.error(err.message); }
+}
+
+const roleLabels = { superadmin: 'Superadmin', admin: 'Administrador', viewer: 'Viewer' };
+const roleBadges = { superadmin: 'badge-warning', admin: 'badge-info', viewer: 'badge-neutral' };
+
+function renderTable(items) {
+  const tbody = document.getElementById('users-tbody');
+  if (!items.length) {
+    tbody.innerHTML = `<tr><td colspan="6"><div class="empty-state">
+      <div class="empty-state-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></div>
+      <h3>Sin usuarios</h3><p>Crea el primero haciendo clic en "Nuevo usuario"</p>
+    </div></td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = items.map(u => {
+    const initials = ((u.first_name?.[0]||'')+(u.last_name?.[0]||'')).toUpperCase();
+    const tenantName = allTenants.find(t => t.id === u.tenant_id)?.name || '—';
+    const lastLogin = u.last_login_at ? new Date(u.last_login_at).toLocaleDateString('es-CL') : 'Nunca';
+    return `
+    <tr>
+      <td>
+        <div style="display:flex;align-items:center;gap:10px;">
+          <div class="avatar" style="width:30px;height:30px;font-size:11px;">${initials}</div>
+          <div>
+            <div class="td-primary">${esc(u.full_name)}</div>
+            <div style="font-size:12px;color:var(--text-muted);">${esc(u.email)}</div>
+          </div>
+        </div>
+      </td>
+      <td><span class="badge ${roleBadges[u.role]||'badge-neutral'}">${roleLabels[u.role]||u.role}</span></td>
+      ${superadmin ? `<td style="font-size:13px;">${esc(tenantName)}</td>` : ''}
+      <td style="font-size:13px;">${lastLogin}</td>
+      <td><span class="badge ${u.is_active ? 'badge-success' : 'badge-error'}">${u.is_active ? 'Activo' : 'Inactivo'}</span></td>
+      <td>
+        <div style="display:flex;gap:4px;justify-content:flex-end;">
+          <button class="btn btn-ghost btn-icon btn-sm" title="Editar" onclick='editUser(${JSON.stringify(u)})'>
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+          </button>
+          <button class="btn btn-ghost btn-icon btn-sm" title="${u.is_active ? 'Desactivar' : 'Activar'}" onclick="toggleUser('${u.id}', ${u.is_active})">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18.36 6.64a9 9 0 1 1-12.73 0"/><line x1="12" y1="2" x2="12" y2="12"/></svg>
+          </button>
+          <button class="btn btn-ghost btn-icon btn-sm" title="Reset contraseña" onclick="resetPwd('${u.id}', '${esc(u.email)}')">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          </button>
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+// ── CRUD ──────────────────────────────────────────────────────────────────────
+function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+function clearUserPanel() {
+  ['f-first-name','f-last-name','f-email','f-password','f-job-title','f-user-phone'].forEach(id => { const el=document.getElementById(id); if(el) el.value=''; });
+  document.getElementById('f-role').value = 'viewer';
+  document.getElementById('f-tenant-select').value = '';
+  document.getElementById('f-force-pwd').checked = false;
+  document.getElementById('user-panel-error').style.display = 'none';
+  document.getElementById('f-password-group').style.display = 'block';
+}
+
+document.getElementById('btn-new-user').addEventListener('click', () => {
+  state.editing = null;
+  document.getElementById('user-panel-title').textContent = 'Nuevo usuario';
+  clearUserPanel();
+  openPanel('user-panel');
+});
+
+window.editUser = (u) => {
+  state.editing = u;
+  document.getElementById('user-panel-title').textContent = 'Editar usuario';
+  document.getElementById('f-first-name').value = u.first_name || '';
+  document.getElementById('f-last-name').value = u.last_name || '';
+  document.getElementById('f-email').value = u.email || '';
+  document.getElementById('f-role').value = u.role || 'viewer';
+  document.getElementById('f-job-title').value = u.job_title || '';
+  document.getElementById('f-user-phone').value = u.phone || '';
+  document.getElementById('f-force-pwd').checked = u.force_password_change || false;
+  if (u.tenant_id) document.getElementById('f-tenant-select').value = u.tenant_id;
+  // Hide password on edit
+  document.getElementById('f-password-group').style.display = 'none';
+  document.getElementById('user-panel-error').style.display = 'none';
+  openPanel('user-panel');
+};
+
+window.toggleUser = async (id, current) => {
+  const action = current ? 'desactivar' : 'activar';
+  if (!await confirm(`¿Seguro que deseas ${action} este usuario?`)) return;
+  try {
+    await api.patch(`/users/${id}/toggle-active`);
+    toast.success(`Usuario ${action}do.`);
+    loadUsers();
+  } catch (err) { toast.error(err.message); }
+};
+
+window.resetPwd = async (id, email) => {
+  if (!await confirm(`¿Resetear contraseña de ${email}? Se enviará una contraseña temporal por correo.`, 'Resetear contraseña')) return;
+  try {
+    await api.post(`/users/${id}/reset-password`);
+    toast.success('Contraseña temporal enviada.');
+  } catch (err) { toast.error(err.message); }
+};
+
+document.getElementById('user-save-btn').addEventListener('click', async () => {
+  const btn = document.getElementById('user-save-btn');
+  const errEl = document.getElementById('user-panel-error');
+  errEl.style.display = 'none';
+
+  if (state.editing) {
+    // Update
+    const payload = {
+      first_name: document.getElementById('f-first-name').value.trim(),
+      last_name:  document.getElementById('f-last-name').value.trim(),
+      role:       document.getElementById('f-role').value,
+      job_title:  document.getElementById('f-job-title').value.trim() || null,
+      phone:      document.getElementById('f-user-phone').value.trim() || null,
+      force_password_change: document.getElementById('f-force-pwd').checked,
+    };
+    setLoading(btn, true);
+    try {
+      await api.patch(`/users/${state.editing.id}`, payload);
+      toast.success('Usuario actualizado.');
+      closePanel('user-panel');
+      loadUsers();
+    } catch (err) {
+      errEl.textContent = err.message; errEl.style.display = 'flex';
+    } finally { setLoading(btn, false); }
+  } else {
+    // Create
+    const tenantId = document.getElementById('f-tenant-select').value;
+    const payload = {
+      first_name: document.getElementById('f-first-name').value.trim(),
+      last_name:  document.getElementById('f-last-name').value.trim(),
+      email:      document.getElementById('f-email').value.trim(),
+      password:   document.getElementById('f-password').value,
+      role:       document.getElementById('f-role').value,
+      tenant_id:  tenantId || null,
+      job_title:  document.getElementById('f-job-title').value.trim() || null,
+      phone:      document.getElementById('f-user-phone').value.trim() || null,
+      force_password_change: document.getElementById('f-force-pwd').checked,
+    };
+    if (!payload.first_name || !payload.last_name || !payload.email || !payload.password) {
+      errEl.textContent = 'Completa los campos obligatorios.'; errEl.style.display = 'flex'; return;
+    }
+    setLoading(btn, true);
+    try {
+      await api.post('/users', payload);
+      toast.success('Usuario creado exitosamente.');
+      closePanel('user-panel');
+      loadUsers();
+    } catch (err) {
+      errEl.textContent = err.message; errEl.style.display = 'flex';
+    } finally { setLoading(btn, false); }
+  }
+});
+
+// Filters
+let st;
+document.getElementById('search-input').addEventListener('input', e => {
+  clearTimeout(st); st = setTimeout(() => { state.search = e.target.value; state.page = 1; loadUsers(); }, 350);
+});
+document.getElementById('filter-status').addEventListener('change', e => { state.status = e.target.value; state.page = 1; loadUsers(); });
+document.getElementById('filter-tenant').addEventListener('change', e => { state.tenantId = e.target.value; state.page = 1; loadUsers(); });
+
+loadUsers();
+</script>
+</body>
+</html>
