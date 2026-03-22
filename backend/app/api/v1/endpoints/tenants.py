@@ -1,3 +1,4 @@
+from typing import Optional
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
@@ -36,7 +37,7 @@ def list_tenants(
     page: int = Query(1, ge=1),
     size: int = Query(20, ge=1, le=100),
     search: str = Query(""),
-    is_active: bool = Query(None),
+    is_active: Optional[bool] = Query(None),
     db: Session = Depends(get_db),
     _: User = Depends(require_superadmin),
 ):

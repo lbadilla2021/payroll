@@ -11,8 +11,6 @@ services:
       POSTGRES_PASSWORD: saas_pass
     volumes:
       - postgres_data:/var/lib/postgresql/data
-    ports:
-      - "5432:5432"
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U saas_user -d saas_db"]
       interval: 10s
@@ -32,20 +30,18 @@ services:
     depends_on:
       db:
         condition: service_healthy
-    ports:
-      - "8000:8000"   # exposed for local dev; remove in prod
     networks:
       - saas-net
     command: >
       sh -c "alembic upgrade head &&
-             python -m app.scripts.bootstrap &&
+             python3 -m app.scripts.bootstrap &&
              uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload"
 
   nginx:
     image: nginx:1.27-alpine
     restart: unless-stopped
     ports:
-      - "8080:80"
+      - "8085:80"        # ← puerto libre en tu servidor
     volumes:
       - ./frontend:/usr/share/nginx/html:ro
       - ./docker/nginx.conf:/etc/nginx/conf.d/default.conf:ro
@@ -54,8 +50,24 @@ services:
     networks:
       - saas-net
 
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    restart: unless-stopped
+    environment:
+      PGADMIN_DEFAULT_EMAIL:    admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: pgadmin_password
+    ports:
+      - "5050:80"
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+    depends_on:
+      - db
+    networks:
+      - saas-net
+
 volumes:
   postgres_data:
+  pgadmin_data:
 
 networks:
   saas-net:

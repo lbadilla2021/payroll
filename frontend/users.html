@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Usuarios — SaaS Platform</title>
-  <link rel="stylesheet" href="/static/css/main.css">
+  <link rel="stylesheet" href="/static/css/main.css?v=3">
 </head>
 <body data-page="users">
 
@@ -25,9 +25,19 @@
         <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
       </div>
       <div class="profile-menu" id="profile-menu">
-        <div class="menu-item" onclick="window.location.href='/change-password.html'">
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-          Cambiar contraseña
+        <div class="menu-item" onclick="window.location.href='/settings.html'">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+          Configuración
+        </div>
+        <div class="menu-item" id="theme-toggle-btn">
+          <svg id="theme-icon-sun" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+          <svg id="theme-icon-moon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none;"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+          <span id="theme-label">Modo oscuro</span>
+        </div>
+        <div class="menu-divider"></div>
+        <div class="menu-item" id="help-btn">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          Ayuda
         </div>
         <div class="menu-divider"></div>
         <div class="menu-item danger" id="logout-btn">
@@ -60,7 +70,6 @@
             <option value="true">Activos</option>
             <option value="false">Inactivos</option>
           </select>
-          <!-- Superadmin: filter by tenant -->
           <select class="form-input form-select" id="filter-tenant" style="width:auto;min-width:180px;display:none;">
             <option value="">Todos los tenants</option>
           </select>
@@ -95,7 +104,7 @@
 <!-- User Panel -->
 <div class="panel" id="user-panel">
   <div class="panel-header">
-    <button class="btn btn-ghost btn-icon" onclick="import('/static/js/ui.js').then(m=>m.closePanel('user-panel'))">
+    <button class="btn btn-ghost btn-icon" id="user-panel-close">
       <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
     </button>
     <span class="modal-title" id="user-panel-title">Nuevo usuario</span>
@@ -146,16 +155,16 @@
         <input class="form-input" type="text" id="f-user-phone" placeholder="+56 9 …">
       </div>
     </div>
-    <div class="form-group" id="f-force-pwd-group">
+    <div class="form-group">
       <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;color:var(--text-secondary);">
         <input type="checkbox" id="f-force-pwd" style="width:16px;height:16px;">
         Forzar cambio de contraseña en primer acceso
       </label>
     </div>
-    <div id="user-panel-error" class="badge badge-error" style="display:none;padding:10px 12px;border-radius:8px;font-size:13px;font-weight:400;"></div>
+    <div id="user-panel-error" style="display:none;background:var(--error-bg);border:1px solid var(--error);color:var(--error);padding:10px 14px;border-radius:var(--radius-md);font-size:13px;"></div>
   </div>
   <div class="panel-footer">
-    <button class="btn btn-secondary" onclick="import('/static/js/ui.js').then(m=>m.closePanel('user-panel'))">Cancelar</button>
+    <button class="btn btn-secondary" id="user-panel-cancel">Cancelar</button>
     <button class="btn btn-primary" id="user-save-btn">Guardar</button>
   </div>
 </div>
@@ -163,19 +172,19 @@
 <div id="toast-container"></div>
 
 <script type="module">
-import api from '/static/js/api.js';
-import { requireAuth, logout, renderProfile, isSuperadmin, getCurrentUser } from '/static/js/auth.js';
-import { initTheme, initProfileMenu, openPanel, closePanel, confirm, setLoading, renderPagination } from '/static/js/ui.js';
-import { toast } from '/static/js/toast.js';
+import api from '/static/js/api.js?v=3';
+import { requireAuth, logout, renderProfile } from '/static/js/auth.js?v=3';
+import { initTheme, initProfileMenu, toggleTheme, openPanel, closePanel, confirm, setLoading, renderPagination } from '/static/js/ui.js?v=3';
+import { toast } from '/static/js/toast.js?v=3';
 
 initTheme();
 const user = await requireAuth();
 renderProfile(user);
 initProfileMenu();
 
-const superadmin = isSuperadmin();
+const superadmin = user.role === 'superadmin';
 
-// Build sidebar
+// ── Sidebar nav ───────────────────────────────────────────────────────────────
 document.getElementById('sidebar-nav').innerHTML = `
   <div class="nav-item" onclick="window.location.href='/app.html'">
     <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
@@ -192,30 +201,55 @@ document.getElementById('sidebar-nav').innerHTML = `
   </div>
 `;
 
-document.getElementById('logout-btn').addEventListener('click', logout);
+// ── Profile menu ──────────────────────────────────────────────────────────────
+function _updateThemeUI() {
+  const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+  const label = document.getElementById('theme-label');
+  const sun   = document.getElementById('theme-icon-sun');
+  const moon  = document.getElementById('theme-icon-moon');
+  if (label) label.textContent = isDark ? 'Modo claro' : 'Modo oscuro';
+  if (sun)   sun.style.display  = isDark ? 'none'  : 'block';
+  if (moon)  moon.style.display = isDark ? 'block' : 'none';
+}
+_updateThemeUI();
 
-// Show/hide tenant column for non-superadmins
+document.getElementById('theme-toggle-btn').addEventListener('click', (e) => {
+  e.stopPropagation(); toggleTheme(); _updateThemeUI();
+});
+document.getElementById('help-btn').addEventListener('click', (e) => {
+  e.stopPropagation();
+  document.getElementById('profile-menu').classList.remove('open');
+  toast.info('Sección de ayuda próximamente disponible.');
+});
+document.getElementById('logout-btn').addEventListener('click', (e) => {
+  e.stopPropagation(); logout();
+});
+
+// ── Panel open/close ──────────────────────────────────────────────────────────
+document.getElementById('user-panel-close').addEventListener('click',  () => closePanel('user-panel'));
+document.getElementById('user-panel-cancel').addEventListener('click', () => closePanel('user-panel'));
+
+// ── Show/hide tenant column ───────────────────────────────────────────────────
 if (!superadmin) {
   document.getElementById('th-tenant').style.display = 'none';
   document.getElementById('f-tenant-group').style.display = 'none';
   document.getElementById('filter-tenant').style.display = 'none';
 }
 
-// Load tenants for filter & select (superadmin only)
+// ── Load tenants for selects (superadmin only) ────────────────────────────────
 let allTenants = [];
 if (superadmin) {
   try {
-    const data = await api.get('/tenants?size=200');
+    const data = await api.get('/tenants?size=100');
     allTenants = data.items;
-    const filterSel = document.getElementById('filter-tenant');
-    filterSel.style.display = 'block';
-    allTenants.forEach(t => {
-      filterSel.innerHTML += `<option value="${t.id}">${esc(t.name)}</option>`;
-      document.getElementById('f-tenant-select').innerHTML += `<option value="${t.id}">${esc(t.name)}</option>`;
-    });
-    // Show superadmin role option
+    const optionsHTML = allTenants.map(t => `<option value="${t.id}">${esc(t.name)}</option>`).join('');
+    document.getElementById('filter-tenant').innerHTML = '<option value="">Todos los tenants</option>' + optionsHTML;
+    document.getElementById('filter-tenant').style.display = 'block';
+    document.getElementById('f-tenant-select').innerHTML  = '<option value="">Seleccionar tenant…</option>' + optionsHTML;
     document.getElementById('f-role-superadmin').style.display = 'block';
-  } catch {}
+  } catch (err) {
+    toast.error('Error cargando tenants: ' + err.message);
+  }
 }
 
 // ── State ─────────────────────────────────────────────────────────────────────
@@ -224,7 +258,7 @@ let state = { page: 1, search: '', status: '', tenantId: '', editing: null };
 // ── Load users ────────────────────────────────────────────────────────────────
 async function loadUsers() {
   const params = new URLSearchParams({ page: state.page, size: 20 });
-  if (state.search) params.set('search', state.search);
+  if (state.search)   params.set('search',    state.search);
   if (state.status !== '') params.set('is_active', state.status);
   if (state.tenantId) params.set('tenant_id', state.tenantId);
 
@@ -252,18 +286,17 @@ function renderTable(items) {
     </div></td></tr>`;
     return;
   }
-
   tbody.innerHTML = items.map(u => {
-    const initials = ((u.first_name?.[0]||'')+(u.last_name?.[0]||'')).toUpperCase();
+    const initials   = ((u.first_name?.[0]||'')+(u.last_name?.[0]||'')).toUpperCase();
     const tenantName = allTenants.find(t => t.id === u.tenant_id)?.name || '—';
-    const lastLogin = u.last_login_at ? new Date(u.last_login_at).toLocaleDateString('es-CL') : 'Nunca';
+    const lastLogin  = u.last_login_at ? new Date(u.last_login_at).toLocaleDateString('es-CL') : 'Nunca';
     return `
     <tr>
       <td>
         <div style="display:flex;align-items:center;gap:10px;">
           <div class="avatar" style="width:30px;height:30px;font-size:11px;">${initials}</div>
           <div>
-            <div class="td-primary">${esc(u.full_name)}</div>
+            <div style="font-weight:500;color:var(--text-primary);">${esc(u.full_name)}</div>
             <div style="font-size:12px;color:var(--text-muted);">${esc(u.email)}</div>
           </div>
         </div>
@@ -289,11 +322,12 @@ function renderTable(items) {
   }).join('');
 }
 
-// ── CRUD ──────────────────────────────────────────────────────────────────────
 function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
 function clearUserPanel() {
-  ['f-first-name','f-last-name','f-email','f-password','f-job-title','f-user-phone'].forEach(id => { const el=document.getElementById(id); if(el) el.value=''; });
+  ['f-first-name','f-last-name','f-email','f-password','f-job-title','f-user-phone'].forEach(id => {
+    const el = document.getElementById(id); if (el) el.value = '';
+  });
   document.getElementById('f-role').value = 'viewer';
   document.getElementById('f-tenant-select').value = '';
   document.getElementById('f-force-pwd').checked = false;
@@ -301,6 +335,7 @@ function clearUserPanel() {
   document.getElementById('f-password-group').style.display = 'block';
 }
 
+// ── New user ──────────────────────────────────────────────────────────────────
 document.getElementById('btn-new-user').addEventListener('click', () => {
   state.editing = null;
   document.getElementById('user-panel-title').textContent = 'Nuevo usuario';
@@ -308,23 +343,24 @@ document.getElementById('btn-new-user').addEventListener('click', () => {
   openPanel('user-panel');
 });
 
+// ── Edit user ─────────────────────────────────────────────────────────────────
 window.editUser = (u) => {
   state.editing = u;
   document.getElementById('user-panel-title').textContent = 'Editar usuario';
-  document.getElementById('f-first-name').value = u.first_name || '';
-  document.getElementById('f-last-name').value = u.last_name || '';
-  document.getElementById('f-email').value = u.email || '';
-  document.getElementById('f-role').value = u.role || 'viewer';
-  document.getElementById('f-job-title').value = u.job_title || '';
-  document.getElementById('f-user-phone').value = u.phone || '';
-  document.getElementById('f-force-pwd').checked = u.force_password_change || false;
+  document.getElementById('f-first-name').value  = u.first_name || '';
+  document.getElementById('f-last-name').value   = u.last_name  || '';
+  document.getElementById('f-email').value        = u.email      || '';
+  document.getElementById('f-role').value         = u.role       || 'viewer';
+  document.getElementById('f-job-title').value    = u.job_title  || '';
+  document.getElementById('f-user-phone').value   = u.phone      || '';
+  document.getElementById('f-force-pwd').checked  = u.force_password_change || false;
   if (u.tenant_id) document.getElementById('f-tenant-select').value = u.tenant_id;
-  // Hide password on edit
   document.getElementById('f-password-group').style.display = 'none';
   document.getElementById('user-panel-error').style.display = 'none';
   openPanel('user-panel');
 };
 
+// ── Toggle user ───────────────────────────────────────────────────────────────
 window.toggleUser = async (id, current) => {
   const action = current ? 'desactivar' : 'activar';
   if (!await confirm(`¿Seguro que deseas ${action} este usuario?`)) return;
@@ -335,27 +371,28 @@ window.toggleUser = async (id, current) => {
   } catch (err) { toast.error(err.message); }
 };
 
+// ── Reset password ────────────────────────────────────────────────────────────
 window.resetPwd = async (id, email) => {
-  if (!await confirm(`¿Resetear contraseña de ${email}? Se enviará una contraseña temporal por correo.`, 'Resetear contraseña')) return;
+  if (!await confirm(`¿Resetear contraseña de ${email}? Se enviará contraseña temporal por correo.`, 'Resetear contraseña')) return;
   try {
     await api.post(`/users/${id}/reset-password`);
     toast.success('Contraseña temporal enviada.');
   } catch (err) { toast.error(err.message); }
 };
 
+// ── Save user ─────────────────────────────────────────────────────────────────
 document.getElementById('user-save-btn').addEventListener('click', async () => {
-  const btn = document.getElementById('user-save-btn');
+  const btn   = document.getElementById('user-save-btn');
   const errEl = document.getElementById('user-panel-error');
   errEl.style.display = 'none';
 
   if (state.editing) {
-    // Update
     const payload = {
-      first_name: document.getElementById('f-first-name').value.trim(),
-      last_name:  document.getElementById('f-last-name').value.trim(),
-      role:       document.getElementById('f-role').value,
-      job_title:  document.getElementById('f-job-title').value.trim() || null,
-      phone:      document.getElementById('f-user-phone').value.trim() || null,
+      first_name:            document.getElementById('f-first-name').value.trim(),
+      last_name:             document.getElementById('f-last-name').value.trim(),
+      role:                  document.getElementById('f-role').value,
+      job_title:             document.getElementById('f-job-title').value.trim() || null,
+      phone:                 document.getElementById('f-user-phone').value.trim() || null,
       force_password_change: document.getElementById('f-force-pwd').checked,
     };
     setLoading(btn, true);
@@ -365,24 +402,23 @@ document.getElementById('user-save-btn').addEventListener('click', async () => {
       closePanel('user-panel');
       loadUsers();
     } catch (err) {
-      errEl.textContent = err.message; errEl.style.display = 'flex';
+      errEl.textContent = err.message; errEl.style.display = 'block';
     } finally { setLoading(btn, false); }
   } else {
-    // Create
-    const tenantId = document.getElementById('f-tenant-select').value;
     const payload = {
-      first_name: document.getElementById('f-first-name').value.trim(),
-      last_name:  document.getElementById('f-last-name').value.trim(),
-      email:      document.getElementById('f-email').value.trim(),
-      password:   document.getElementById('f-password').value,
-      role:       document.getElementById('f-role').value,
-      tenant_id:  tenantId || null,
-      job_title:  document.getElementById('f-job-title').value.trim() || null,
-      phone:      document.getElementById('f-user-phone').value.trim() || null,
+      first_name:            document.getElementById('f-first-name').value.trim(),
+      last_name:             document.getElementById('f-last-name').value.trim(),
+      email:                 document.getElementById('f-email').value.trim(),
+      password:              document.getElementById('f-password').value,
+      role:                  document.getElementById('f-role').value,
+      tenant_id:             document.getElementById('f-tenant-select').value || null,
+      job_title:             document.getElementById('f-job-title').value.trim() || null,
+      phone:                 document.getElementById('f-user-phone').value.trim() || null,
       force_password_change: document.getElementById('f-force-pwd').checked,
     };
     if (!payload.first_name || !payload.last_name || !payload.email || !payload.password) {
-      errEl.textContent = 'Completa los campos obligatorios.'; errEl.style.display = 'flex'; return;
+      errEl.textContent = 'Completa los campos obligatorios.';
+      errEl.style.display = 'block'; return;
     }
     setLoading(btn, true);
     try {
@@ -391,18 +427,22 @@ document.getElementById('user-save-btn').addEventListener('click', async () => {
       closePanel('user-panel');
       loadUsers();
     } catch (err) {
-      errEl.textContent = err.message; errEl.style.display = 'flex';
+      errEl.textContent = err.message; errEl.style.display = 'block';
     } finally { setLoading(btn, false); }
   }
 });
 
-// Filters
+// ── Filters ───────────────────────────────────────────────────────────────────
 let st;
 document.getElementById('search-input').addEventListener('input', e => {
   clearTimeout(st); st = setTimeout(() => { state.search = e.target.value; state.page = 1; loadUsers(); }, 350);
 });
-document.getElementById('filter-status').addEventListener('change', e => { state.status = e.target.value; state.page = 1; loadUsers(); });
-document.getElementById('filter-tenant').addEventListener('change', e => { state.tenantId = e.target.value; state.page = 1; loadUsers(); });
+document.getElementById('filter-status').addEventListener('change', e => {
+  state.status = e.target.value; state.page = 1; loadUsers();
+});
+document.getElementById('filter-tenant').addEventListener('change', e => {
+  state.tenantId = e.target.value; state.page = 1; loadUsers();
+});
 
 loadUsers();
 </script>

@@ -254,6 +254,7 @@ input, textarea, select { font-family: inherit; }
 
 /* ── Sidebar Footer / Profile ────────────────────────────── */
 .sidebar-footer {
+  position: relative;
   border-top: 1px solid rgba(255,255,255,0.05);
   padding: var(--space-3);
 }

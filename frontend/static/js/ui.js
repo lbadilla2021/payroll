@@ -133,11 +133,21 @@ export function initProfileMenu() {
   const trigger = document.getElementById('profile-trigger');
   const menu    = document.getElementById('profile-menu');
   if (!trigger || !menu) return;
+
   trigger.addEventListener('click', (e) => {
+    e.preventDefault();
     e.stopPropagation();
-    menu.classList.toggle('open');
+    e.stopImmediatePropagation();
+    const isOpen = menu.classList.contains('open');
+    menu.classList.toggle('open', !isOpen);
   });
-  document.addEventListener('click', () => menu.classList.remove('open'));
+
+  // Close when clicking outside — use capture:false and check target
+  document.addEventListener('click', (e) => {
+    if (!trigger.contains(e.target) && !menu.contains(e.target)) {
+      menu.classList.remove('open');
+    }
+  });
 }
 
 // ── Sidebar nav highlight ─────────────────────────────────────────────────────

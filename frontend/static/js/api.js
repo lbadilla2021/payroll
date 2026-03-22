@@ -1,12 +1,19 @@
 /**
  * api.js — Centralized HTTP client
  *
- * - Reads CSRF token from cookie → X-CSRF-Token header on mutations
- * - On 401: attempts refresh, retries once, else redirect to login
- * - credentials: 'include' on every request (cookies)
+ * - CSRF token automático en mutaciones
+ * - On 401: intenta refresh una vez, luego redirige a login
+ * - NO redirige si ya estamos en una página pública (login, forgot, reset)
  */
 
 const API_BASE = '/api/v1';
+
+// Páginas públicas donde NO se debe redirigir al recibir 401
+const PUBLIC_PAGES = ['/login.html', '/forgot-password.html', '/reset-password.html'];
+
+function isPublicPage() {
+  return PUBLIC_PAGES.some(p => window.location.pathname === p || window.location.pathname === p.replace('.html',''));
+}
 
 function getCookie(name) {
   const m = document.cookie.match(new RegExp('(?:^|; )' + name + '=([^;]*)'));
@@ -37,13 +44,22 @@ async function request(method, path, body, options = {}) {
   let res = await fetch(`${API_BASE}${path}`, cfg);
 
   if (res.status === 401 && !options._retry) {
+    // Si estamos en una página pública, no intentar refresh ni redirigir
+    // Solo lanzar el error para que la página lo maneje
+    if (isPublicPage()) {
+      const err = new Error('Not authenticated'); err.status = 401; throw err;
+    }
+
     if (!_isRefreshing) {
       _isRefreshing = true;
       const ok = await _doRefresh();
       _isRefreshing = false;
       _refreshQueue.forEach(fn => fn(ok));
       _refreshQueue = [];
-      if (!ok) { window.location.href = '/login.html'; throw new Error('Session expired'); }
+      if (!ok) {
+        window.location.href = '/login.html';
+        throw new Error('Session expired');
+      }
     } else {
       await new Promise(fn => _refreshQueue.push(fn));
     }
