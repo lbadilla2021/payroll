@@ -166,6 +166,30 @@
       </label>
     </div>
     <div id="user-panel-error" style="display:none;background:var(--error-bg);border:1px solid var(--error);color:var(--error);padding:10px 14px;border-radius:var(--radius-md);font-size:13px;"></div>
+
+    <!-- Roles asignados (visible solo en modo edición) -->
+    <div id="user-roles-section" style="display:none; margin-top: var(--space-5); padding-top: var(--space-4); border-top: 1px solid var(--border);">
+      <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:var(--space-3);">
+        <div style="font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--text-muted);">Roles RBAC asignados</div>
+        <button class="btn btn-secondary btn-sm" id="btn-open-roles-assign" style="font-size:11px;padding:3px 10px;">Gestionar</button>
+      </div>
+      <div id="user-roles-list" style="display:flex;flex-wrap:wrap;gap:6px;min-height:28px;">
+        <span style="font-size:12px;color:var(--text-muted);">Cargando roles…</span>
+      </div>
+    </div>
+
+    <!-- Roles assign sub-panel (inline expand) -->
+    <div id="user-roles-assign-panel" style="display:none; margin-top:var(--space-3); background:var(--bg-hover); border-radius:var(--radius-md); padding:var(--space-4);">
+      <div style="font-size:13px;font-weight:600;margin-bottom:var(--space-3);">Asignar roles al usuario</div>
+      <div id="user-roles-checkboxes" style="display:flex;flex-direction:column;gap:6px;max-height:220px;overflow-y:auto;"></div>
+      <div style="display:flex;justify-content:flex-end;gap:var(--space-2);margin-top:var(--space-3);">
+        <button class="btn btn-secondary btn-sm" id="btn-cancel-roles-assign">Cancelar</button>
+        <button class="btn btn-primary btn-sm" id="btn-save-roles-assign">
+          <span id="roles-assign-txt">Guardar roles</span>
+          <span class="spinner" id="roles-assign-spin" style="display:none;"></span>
+        </button>
+      </div>
+    </div>
   </div>
   <div class="panel-footer">
     <button class="btn btn-secondary" id="user-panel-cancel">Cancelar</button>
@@ -260,6 +284,10 @@ document.getElementById('sidebar-nav').innerHTML = `
   <div class="nav-item active">
     <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
     Usuarios
+  </div>
+  <div class="nav-item" onclick="window.location.href='/roles.html'">
+    <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+    Roles
   </div>
 `;
 
@@ -458,6 +486,9 @@ function clearUserPanel() {
   document.getElementById('f-force-pwd').checked = false;
   document.getElementById('user-panel-error').style.display = 'none';
   document.getElementById('f-password-group').style.display = 'block';
+  // Hide roles section for new users
+  document.getElementById('user-roles-section').style.display = 'none';
+  document.getElementById('user-roles-assign-panel').style.display = 'none';
 }
 
 // ── New user ──────────────────────────────────────────────────────────────────
@@ -482,6 +513,10 @@ window.editUser = (u) => {
   if (u.tenant_id) document.getElementById('f-tenant-select').value = u.tenant_id;
   document.getElementById('f-password-group').style.display = 'none';
   document.getElementById('user-panel-error').style.display = 'none';
+  document.getElementById('user-roles-assign-panel').style.display = 'none';
+  // Show roles section and load
+  document.getElementById('user-roles-section').style.display = 'block';
+  loadUserRoles(u.id);
   openPanel('user-panel');
 };
 
@@ -1008,6 +1043,106 @@ document.getElementById('invite-send-btn').addEventListener('click', async () =>
     errEl.style.display = 'block';
   } finally {
     setLoading(btn, false);
+  }
+});
+
+// ── User RBAC Roles ────────────────────────────────────────────────────────────
+
+let _tenantRoles = [];  // cache of tenant roles for the assign panel
+
+async function _ensureTenantRoles() {
+  if (_tenantRoles.length) return;
+  try {
+    const data = await api.get('/roles?size=100&is_active=true');
+    _tenantRoles = data.items || [];
+  } catch(e) {
+    _tenantRoles = [];
+  }
+}
+
+async function loadUserRoles(userId) {
+  const listEl = document.getElementById('user-roles-list');
+  listEl.innerHTML = '<span style="font-size:12px;color:var(--text-muted);">Cargando…</span>';
+  try {
+    const data = await api.get(`/users/${userId}/roles`);
+    const roles = data.roles || [];
+    if (!roles.length) {
+      listEl.innerHTML = '<span style="font-size:12px;color:var(--text-muted);">Sin roles RBAC asignados</span>';
+    } else {
+      listEl.innerHTML = roles.map(r => `
+        <span style="
+          display:inline-flex;align-items:center;gap:4px;
+          font-size:11px;font-weight:600;padding:3px 9px;
+          background:${r.role_is_active ? 'var(--accent-light)' : 'var(--bg-active)'};
+          color:${r.role_is_active ? 'var(--accent-dark)' : 'var(--text-muted)'};
+          border-radius:var(--radius-full);">
+          ${esc(r.role_name)}
+        </span>`).join('');
+    }
+  } catch(e) {
+    listEl.innerHTML = '<span style="font-size:12px;color:var(--text-muted);">No se pudieron cargar los roles.</span>';
+  }
+}
+
+document.getElementById('btn-open-roles-assign').addEventListener('click', async () => {
+  const u = state.editing;
+  if (!u) return;
+  const panel = document.getElementById('user-roles-assign-panel');
+  const cbContainer = document.getElementById('user-roles-checkboxes');
+
+  if (panel.style.display !== 'none') {
+    panel.style.display = 'none';
+    return;
+  }
+
+  cbContainer.innerHTML = '<div style="font-size:12px;color:var(--text-muted);">Cargando roles…</div>';
+  panel.style.display = 'block';
+
+  await _ensureTenantRoles();
+  let currentRoleIds = new Set();
+  try {
+    const data = await api.get(`/users/${u.id}/roles`);
+    currentRoleIds = new Set((data.roles || []).map(r => r.tenant_role_id));
+  } catch(e) { /* keep empty */ }
+
+  if (!_tenantRoles.length) {
+    cbContainer.innerHTML = '<div style="font-size:12px;color:var(--text-muted);">No hay roles disponibles en este tenant.</div>';
+    return;
+  }
+
+  cbContainer.innerHTML = _tenantRoles.map(r => `
+    <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;padding:4px 2px;">
+      <input type="checkbox" class="role-assign-check" value="${r.id}"
+        ${currentRoleIds.has(r.id) ? 'checked' : ''}
+        style="width:15px;height:15px;accent-color:var(--accent);">
+      <div>
+        <span style="font-weight:500;">${esc(r.name)}</span>
+        ${r.description ? `<span style="color:var(--text-muted);font-size:11px;"> — ${esc(r.description)}</span>` : ''}
+      </div>
+    </label>`).join('');
+});
+
+document.getElementById('btn-cancel-roles-assign').addEventListener('click', () => {
+  document.getElementById('user-roles-assign-panel').style.display = 'none';
+});
+
+document.getElementById('btn-save-roles-assign').addEventListener('click', async () => {
+  const u = state.editing;
+  if (!u) return;
+  const checked = [...document.querySelectorAll('.role-assign-check:checked')].map(c => c.value);
+  const btn  = document.getElementById('btn-save-roles-assign');
+  const txt  = document.getElementById('roles-assign-txt');
+  const spin = document.getElementById('roles-assign-spin');
+  btn.disabled = true; txt.style.display = 'none'; spin.style.display = 'inline-block';
+  try {
+    await api.put(`/users/${u.id}/roles`, { user_id: u.id, tenant_role_ids: checked });
+    toast.success('Roles actualizados correctamente.');
+    document.getElementById('user-roles-assign-panel').style.display = 'none';
+    await loadUserRoles(u.id);
+  } catch(e) {
+    toast.error(e?.detail || 'Error al guardar los roles.');
+  } finally {
+    btn.disabled = false; txt.style.display = ''; spin.style.display = 'none';
   }
 });
 

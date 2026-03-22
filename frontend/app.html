@@ -88,10 +88,12 @@ const NAV_SUPERADMIN = [
   { label: 'Administración', section: true },
   { icon: `<svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>`, label: 'Tenants', page: 'tenants', href: '/tenants.html' },
   { icon: `<svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>`, label: 'Usuarios', page: 'users', href: '/users.html' },
+  { icon: `<svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>`, label: 'Roles', page: 'roles', href: '/roles.html' },
 ];
 const NAV_ADMIN = [
   { label: 'Mi organización', section: true },
   { icon: `<svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>`, label: 'Usuarios', page: 'users', href: '/users.html' },
+  { icon: `<svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>`, label: 'Roles', page: 'roles', href: '/roles.html' },
 ];
 
 const nav   = document.getElementById('sidebar-nav');
@@ -189,6 +191,13 @@ async function loadDashboard() {
                 <div style="font-size:22px;margin-bottom:8px;">👥</div>
                 <div style="font-weight:600;font-size:13.5px;color:var(--text-primary);">Gestionar Usuarios</div>
                 <div style="font-size:12px;color:var(--text-muted);">Administrar accesos y roles</div>
+              </div>
+              <div onclick="window.location.href='/roles.html'"
+                   style="padding:var(--space-4);border:1px solid var(--border);border-radius:var(--radius-md);cursor:pointer;"
+                   onmouseover="this.style.background='var(--bg-hover)'" onmouseout="this.style.background=''">
+                <div style="font-size:22px;margin-bottom:8px;">🛡️</div>
+                <div style="font-weight:600;font-size:13.5px;color:var(--text-primary);">Gestionar Roles</div>
+                <div style="font-size:12px;color:var(--text-muted);">Permisos y control de acceso</div>
               </div>
               <div onclick="window.location.href='/change-password.html'"
                    style="padding:var(--space-4);border:1px solid var(--border);border-radius:var(--radius-md);cursor:pointer;"

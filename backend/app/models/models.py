@@ -20,6 +20,7 @@ from sqlalchemy import (
     Boolean, Column, DateTime, ForeignKey, Index, Integer,
     String, Text, UniqueConstraint, func,
 )
+
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 
@@ -55,6 +56,7 @@ class Tenant(Base):
 
     # Relationships
     users = relationship("User", back_populates="tenant", lazy="dynamic")
+    tenant_roles = relationship("TenantRole", back_populates="tenant", cascade="all, delete-orphan")
 
     __table_args__ = (
         Index("ix_tenants_is_active", "is_active"),
@@ -102,6 +104,7 @@ class User(Base):
     tenant = relationship("Tenant", back_populates="users")
     refresh_tokens = relationship("RefreshToken", back_populates="user", cascade="all, delete-orphan")
     password_reset_tokens = relationship("PasswordResetToken", back_populates="user", cascade="all, delete-orphan")
+    user_tenant_roles = relationship("UserTenantRole", foreign_keys="UserTenantRole.user_id", back_populates="user", cascade="all, delete-orphan")
 
     __table_args__ = (
         Index("ix_users_tenant_id", "tenant_id"),
@@ -238,4 +241,98 @@ class InvitationToken(Base):
         Index("ix_invitation_tokens_tenant_id",    "tenant_id"),
         Index("ix_invitation_tokens_token_hash",   "token_hash"),
         Index("ix_invitation_tokens_invited_email","invited_email"),
+    )
+
+
+# ── RBAC: Permission Catalog ──────────────────────────────────────────────────
+
+class Permission(Base):
+    """
+    Global catalog of all available permissions in the platform.
+    Future modules INSERT their own permissions here on initialization.
+    Format: 'module.resource.action' e.g. 'platform.users.create'
+    """
+    __tablename__ = "permissions"
+
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    code = Column(String(100), nullable=False, unique=True, index=True)
+    name = Column(String(200), nullable=False)
+    description = Column(Text, nullable=True)
+    module = Column(String(100), nullable=False, index=True)
+    is_active = Column(Boolean, nullable=False, default=True)
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+
+    role_permissions = relationship("TenantRolePermission", back_populates="permission", cascade="all, delete-orphan")
+
+    __table_args__ = (
+        Index("ix_permissions_module", "module"),
+        Index("ix_permissions_is_active", "is_active"),
+    )
+
+
+# ── RBAC: Tenant Roles ────────────────────────────────────────────────────────
+
+class TenantRole(Base):
+    """
+    Roles defined by each tenant. Admins manage these for their tenant.
+    is_system=True roles are created by the platform and cannot be deleted.
+    """
+    __tablename__ = "tenant_roles"
+
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    tenant_id = Column(UUID(as_uuid=True), ForeignKey("tenants.id", ondelete="CASCADE"), nullable=False, index=True)
+    name = Column(String(200), nullable=False)
+    description = Column(Text, nullable=True)
+    is_active = Column(Boolean, nullable=False, default=True)
+    is_system = Column(Boolean, nullable=False, default=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=utcnow, nullable=False)
+
+    tenant = relationship("Tenant", back_populates="tenant_roles")
+    role_permissions = relationship("TenantRolePermission", back_populates="role", cascade="all, delete-orphan")
+    user_roles = relationship("UserTenantRole", back_populates="tenant_role", cascade="all, delete-orphan")
+
+    __table_args__ = (
+        UniqueConstraint("tenant_id", "name", name="uq_tenant_roles_tenant_name"),
+        Index("ix_tenant_roles_tenant_id", "tenant_id"),
+        Index("ix_tenant_roles_is_active", "is_active"),
+    )
+
+
+# ── RBAC: Tenant Role Permissions (junction) ──────────────────────────────────
+
+class TenantRolePermission(Base):
+    """Which permissions a tenant role has."""
+    __tablename__ = "tenant_role_permissions"
+
+    tenant_role_id = Column(UUID(as_uuid=True), ForeignKey("tenant_roles.id", ondelete="CASCADE"), primary_key=True)
+    permission_id  = Column(UUID(as_uuid=True), ForeignKey("permissions.id", ondelete="CASCADE"), primary_key=True)
+
+    role = relationship("TenantRole", back_populates="role_permissions")
+    permission = relationship("Permission", back_populates="role_permissions")
+
+    __table_args__ = (
+        Index("ix_trp_tenant_role_id", "tenant_role_id"),
+        Index("ix_trp_permission_id", "permission_id"),
+    )
+
+
+# ── RBAC: User Tenant Roles (junction) ────────────────────────────────────────
+
+class UserTenantRole(Base):
+    """Which tenant roles a user has (N:M)."""
+    __tablename__ = "user_tenant_roles"
+
+    user_id        = Column(UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), primary_key=True)
+    tenant_role_id = Column(UUID(as_uuid=True), ForeignKey("tenant_roles.id", ondelete="CASCADE"), primary_key=True)
+    assigned_by_id = Column(UUID(as_uuid=True), ForeignKey("users.id", ondelete="SET NULL"), nullable=True)
+    assigned_at    = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+
+    user = relationship("User", foreign_keys=[user_id], back_populates="user_tenant_roles")
+    tenant_role = relationship("TenantRole", back_populates="user_roles")
+    assigned_by = relationship("User", foreign_keys=[assigned_by_id])
+
+    __table_args__ = (
+        Index("ix_utr_user_id", "user_id"),
+        Index("ix_utr_tenant_role_id", "tenant_role_id"),
     )

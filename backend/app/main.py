@@ -19,7 +19,7 @@ from fastapi.middleware.trustedhost import TrustedHostMiddleware
 from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
 
-from app.api.v1.endpoints import auth, tenants, users, invitations
+from app.api.v1.endpoints import auth, tenants, users, invitations, roles, permissions
 from app.core.config import settings
 from app.db.session import Base, engine
 
@@ -102,6 +102,8 @@ prefix = settings.API_V1_STR
 app.include_router(auth.router, prefix=prefix)
 app.include_router(tenants.router, prefix=prefix)
 app.include_router(users.router, prefix=prefix)
+app.include_router(roles.router, prefix=prefix)
+app.include_router(permissions.router, prefix=prefix)
 
 
 @app.get("/health")

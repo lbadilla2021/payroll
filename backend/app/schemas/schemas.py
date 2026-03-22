@@ -236,3 +236,97 @@ class InvitationListResponse(BaseModel):
     total: int
     page: int
     size: int
+
+# ── RBAC: Permissions ─────────────────────────────────────────────────────────
+
+class PermissionResponse(BaseModel):
+    id: UUID
+    code: str
+    name: str
+    description: Optional[str]
+    module: str
+    is_active: bool
+    created_at: datetime
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class PermissionListResponse(BaseModel):
+    items: list[PermissionResponse]
+    total: int
+    page: int
+    size: int
+
+
+# ── RBAC: Tenant Roles ────────────────────────────────────────────────────────
+
+class TenantRoleCreate(BaseModel):
+    name: str = Field(..., min_length=1, max_length=200)
+    description: Optional[str] = Field(None, max_length=500)
+    permission_ids: list[UUID] = Field(default_factory=list)
+
+
+class TenantRoleUpdate(BaseModel):
+    name: Optional[str] = Field(None, min_length=1, max_length=200)
+    description: Optional[str] = Field(None, max_length=500)
+    is_active: Optional[bool] = None
+
+
+class TenantRolePermissionResponse(BaseModel):
+    id: UUID
+    code: str
+    name: str
+    module: str
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class TenantRoleResponse(BaseModel):
+    id: UUID
+    tenant_id: UUID
+    name: str
+    description: Optional[str]
+    is_active: bool
+    is_system: bool
+    created_at: datetime
+    updated_at: datetime
+    permissions: list[TenantRolePermissionResponse] = Field(default_factory=list)
+    user_count: Optional[int] = None
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class TenantRoleListResponse(BaseModel):
+    items: list[TenantRoleResponse]
+    total: int
+    page: int
+    size: int
+
+
+# ── RBAC: Role permission assignment ─────────────────────────────────────────
+
+class RolePermissionsSet(BaseModel):
+    """Replace the full set of permissions for a role."""
+    permission_ids: list[UUID]
+
+
+# ── RBAC: User role assignment ────────────────────────────────────────────────
+
+class UserRoleAssign(BaseModel):
+    user_id: UUID
+    tenant_role_ids: list[UUID] = Field(..., min_length=1)
+
+
+class UserTenantRoleResponse(BaseModel):
+    user_id: UUID
+    tenant_role_id: UUID
+    assigned_at: datetime
+    role_name: str
+    role_is_active: bool
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class UserRolesResponse(BaseModel):
+    user_id: UUID
+    roles: list[UserTenantRoleResponse]

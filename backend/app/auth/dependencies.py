@@ -6,10 +6,11 @@ All protected endpoints declare one of these as a dependency:
   - require_superadmin: platform-level operations
   - require_admin_or_superadmin: tenant management
   - get_current_active_user + require_tenant_access: tenant-scoped operations
+  - require_permission(code): granular RBAC check (replaces hardcoded role checks)
 """
 
 import hashlib
-from typing import Optional
+from typing import Callable, Optional
 from uuid import UUID
 
 from fastapi import Cookie, Depends, Header, HTTPException, Request, status
@@ -112,3 +113,39 @@ def require_tenant_access(
     if user.role != "superadmin" and user.tenant_id != tenant_id:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Access denied.")
     return tenant
+
+
+# ── RBAC: Granular permission dependency ──────────────────────────────────────
+
+def require_permission(code: str) -> Callable:
+    """
+    Factory that returns a FastAPI dependency checking for a specific permission.
+
+    Usage:
+        @router.post("/users")
+        def create_user(
+            body: UserCreate,
+            actor: User = Depends(require_permission("platform.users.create")),
+            db: Session = Depends(get_db),
+        ):
+            ...
+
+    superadmin bypasses all RBAC checks — has every permission implicitly.
+    """
+    def _check(
+        actor: User = Depends(get_current_user),
+        db: Session = Depends(get_db),
+    ) -> User:
+        if actor.role == "superadmin":
+            return actor  # full bypass
+        from app.services.rbac import user_has_permission
+        if not user_has_permission(actor.id, actor.role, code, db):
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail=f"Se requiere permiso: {code}",
+            )
+        return actor
+
+    # Give the inner function a unique name to avoid FastAPI dependency conflicts
+    _check.__name__ = f"require_permission_{code.replace('.', '_')}"
+    return _check
