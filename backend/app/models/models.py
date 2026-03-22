@@ -197,3 +197,45 @@ class AuditLog(Base):
         Index("ix_audit_action", "action"),
         Index("ix_audit_created_at", "created_at"),
     )
+
+
+# ── Invitation Tokens ─────────────────────────────────────────────────────────
+
+class InvitationToken(Base):
+    """
+    Pending invitations sent by admins/superadmins.
+    The invited person receives an email with a signed link.
+    On acceptance, the user account is created with their own password.
+    Token is single-use and expires after TTL (default 72h).
+    """
+    __tablename__ = "invitation_tokens"
+
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    tenant_id = Column(UUID(as_uuid=True), ForeignKey("tenants.id", ondelete="CASCADE"), nullable=True)
+    invited_by_id = Column(UUID(as_uuid=True), ForeignKey("users.id", ondelete="SET NULL"), nullable=True)
+
+    invited_email = Column(String(254), nullable=False, index=True)
+    invited_role = Column(String(50), nullable=False, default="viewer")
+    token_hash = Column(String(255), nullable=False, unique=True)  # SHA-256 of raw token
+
+    first_name = Column(String(100), nullable=True)   # optional pre-fill
+    last_name  = Column(String(100), nullable=True)
+    job_title  = Column(String(150), nullable=True)
+
+    expires_at  = Column(DateTime(timezone=True), nullable=False)
+    accepted_at = Column(DateTime(timezone=True), nullable=True)
+    is_accepted = Column(Boolean, nullable=False, default=False)
+    is_revoked  = Column(Boolean, nullable=False, default=False)
+
+    ip_address = Column(String(45), nullable=True)
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+
+    # Relationships
+    tenant     = relationship("Tenant")
+    invited_by = relationship("User", foreign_keys=[invited_by_id])
+
+    __table_args__ = (
+        Index("ix_invitation_tokens_tenant_id",    "tenant_id"),
+        Index("ix_invitation_tokens_token_hash",   "token_hash"),
+        Index("ix_invitation_tokens_invited_email","invited_email"),
+    )

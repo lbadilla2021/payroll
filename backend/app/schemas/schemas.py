@@ -8,7 +8,7 @@ from datetime import datetime
 from typing import Optional
 from uuid import UUID
 
-from pydantic import BaseModel, EmailStr, Field, field_validator, model_validator
+from pydantic import BaseModel, ConfigDict, EmailStr, Field, field_validator, model_validator
 
 from app.core.config import settings
 from app.core.security import validate_password_strength
@@ -194,3 +194,45 @@ class MessageResponse(BaseModel):
 
 class ErrorResponse(BaseModel):
     detail: str
+
+
+# ── Invitations ───────────────────────────────────────────────────────────────
+
+class InvitationCreate(BaseModel):
+    invited_email: EmailStr
+    invited_role: str = Field("viewer", pattern=r"^(superadmin|admin|viewer)$")
+    tenant_id: Optional[UUID] = None
+    first_name: Optional[str] = Field(None, max_length=100)
+    last_name:  Optional[str] = Field(None, max_length=100)
+    job_title:  Optional[str] = Field(None, max_length=150)
+
+
+class InvitationAccept(BaseModel):
+    token: str
+    first_name: str  = Field(..., min_length=1, max_length=100)
+    last_name:  str  = Field(..., min_length=1, max_length=100)
+    password:   str  = Field(..., min_length=10)
+
+
+class InvitationResponse(BaseModel):
+    id: UUID
+    invited_email: str
+    invited_role: str
+    tenant_id: Optional[UUID]
+    first_name: Optional[str]
+    last_name:  Optional[str]
+    job_title:  Optional[str]
+    is_accepted: bool
+    is_revoked: bool
+    expires_at: datetime
+    accepted_at: Optional[datetime]
+    created_at: datetime
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class InvitationListResponse(BaseModel):
+    items: list[InvitationResponse]
+    total: int
+    page: int
+    size: int

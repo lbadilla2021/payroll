@@ -19,6 +19,9 @@ class Settings(BaseSettings):
     DB_MAX_OVERFLOW: int = 20
     DB_POOL_TIMEOUT: int = 30
 
+    # ── Redis ─────────────────────────────────────────────────────────────────
+    REDIS_URL: str = "redis://redis:6379/0"
+
     # ── Auth / Tokens ─────────────────────────────────────────────────────────
     # httpOnly cookie strategy: access token short-lived, refresh token longer
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30

@@ -90,3 +90,45 @@ def send_welcome_email(to_email: str, user_name: str, temp_password: Optional[st
     </div>
     """
     return _send(to_email, f"Bienvenido/a a {settings.APP_NAME}", _base_template(content))
+
+
+def send_invitation_email(
+    to_email: str,
+    invited_by_name: str,
+    tenant_name: str,
+    accept_link: str,
+    role: str,
+    expires_hours: int = 72,
+) -> bool:
+    role_labels = {"superadmin": "Superadmin", "admin": "Administrador", "viewer": "Colaborador"}
+    role_label = role_labels.get(role, role.capitalize())
+
+    content = f"""
+    <h2 style="margin:0 0 16px;font-size:22px;color:#111;">Te han invitado a unirte</h2>
+    <p style="color:#444;line-height:1.6;">
+        <strong>{invited_by_name}</strong> te ha invitado a unirte a
+        <strong>{tenant_name}</strong> en {settings.APP_NAME}
+        como <strong>{role_label}</strong>.
+    </p>
+    <div style="text-align:center;margin:32px 0;">
+        <a href="{accept_link}"
+           style="background:#0ea5e9;color:#fff;text-decoration:none;padding:14px 32px;
+                  border-radius:8px;font-weight:600;font-size:16px;display:inline-block;">
+            Aceptar invitación
+        </a>
+    </div>
+    <p style="color:#666;font-size:13px;text-align:center;">
+        Este enlace expira en {expires_hours} horas.
+    </p>
+    <p style="color:#999;font-size:12px;text-align:center;">
+        Si no esperabas esta invitación, puedes ignorar este correo.
+    </p>
+    <p style="color:#ccc;font-size:11px;word-break:break-all;text-align:center;">
+        {accept_link}
+    </p>
+    """
+    return _send(
+        to_email,
+        f"Invitación para unirte a {tenant_name} — {settings.APP_NAME}",
+        _base_template(content),
+    )

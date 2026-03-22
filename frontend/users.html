@@ -52,6 +52,10 @@
     <header class="topbar">
       <span class="topbar-title">Usuarios</span>
       <div class="topbar-spacer"></div>
+      <button class="btn btn-secondary btn-sm" id="btn-invite-user">
+        <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+        Invitar
+      </button>
       <button class="btn btn-primary btn-sm" id="btn-new-user">
         <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
         Nuevo usuario
@@ -169,6 +173,64 @@
   </div>
 </div>
 
+
+<!-- Invitation Panel -->
+<div class="panel" id="invite-panel">
+  <div class="panel-header">
+    <button class="btn btn-ghost btn-icon" id="invite-panel-close">
+      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+    <span class="modal-title">Invitar usuario</span>
+  </div>
+  <div class="panel-body">
+    <p style="font-size:13px;color:var(--text-muted);margin-bottom:var(--space-4);">
+      El invitado recibirá un correo con un enlace para crear su propia contraseña. El enlace expira en 72 horas.
+    </p>
+    <div class="form-group">
+      <label class="form-label">Correo electrónico *</label>
+      <input class="form-input" type="email" id="inv-email" placeholder="juan@empresa.com">
+    </div>
+    <div class="form-row cols-2">
+      <div class="form-group">
+        <label class="form-label">Nombre (opcional)</label>
+        <input class="form-input" type="text" id="inv-first-name" placeholder="Juan">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Apellido (opcional)</label>
+        <input class="form-input" type="text" id="inv-last-name" placeholder="Pérez">
+      </div>
+    </div>
+    <div class="form-row cols-2">
+      <div class="form-group">
+        <label class="form-label">Rol *</label>
+        <select class="form-input form-select" id="inv-role">
+          <option value="viewer">Colaborador</option>
+          <option value="admin">Administrador</option>
+          <option value="superadmin" id="inv-role-superadmin" style="display:none;">Superadmin</option>
+        </select>
+      </div>
+      <div class="form-group" id="inv-tenant-group">
+        <label class="form-label">Tenant *</label>
+        <select class="form-input form-select" id="inv-tenant-select">
+          <option value="">Seleccionar tenant…</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Cargo (opcional)</label>
+      <input class="form-input" type="text" id="inv-job-title" placeholder="Gerente RRHH">
+    </div>
+    <div id="invite-error" style="display:none;background:var(--error-bg);border:1px solid var(--error);color:var(--error);padding:10px 14px;border-radius:var(--radius-md);font-size:13px;"></div>
+  </div>
+  <div class="panel-footer">
+    <button class="btn btn-secondary" id="invite-panel-cancel">Cancelar</button>
+    <button class="btn btn-primary" id="invite-send-btn">
+      <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+      Enviar invitación
+    </button>
+  </div>
+</div>
+
 <div id="toast-container"></div>
 
 <script type="module">
@@ -269,7 +331,70 @@ async function loadUsers() {
     renderPagination(
       document.getElementById('pagination'),
       { page: data.page, total: data.total, size: data.size },
-      p => { state.page = p; loadUsers(); }
+      p => { state.page = p; 
+// ── Invitation panel ──────────────────────────────────────────────────────────
+document.getElementById('invite-panel-close').addEventListener('click',  () => closePanel('invite-panel'));
+document.getElementById('invite-panel-cancel').addEventListener('click', () => closePanel('invite-panel'));
+
+// Sync tenant options from allTenants into invite select
+function syncInviteTenantSelect() {
+  const sel = document.getElementById('inv-tenant-select');
+  const optionsHTML = allTenants.map(t => `<option value="${t.id}">${esc(t.name)}</option>`).join('');
+  sel.innerHTML = '<option value="">Seleccionar tenant…</option>' + optionsHTML;
+}
+
+document.getElementById('btn-invite-user').addEventListener('click', () => {
+  // Clear form
+  ['inv-email','inv-first-name','inv-last-name','inv-job-title'].forEach(id => {
+    document.getElementById(id).value = '';
+  });
+  document.getElementById('inv-role').value = 'viewer';
+  document.getElementById('invite-error').style.display = 'none';
+
+  if (superadmin) {
+    syncInviteTenantSelect();
+    document.getElementById('inv-tenant-group').style.display = 'block';
+    document.getElementById('inv-role-superadmin').style.display = 'block';
+  } else {
+    document.getElementById('inv-tenant-group').style.display = 'none';
+  }
+
+  openPanel('invite-panel');
+});
+
+document.getElementById('invite-send-btn').addEventListener('click', async () => {
+  const btn   = document.getElementById('invite-send-btn');
+  const errEl = document.getElementById('invite-error');
+  errEl.style.display = 'none';
+
+  const payload = {
+    invited_email: document.getElementById('inv-email').value.trim(),
+    invited_role:  document.getElementById('inv-role').value,
+    tenant_id:     superadmin ? (document.getElementById('inv-tenant-select').value || null) : null,
+    first_name:    document.getElementById('inv-first-name').value.trim() || null,
+    last_name:     document.getElementById('inv-last-name').value.trim()  || null,
+    job_title:     document.getElementById('inv-job-title').value.trim()  || null,
+  };
+
+  if (!payload.invited_email) {
+    errEl.textContent = 'El correo es obligatorio.';
+    errEl.style.display = 'block'; return;
+  }
+
+  setLoading(btn, true);
+  try {
+    await api.post('/invitations', payload);
+    toast.success(`Invitación enviada a ${payload.invited_email}`);
+    closePanel('invite-panel');
+  } catch (err) {
+    errEl.textContent = err.message;
+    errEl.style.display = 'block';
+  } finally {
+    setLoading(btn, false);
+  }
+});
+
+loadUsers(); }
     );
   } catch (err) { toast.error(err.message); }
 }
@@ -367,7 +492,70 @@ window.toggleUser = async (id, current) => {
   try {
     await api.patch(`/users/${id}/toggle-active`);
     toast.success(`Usuario ${action}do.`);
-    loadUsers();
+    
+// ── Invitation panel ──────────────────────────────────────────────────────────
+document.getElementById('invite-panel-close').addEventListener('click',  () => closePanel('invite-panel'));
+document.getElementById('invite-panel-cancel').addEventListener('click', () => closePanel('invite-panel'));
+
+// Sync tenant options from allTenants into invite select
+function syncInviteTenantSelect() {
+  const sel = document.getElementById('inv-tenant-select');
+  const optionsHTML = allTenants.map(t => `<option value="${t.id}">${esc(t.name)}</option>`).join('');
+  sel.innerHTML = '<option value="">Seleccionar tenant…</option>' + optionsHTML;
+}
+
+document.getElementById('btn-invite-user').addEventListener('click', () => {
+  // Clear form
+  ['inv-email','inv-first-name','inv-last-name','inv-job-title'].forEach(id => {
+    document.getElementById(id).value = '';
+  });
+  document.getElementById('inv-role').value = 'viewer';
+  document.getElementById('invite-error').style.display = 'none';
+
+  if (superadmin) {
+    syncInviteTenantSelect();
+    document.getElementById('inv-tenant-group').style.display = 'block';
+    document.getElementById('inv-role-superadmin').style.display = 'block';
+  } else {
+    document.getElementById('inv-tenant-group').style.display = 'none';
+  }
+
+  openPanel('invite-panel');
+});
+
+document.getElementById('invite-send-btn').addEventListener('click', async () => {
+  const btn   = document.getElementById('invite-send-btn');
+  const errEl = document.getElementById('invite-error');
+  errEl.style.display = 'none';
+
+  const payload = {
+    invited_email: document.getElementById('inv-email').value.trim(),
+    invited_role:  document.getElementById('inv-role').value,
+    tenant_id:     superadmin ? (document.getElementById('inv-tenant-select').value || null) : null,
+    first_name:    document.getElementById('inv-first-name').value.trim() || null,
+    last_name:     document.getElementById('inv-last-name').value.trim()  || null,
+    job_title:     document.getElementById('inv-job-title').value.trim()  || null,
+  };
+
+  if (!payload.invited_email) {
+    errEl.textContent = 'El correo es obligatorio.';
+    errEl.style.display = 'block'; return;
+  }
+
+  setLoading(btn, true);
+  try {
+    await api.post('/invitations', payload);
+    toast.success(`Invitación enviada a ${payload.invited_email}`);
+    closePanel('invite-panel');
+  } catch (err) {
+    errEl.textContent = err.message;
+    errEl.style.display = 'block';
+  } finally {
+    setLoading(btn, false);
+  }
+});
+
+loadUsers();
   } catch (err) { toast.error(err.message); }
 };
 
@@ -401,7 +589,70 @@ document.getElementById('user-save-btn').addEventListener('click', async () => {
       await api.patch(`/users/${state.editing.id}`, payload);
       toast.success('Usuario actualizado.');
       closePanel('user-panel');
-      loadUsers();
+      
+// ── Invitation panel ──────────────────────────────────────────────────────────
+document.getElementById('invite-panel-close').addEventListener('click',  () => closePanel('invite-panel'));
+document.getElementById('invite-panel-cancel').addEventListener('click', () => closePanel('invite-panel'));
+
+// Sync tenant options from allTenants into invite select
+function syncInviteTenantSelect() {
+  const sel = document.getElementById('inv-tenant-select');
+  const optionsHTML = allTenants.map(t => `<option value="${t.id}">${esc(t.name)}</option>`).join('');
+  sel.innerHTML = '<option value="">Seleccionar tenant…</option>' + optionsHTML;
+}
+
+document.getElementById('btn-invite-user').addEventListener('click', () => {
+  // Clear form
+  ['inv-email','inv-first-name','inv-last-name','inv-job-title'].forEach(id => {
+    document.getElementById(id).value = '';
+  });
+  document.getElementById('inv-role').value = 'viewer';
+  document.getElementById('invite-error').style.display = 'none';
+
+  if (superadmin) {
+    syncInviteTenantSelect();
+    document.getElementById('inv-tenant-group').style.display = 'block';
+    document.getElementById('inv-role-superadmin').style.display = 'block';
+  } else {
+    document.getElementById('inv-tenant-group').style.display = 'none';
+  }
+
+  openPanel('invite-panel');
+});
+
+document.getElementById('invite-send-btn').addEventListener('click', async () => {
+  const btn   = document.getElementById('invite-send-btn');
+  const errEl = document.getElementById('invite-error');
+  errEl.style.display = 'none';
+
+  const payload = {
+    invited_email: document.getElementById('inv-email').value.trim(),
+    invited_role:  document.getElementById('inv-role').value,
+    tenant_id:     superadmin ? (document.getElementById('inv-tenant-select').value || null) : null,
+    first_name:    document.getElementById('inv-first-name').value.trim() || null,
+    last_name:     document.getElementById('inv-last-name').value.trim()  || null,
+    job_title:     document.getElementById('inv-job-title').value.trim()  || null,
+  };
+
+  if (!payload.invited_email) {
+    errEl.textContent = 'El correo es obligatorio.';
+    errEl.style.display = 'block'; return;
+  }
+
+  setLoading(btn, true);
+  try {
+    await api.post('/invitations', payload);
+    toast.success(`Invitación enviada a ${payload.invited_email}`);
+    closePanel('invite-panel');
+  } catch (err) {
+    errEl.textContent = err.message;
+    errEl.style.display = 'block';
+  } finally {
+    setLoading(btn, false);
+  }
+});
+
+loadUsers();
     } catch (err) {
       errEl.textContent = err.message; errEl.style.display = 'block';
     } finally { setLoading(btn, false); }
@@ -426,7 +677,70 @@ document.getElementById('user-save-btn').addEventListener('click', async () => {
       await api.post('/users', payload);
       toast.success('Usuario creado exitosamente.');
       closePanel('user-panel');
-      loadUsers();
+      
+// ── Invitation panel ──────────────────────────────────────────────────────────
+document.getElementById('invite-panel-close').addEventListener('click',  () => closePanel('invite-panel'));
+document.getElementById('invite-panel-cancel').addEventListener('click', () => closePanel('invite-panel'));
+
+// Sync tenant options from allTenants into invite select
+function syncInviteTenantSelect() {
+  const sel = document.getElementById('inv-tenant-select');
+  const optionsHTML = allTenants.map(t => `<option value="${t.id}">${esc(t.name)}</option>`).join('');
+  sel.innerHTML = '<option value="">Seleccionar tenant…</option>' + optionsHTML;
+}
+
+document.getElementById('btn-invite-user').addEventListener('click', () => {
+  // Clear form
+  ['inv-email','inv-first-name','inv-last-name','inv-job-title'].forEach(id => {
+    document.getElementById(id).value = '';
+  });
+  document.getElementById('inv-role').value = 'viewer';
+  document.getElementById('invite-error').style.display = 'none';
+
+  if (superadmin) {
+    syncInviteTenantSelect();
+    document.getElementById('inv-tenant-group').style.display = 'block';
+    document.getElementById('inv-role-superadmin').style.display = 'block';
+  } else {
+    document.getElementById('inv-tenant-group').style.display = 'none';
+  }
+
+  openPanel('invite-panel');
+});
+
+document.getElementById('invite-send-btn').addEventListener('click', async () => {
+  const btn   = document.getElementById('invite-send-btn');
+  const errEl = document.getElementById('invite-error');
+  errEl.style.display = 'none';
+
+  const payload = {
+    invited_email: document.getElementById('inv-email').value.trim(),
+    invited_role:  document.getElementById('inv-role').value,
+    tenant_id:     superadmin ? (document.getElementById('inv-tenant-select').value || null) : null,
+    first_name:    document.getElementById('inv-first-name').value.trim() || null,
+    last_name:     document.getElementById('inv-last-name').value.trim()  || null,
+    job_title:     document.getElementById('inv-job-title').value.trim()  || null,
+  };
+
+  if (!payload.invited_email) {
+    errEl.textContent = 'El correo es obligatorio.';
+    errEl.style.display = 'block'; return;
+  }
+
+  setLoading(btn, true);
+  try {
+    await api.post('/invitations', payload);
+    toast.success(`Invitación enviada a ${payload.invited_email}`);
+    closePanel('invite-panel');
+  } catch (err) {
+    errEl.textContent = err.message;
+    errEl.style.display = 'block';
+  } finally {
+    setLoading(btn, false);
+  }
+});
+
+loadUsers();
     } catch (err) {
       errEl.textContent = err.message; errEl.style.display = 'block';
     } finally { setLoading(btn, false); }
@@ -436,13 +750,265 @@ document.getElementById('user-save-btn').addEventListener('click', async () => {
 // ── Filters ───────────────────────────────────────────────────────────────────
 let st;
 document.getElementById('search-input').addEventListener('input', e => {
-  clearTimeout(st); st = setTimeout(() => { state.search = e.target.value; state.page = 1; loadUsers(); }, 350);
+  clearTimeout(st); st = setTimeout(() => { state.search = e.target.value; state.page = 1; 
+// ── Invitation panel ──────────────────────────────────────────────────────────
+document.getElementById('invite-panel-close').addEventListener('click',  () => closePanel('invite-panel'));
+document.getElementById('invite-panel-cancel').addEventListener('click', () => closePanel('invite-panel'));
+
+// Sync tenant options from allTenants into invite select
+function syncInviteTenantSelect() {
+  const sel = document.getElementById('inv-tenant-select');
+  const optionsHTML = allTenants.map(t => `<option value="${t.id}">${esc(t.name)}</option>`).join('');
+  sel.innerHTML = '<option value="">Seleccionar tenant…</option>' + optionsHTML;
+}
+
+document.getElementById('btn-invite-user').addEventListener('click', () => {
+  // Clear form
+  ['inv-email','inv-first-name','inv-last-name','inv-job-title'].forEach(id => {
+    document.getElementById(id).value = '';
+  });
+  document.getElementById('inv-role').value = 'viewer';
+  document.getElementById('invite-error').style.display = 'none';
+
+  if (superadmin) {
+    syncInviteTenantSelect();
+    document.getElementById('inv-tenant-group').style.display = 'block';
+    document.getElementById('inv-role-superadmin').style.display = 'block';
+  } else {
+    document.getElementById('inv-tenant-group').style.display = 'none';
+  }
+
+  openPanel('invite-panel');
+});
+
+document.getElementById('invite-send-btn').addEventListener('click', async () => {
+  const btn   = document.getElementById('invite-send-btn');
+  const errEl = document.getElementById('invite-error');
+  errEl.style.display = 'none';
+
+  const payload = {
+    invited_email: document.getElementById('inv-email').value.trim(),
+    invited_role:  document.getElementById('inv-role').value,
+    tenant_id:     superadmin ? (document.getElementById('inv-tenant-select').value || null) : null,
+    first_name:    document.getElementById('inv-first-name').value.trim() || null,
+    last_name:     document.getElementById('inv-last-name').value.trim()  || null,
+    job_title:     document.getElementById('inv-job-title').value.trim()  || null,
+  };
+
+  if (!payload.invited_email) {
+    errEl.textContent = 'El correo es obligatorio.';
+    errEl.style.display = 'block'; return;
+  }
+
+  setLoading(btn, true);
+  try {
+    await api.post('/invitations', payload);
+    toast.success(`Invitación enviada a ${payload.invited_email}`);
+    closePanel('invite-panel');
+  } catch (err) {
+    errEl.textContent = err.message;
+    errEl.style.display = 'block';
+  } finally {
+    setLoading(btn, false);
+  }
+});
+
+loadUsers(); }, 350);
 });
 document.getElementById('filter-status').addEventListener('change', e => {
-  state.status = e.target.value; state.page = 1; loadUsers();
+  state.status = e.target.value; state.page = 1; 
+// ── Invitation panel ──────────────────────────────────────────────────────────
+document.getElementById('invite-panel-close').addEventListener('click',  () => closePanel('invite-panel'));
+document.getElementById('invite-panel-cancel').addEventListener('click', () => closePanel('invite-panel'));
+
+// Sync tenant options from allTenants into invite select
+function syncInviteTenantSelect() {
+  const sel = document.getElementById('inv-tenant-select');
+  const optionsHTML = allTenants.map(t => `<option value="${t.id}">${esc(t.name)}</option>`).join('');
+  sel.innerHTML = '<option value="">Seleccionar tenant…</option>' + optionsHTML;
+}
+
+document.getElementById('btn-invite-user').addEventListener('click', () => {
+  // Clear form
+  ['inv-email','inv-first-name','inv-last-name','inv-job-title'].forEach(id => {
+    document.getElementById(id).value = '';
+  });
+  document.getElementById('inv-role').value = 'viewer';
+  document.getElementById('invite-error').style.display = 'none';
+
+  if (superadmin) {
+    syncInviteTenantSelect();
+    document.getElementById('inv-tenant-group').style.display = 'block';
+    document.getElementById('inv-role-superadmin').style.display = 'block';
+  } else {
+    document.getElementById('inv-tenant-group').style.display = 'none';
+  }
+
+  openPanel('invite-panel');
+});
+
+document.getElementById('invite-send-btn').addEventListener('click', async () => {
+  const btn   = document.getElementById('invite-send-btn');
+  const errEl = document.getElementById('invite-error');
+  errEl.style.display = 'none';
+
+  const payload = {
+    invited_email: document.getElementById('inv-email').value.trim(),
+    invited_role:  document.getElementById('inv-role').value,
+    tenant_id:     superadmin ? (document.getElementById('inv-tenant-select').value || null) : null,
+    first_name:    document.getElementById('inv-first-name').value.trim() || null,
+    last_name:     document.getElementById('inv-last-name').value.trim()  || null,
+    job_title:     document.getElementById('inv-job-title').value.trim()  || null,
+  };
+
+  if (!payload.invited_email) {
+    errEl.textContent = 'El correo es obligatorio.';
+    errEl.style.display = 'block'; return;
+  }
+
+  setLoading(btn, true);
+  try {
+    await api.post('/invitations', payload);
+    toast.success(`Invitación enviada a ${payload.invited_email}`);
+    closePanel('invite-panel');
+  } catch (err) {
+    errEl.textContent = err.message;
+    errEl.style.display = 'block';
+  } finally {
+    setLoading(btn, false);
+  }
+});
+
+loadUsers();
 });
 document.getElementById('filter-tenant').addEventListener('change', e => {
-  state.tenantId = e.target.value; state.page = 1; loadUsers();
+  state.tenantId = e.target.value; state.page = 1; 
+// ── Invitation panel ──────────────────────────────────────────────────────────
+document.getElementById('invite-panel-close').addEventListener('click',  () => closePanel('invite-panel'));
+document.getElementById('invite-panel-cancel').addEventListener('click', () => closePanel('invite-panel'));
+
+// Sync tenant options from allTenants into invite select
+function syncInviteTenantSelect() {
+  const sel = document.getElementById('inv-tenant-select');
+  const optionsHTML = allTenants.map(t => `<option value="${t.id}">${esc(t.name)}</option>`).join('');
+  sel.innerHTML = '<option value="">Seleccionar tenant…</option>' + optionsHTML;
+}
+
+document.getElementById('btn-invite-user').addEventListener('click', () => {
+  // Clear form
+  ['inv-email','inv-first-name','inv-last-name','inv-job-title'].forEach(id => {
+    document.getElementById(id).value = '';
+  });
+  document.getElementById('inv-role').value = 'viewer';
+  document.getElementById('invite-error').style.display = 'none';
+
+  if (superadmin) {
+    syncInviteTenantSelect();
+    document.getElementById('inv-tenant-group').style.display = 'block';
+    document.getElementById('inv-role-superadmin').style.display = 'block';
+  } else {
+    document.getElementById('inv-tenant-group').style.display = 'none';
+  }
+
+  openPanel('invite-panel');
+});
+
+document.getElementById('invite-send-btn').addEventListener('click', async () => {
+  const btn   = document.getElementById('invite-send-btn');
+  const errEl = document.getElementById('invite-error');
+  errEl.style.display = 'none';
+
+  const payload = {
+    invited_email: document.getElementById('inv-email').value.trim(),
+    invited_role:  document.getElementById('inv-role').value,
+    tenant_id:     superadmin ? (document.getElementById('inv-tenant-select').value || null) : null,
+    first_name:    document.getElementById('inv-first-name').value.trim() || null,
+    last_name:     document.getElementById('inv-last-name').value.trim()  || null,
+    job_title:     document.getElementById('inv-job-title').value.trim()  || null,
+  };
+
+  if (!payload.invited_email) {
+    errEl.textContent = 'El correo es obligatorio.';
+    errEl.style.display = 'block'; return;
+  }
+
+  setLoading(btn, true);
+  try {
+    await api.post('/invitations', payload);
+    toast.success(`Invitación enviada a ${payload.invited_email}`);
+    closePanel('invite-panel');
+  } catch (err) {
+    errEl.textContent = err.message;
+    errEl.style.display = 'block';
+  } finally {
+    setLoading(btn, false);
+  }
+});
+
+loadUsers();
+});
+
+
+// ── Invitation panel ──────────────────────────────────────────────────────────
+document.getElementById('invite-panel-close').addEventListener('click',  () => closePanel('invite-panel'));
+document.getElementById('invite-panel-cancel').addEventListener('click', () => closePanel('invite-panel'));
+
+// Sync tenant options from allTenants into invite select
+function syncInviteTenantSelect() {
+  const sel = document.getElementById('inv-tenant-select');
+  const optionsHTML = allTenants.map(t => `<option value="${t.id}">${esc(t.name)}</option>`).join('');
+  sel.innerHTML = '<option value="">Seleccionar tenant…</option>' + optionsHTML;
+}
+
+document.getElementById('btn-invite-user').addEventListener('click', () => {
+  // Clear form
+  ['inv-email','inv-first-name','inv-last-name','inv-job-title'].forEach(id => {
+    document.getElementById(id).value = '';
+  });
+  document.getElementById('inv-role').value = 'viewer';
+  document.getElementById('invite-error').style.display = 'none';
+
+  if (superadmin) {
+    syncInviteTenantSelect();
+    document.getElementById('inv-tenant-group').style.display = 'block';
+    document.getElementById('inv-role-superadmin').style.display = 'block';
+  } else {
+    document.getElementById('inv-tenant-group').style.display = 'none';
+  }
+
+  openPanel('invite-panel');
+});
+
+document.getElementById('invite-send-btn').addEventListener('click', async () => {
+  const btn   = document.getElementById('invite-send-btn');
+  const errEl = document.getElementById('invite-error');
+  errEl.style.display = 'none';
+
+  const payload = {
+    invited_email: document.getElementById('inv-email').value.trim(),
+    invited_role:  document.getElementById('inv-role').value,
+    tenant_id:     superadmin ? (document.getElementById('inv-tenant-select').value || null) : null,
+    first_name:    document.getElementById('inv-first-name').value.trim() || null,
+    last_name:     document.getElementById('inv-last-name').value.trim()  || null,
+    job_title:     document.getElementById('inv-job-title').value.trim()  || null,
+  };
+
+  if (!payload.invited_email) {
+    errEl.textContent = 'El correo es obligatorio.';
+    errEl.style.display = 'block'; return;
+  }
+
+  setLoading(btn, true);
+  try {
+    await api.post('/invitations', payload);
+    toast.success(`Invitación enviada a ${payload.invited_email}`);
+    closePanel('invite-panel');
+  } catch (err) {
+    errEl.textContent = err.message;
+    errEl.style.display = 'block';
+  } finally {
+    setLoading(btn, false);
+  }
 });
 
 loadUsers();

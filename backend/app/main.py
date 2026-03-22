@@ -19,7 +19,7 @@ from fastapi.middleware.trustedhost import TrustedHostMiddleware
 from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
 
-from app.api.v1.endpoints import auth, tenants, users
+from app.api.v1.endpoints import auth, tenants, users, invitations
 from app.core.config import settings
 from app.db.session import Base, engine
 
