@@ -156,6 +156,7 @@ class UserUpdate(BaseModel):
     phone: Optional[str] = Field(None, max_length=30)
     job_title: Optional[str] = Field(None, max_length=150)
     force_password_change: Optional[bool] = None
+    tenant_id: Optional[UUID] = None
 
 
 class UserResponse(BaseModel):

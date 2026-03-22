@@ -394,6 +394,7 @@ document.getElementById('user-save-btn').addEventListener('click', async () => {
       job_title:             document.getElementById('f-job-title').value.trim() || null,
       phone:                 document.getElementById('f-user-phone').value.trim() || null,
       force_password_change: document.getElementById('f-force-pwd').checked,
+      tenant_id:             document.getElementById('f-tenant-select').value || null,
     };
     setLoading(btn, true);
     try {

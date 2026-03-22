@@ -10,18 +10,15 @@
 
 <div id="app-shell">
 
-  <!-- ── Sidebar ── -->
   <nav class="sidebar" id="sidebar">
     <div class="sidebar-brand">
       <div class="brand-mark">S</div>
       <span class="brand-name">SaaS Platform</span>
     </div>
 
-    <div class="sidebar-nav" id="sidebar-nav">
-      <!-- Nav rendered by JS based on role -->
-    </div>
+    <div class="sidebar-nav" id="sidebar-nav"></div>
 
-        <div class="sidebar-footer">
+    <div class="sidebar-footer">
       <div class="profile-trigger" id="profile-trigger">
         <div class="avatar" id="sidebar-avatar">?</div>
         <div class="profile-info">
@@ -52,20 +49,15 @@
         </div>
       </div>
     </div>
-    </div>
   </nav>
 
-  <!-- ── Main ── -->
   <div class="main-content">
     <header class="topbar">
       <span class="topbar-title" id="page-title">Dashboard</span>
       <div class="topbar-spacer"></div>
-      <div id="topbar-actions"></div>
     </header>
-
     <main class="page-area" id="page-content">
-      <!-- Loading skeleton -->
-      <div id="page-loading" style="display:flex;align-items:center;justify-content:center;height:200px;">
+      <div style="display:flex;align-items:center;justify-content:center;height:200px;">
         <div class="spinner" style="width:32px;height:32px;"></div>
       </div>
     </main>
@@ -76,12 +68,11 @@
 <div id="toast-container"></div>
 
 <script type="module">
-import api from '/static/js/api.js?v=3';
+import api  from '/static/js/api.js?v=3';
 import { requireAuth, logout, renderProfile } from '/static/js/auth.js?v=3';
 import { initTheme, initProfileMenu, toggleTheme } from '/static/js/ui.js?v=3';
 import { toast } from '/static/js/toast.js?v=3';
 
-// ── Init ──────────────────────────────────────────────────────────────────────
 initTheme();
 const user = await requireAuth();
 renderProfile(user);
@@ -89,7 +80,7 @@ initProfileMenu();
 
 const isSuperadmin = () => user.role === 'superadmin';
 
-// ── Navigation ────────────────────────────────────────────────────────────────
+// ── Sidebar nav ───────────────────────────────────────────────────────────────
 const NAV_COMMON = [
   { icon: `<svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>`, label: 'Dashboard', page: 'dashboard', href: '/app.html' },
 ];
@@ -100,28 +91,17 @@ const NAV_SUPERADMIN = [
 ];
 const NAV_ADMIN = [
   { label: 'Mi organización', section: true },
-  { icon: `<svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>`, label: 'Usuarios', page: 'users', href: '/users.html' },
+  { icon: `<svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>`, label: 'Usuarios', page: 'users', href: '/users.html' },
 ];
 
-function buildNav() {
-  const nav = document.getElementById('sidebar-nav');
-  const items = [...NAV_COMMON, ...(isSuperadmin() ? NAV_SUPERADMIN : NAV_ADMIN)];
-  const currentPage = document.body.dataset.page || 'dashboard';
+const nav   = document.getElementById('sidebar-nav');
+const items = [...NAV_COMMON, ...(isSuperadmin() ? NAV_SUPERADMIN : NAV_ADMIN)];
+nav.innerHTML = items.map(item => {
+  if (item.section) return `<div class="nav-section-label">${item.label}</div>`;
+  return `<div class="nav-item ${item.page === 'dashboard' ? 'active' : ''}" onclick="window.location.href='${item.href}'">${item.icon}<span>${item.label}</span></div>`;
+}).join('');
 
-  nav.innerHTML = items.map(item => {
-    if (item.section) return `<div class="nav-section-label">${item.label}</div>`;
-    return `
-      <div class="nav-item ${item.page === currentPage ? 'active' : ''}" onclick="window.location.href='${item.href}'">
-        ${item.icon}
-        <span>${item.label}</span>
-      </div>`;
-  }).join('');
-}
-
-buildNav();
-
-
-// ── Profile menu handlers ─────────────────────────────────────────────────────
+// ── Profile menu ──────────────────────────────────────────────────────────────
 function _updateThemeUI() {
   const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
   const label = document.getElementById('theme-label');
@@ -133,36 +113,32 @@ function _updateThemeUI() {
 }
 _updateThemeUI();
 
-document.getElementById('theme-toggle-btn')?.addEventListener('click', (e) => {
-  e.stopPropagation();
-  toggleTheme();
-  _updateThemeUI();
+document.getElementById('theme-toggle-btn').addEventListener('click', (e) => {
+  e.stopPropagation(); toggleTheme(); _updateThemeUI();
 });
-
-document.getElementById('help-btn')?.addEventListener('click', (e) => {
+document.getElementById('help-btn').addEventListener('click', (e) => {
   e.stopPropagation();
   document.getElementById('profile-menu').classList.remove('open');
   toast.info('Sección de ayuda próximamente disponible.');
 });
-
-document.getElementById('logout-btn')?.addEventListener('click', (e) => {
-  e.stopPropagation();
-  logout();
+document.getElementById('logout-btn').addEventListener('click', (e) => {
+  e.stopPropagation(); logout();
 });
-// ── Dashboard content ─────────────────────────────────────────────────────────
+
+// ── Dashboard ─────────────────────────────────────────────────────────────────
 document.getElementById('page-title').textContent = 'Dashboard';
 
 async function loadDashboard() {
   const content = document.getElementById('page-content');
   try {
-    let stats = {};
+    let tenants = 0, users = 0;
     if (isSuperadmin()) {
-      const [tenantsData, usersData] = await Promise.all([
+      const [td, ud] = await Promise.all([
         api.get('/tenants?size=1'),
         api.get('/users?size=1'),
       ]);
-      stats.tenants = tenantsData.total;
-      stats.users   = usersData.total;
+      tenants = td.total;
+      users   = ud.total;
     }
 
     content.innerHTML = `
@@ -176,52 +152,47 @@ async function loadDashboard() {
           </p>
         </div>
 
-        ${isSuperadmin() ? `
         <div class="stats-grid">
+          ${isSuperadmin() ? `
           <div class="stat-card">
-            <span class="stat-label">Tenants activos</span>
-            <span class="stat-value">${stats.tenants ?? '—'}</span>
+            <span class="stat-label">Tenants</span>
+            <span class="stat-value">${tenants}</span>
             <span class="stat-sub">Total registrados</span>
           </div>
           <div class="stat-card">
-            <span class="stat-label">Usuarios totales</span>
-            <span class="stat-value">${stats.users ?? '—'}</span>
+            <span class="stat-label">Usuarios</span>
+            <span class="stat-value">${users}</span>
             <span class="stat-sub">Todas las organizaciones</span>
-          </div>
+          </div>` : ''}
           <div class="stat-card">
             <span class="stat-label">Tu rol</span>
-            <span class="stat-value" style="font-size:18px;">Superadmin</span>
-            <span class="stat-sub">Acceso global</span>
+            <span class="stat-value" style="font-size:18px;">${isSuperadmin() ? 'Superadmin' : 'Administrador'}</span>
+            <span class="stat-sub">${isSuperadmin() ? 'Acceso global' : 'Tu organización'}</span>
           </div>
         </div>
-        ` : `
-        <div class="stats-grid">
-          <div class="stat-card">
-            <span class="stat-label">Tu rol</span>
-            <span class="stat-value" style="font-size:18px;">Administrador</span>
-            <span class="stat-sub">Tu organización</span>
-          </div>
-        </div>
-        `}
 
         <div class="card">
-          <div class="card-header">
-            <span class="card-title">Accesos rápidos</span>
-          </div>
+          <div class="card-header"><span class="card-title">Accesos rápidos</span></div>
           <div class="card-body">
             <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:var(--space-3);">
               ${isSuperadmin() ? `
-              <div onclick="window.location.href='/tenants.html'" style="padding:var(--space-4);border:1px solid var(--border);border-radius:var(--radius-md);cursor:pointer;transition:all var(--transition-fast);" onmouseover="this.style.background='var(--bg-hover)'" onmouseout="this.style.background=''">
+              <div onclick="window.location.href='/tenants.html'"
+                   style="padding:var(--space-4);border:1px solid var(--border);border-radius:var(--radius-md);cursor:pointer;"
+                   onmouseover="this.style.background='var(--bg-hover)'" onmouseout="this.style.background=''">
                 <div style="font-size:22px;margin-bottom:8px;">🏢</div>
                 <div style="font-weight:600;font-size:13.5px;color:var(--text-primary);">Gestionar Tenants</div>
                 <div style="font-size:12px;color:var(--text-muted);">Crear y administrar organizaciones</div>
               </div>` : ''}
-              <div onclick="window.location.href='/users.html'" style="padding:var(--space-4);border:1px solid var(--border);border-radius:var(--radius-md);cursor:pointer;transition:all var(--transition-fast);" onmouseover="this.style.background='var(--bg-hover)'" onmouseout="this.style.background=''">
+              <div onclick="window.location.href='/users.html'"
+                   style="padding:var(--space-4);border:1px solid var(--border);border-radius:var(--radius-md);cursor:pointer;"
+                   onmouseover="this.style.background='var(--bg-hover)'" onmouseout="this.style.background=''">
                 <div style="font-size:22px;margin-bottom:8px;">👥</div>
                 <div style="font-weight:600;font-size:13.5px;color:var(--text-primary);">Gestionar Usuarios</div>
                 <div style="font-size:12px;color:var(--text-muted);">Administrar accesos y roles</div>
               </div>
-              <div onclick="window.location.href='/change-password.html'" style="padding:var(--space-4);border:1px solid var(--border);border-radius:var(--radius-md);cursor:pointer;transition:all var(--transition-fast);" onmouseover="this.style.background='var(--bg-hover)'" onmouseout="this.style.background=''">
+              <div onclick="window.location.href='/change-password.html'"
+                   style="padding:var(--space-4);border:1px solid var(--border);border-radius:var(--radius-md);cursor:pointer;"
+                   onmouseover="this.style.background='var(--bg-hover)'" onmouseout="this.style.background=''">
                 <div style="font-size:22px;margin-bottom:8px;">🔒</div>
                 <div style="font-weight:600;font-size:13.5px;color:var(--text-primary);">Cambiar contraseña</div>
                 <div style="font-size:12px;color:var(--text-muted);">Actualizar credenciales</div>
@@ -229,10 +200,13 @@ async function loadDashboard() {
             </div>
           </div>
         </div>
-      </div>
-    `;
+      </div>`;
   } catch (err) {
-    content.innerHTML = `<div class="empty-state"><div class="empty-state-icon">⚠</div><h3>Error al cargar</h3><p>${err.message}</p></div>`;
+    content.innerHTML = `<div class="empty-state">
+      <div class="empty-state-icon">⚠</div>
+      <h3>Error al cargar</h3>
+      <p>${err.message}</p>
+    </div>`;
   }
 }
 
