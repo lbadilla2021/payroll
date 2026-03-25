@@ -1,0 +1,778 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Grupos — SaaS Platform</title>
+  <link rel="stylesheet" href="/static/css/main.css?v=3">
+  <style>
+    /* ── Two-column layout ─────────────────────── */
+    .groups-layout {
+      display: grid; grid-template-columns: 300px 1fr;
+      gap: var(--space-5); align-items: start;
+    }
+    @media (max-width: 860px) { .groups-layout { grid-template-columns: 1fr; } }
+    .groups-sidebar { position: sticky; top: 70px; }
+
+    /* ── Group cards ───────────────────────────── */
+    .group-card {
+      display: flex; align-items: center; gap: 10px;
+      padding: 11px 13px; border-radius: var(--radius-md);
+      border: 1px solid var(--border); background: var(--bg-surface);
+      cursor: pointer;
+      transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+      margin-bottom: 6px;
+    }
+    .group-card:hover  { border-color: var(--accent); box-shadow: var(--shadow-sm); }
+    .group-card.selected { border-color: var(--accent); background: var(--accent-muted); }
+    .group-card.inactive { opacity: .6; }
+    .group-icon {
+      width: 32px; height: 32px; border-radius: var(--radius-sm);
+      background: var(--info-bg); color: var(--info);
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .group-card-name { font-size: 14px; font-weight: 600; color: var(--text-primary); }
+    .group-card-meta { font-size: 12px; color: var(--text-muted); margin-top: 1px; }
+    .badge-inactive {
+      font-size: 10px; font-weight: 600; padding: 2px 7px;
+      background: var(--warning-bg); color: var(--warning);
+      border-radius: var(--radius-full); flex-shrink: 0;
+    }
+
+    /* ── Editor tabs ───────────────────────────── */
+    .tab-bar {
+      display: flex; border-bottom: 2px solid var(--border);
+      margin-bottom: var(--space-5); gap: 0;
+    }
+    .tab-btn {
+      padding: 10px 18px; font-size: 13px; font-weight: 600;
+      color: var(--text-muted); cursor: pointer; border: none;
+      background: none; border-bottom: 2px solid transparent;
+      margin-bottom: -2px; transition: color var(--transition-fast),
+      border-color var(--transition-fast);
+    }
+    .tab-btn:hover { color: var(--text-primary); }
+    .tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+
+    /* ── Member rows ───────────────────────────── */
+    .member-row {
+      display: flex; align-items: center; gap: 10px;
+      padding: 8px 4px; border-radius: var(--radius-sm);
+      border-bottom: 1px solid var(--border);
+      transition: background var(--transition-fast);
+    }
+    .member-row:last-child { border-bottom: none; }
+    .member-row:hover { background: var(--bg-hover); }
+    .member-avatar {
+      width: 30px; height: 30px; border-radius: 50%;
+      background: var(--accent-light); color: var(--accent-dark);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px; font-weight: 700; flex-shrink: 0;
+    }
+
+    /* ── Role chips ────────────────────────────── */
+    .role-chip {
+      display: inline-flex; align-items: center; gap: 5px;
+      font-size: 12px; font-weight: 600; padding: 4px 10px;
+      background: var(--accent-light); color: var(--accent-dark);
+      border-radius: var(--radius-full);
+    }
+    .role-chip.inactive { background: var(--bg-active); color: var(--text-muted); }
+
+    /* ── Empty state ───────────────────────────── */
+    .empty-editor {
+      padding: var(--space-10) var(--space-6); text-align: center;
+      color: var(--text-muted); display: flex; flex-direction: column;
+      align-items: center; gap: var(--space-3); min-height: 260px;
+      justify-content: center;
+    }
+    .section-label {
+      font-size: 11px; font-weight: 600; text-transform: uppercase;
+      letter-spacing: .06em; color: var(--text-muted); margin-bottom: var(--space-3);
+    }
+  </style>
+</head>
+<body data-page="groups">
+
+<div id="app-shell">
+
+  <!-- ── Sidebar ──────────────────────────────────────────────────────────── -->
+  <nav class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <div class="brand-mark">S</div>
+      <span class="brand-name">SaaS Platform</span>
+    </div>
+    <div class="sidebar-nav" id="sidebar-nav"></div>
+    <div class="sidebar-footer">
+      <div class="profile-trigger" id="profile-trigger">
+        <div class="avatar" id="sidebar-avatar">?</div>
+        <div class="profile-info">
+          <div class="profile-name" id="sidebar-name">…</div>
+          <div class="profile-role" id="sidebar-role"></div>
+        </div>
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <div class="profile-menu" id="profile-menu">
+        <div class="menu-item" onclick="window.location.href='/settings.html'">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+          Configuración
+        </div>
+        <div class="menu-item" id="theme-toggle-btn">
+          <svg id="theme-icon-sun" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+          <svg id="theme-icon-moon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none;"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+          <span id="theme-label">Modo oscuro</span>
+        </div>
+        <div class="menu-divider"></div>
+        <div class="menu-item" id="help-btn">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          Ayuda
+        </div>
+        <div class="menu-divider"></div>
+        <div class="menu-item danger" id="logout-btn">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+          Cerrar sesión
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ── Main ─────────────────────────────────────────────────────────────── -->
+  <div class="main-content">
+    <header class="topbar">
+      <span class="topbar-title">Grupos</span>
+      <div class="topbar-spacer"></div>
+      <button class="btn btn-primary btn-sm" id="btn-new-group" style="display:none;">
+        <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Nuevo grupo
+      </button>
+    </header>
+
+    <main class="page-area">
+      <div class="groups-layout">
+
+        <!-- Lista de grupos -->
+        <div class="groups-sidebar">
+          <div class="card" style="padding:var(--space-4);">
+            <div id="tenant-filter-wrapper" style="display:none;margin-bottom:var(--space-3);">
+              <select class="form-input form-select" id="filter-tenant" style="width:100%;">
+                <option value="">Todos los tenants</option>
+              </select>
+            </div>
+            <div style="margin-bottom:var(--space-3);">
+              <div class="search-input-wrapper">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                <input class="form-input" type="text" id="search-groups" placeholder="Buscar grupos…" style="width:100%;">
+              </div>
+            </div>
+            <div id="groups-list">
+              <div style="padding:24px;text-align:center;"><div class="spinner" style="margin:0 auto;"></div></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Editor de grupo -->
+        <div id="group-editor-area">
+          <div class="card empty-editor">
+            <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" opacity=".25">
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>
+              <path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+            </svg>
+            <span style="font-size:14px;">Selecciona un grupo para gestionarlo</span>
+          </div>
+        </div>
+
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- Modal: Nuevo grupo -->
+<div class="modal" id="new-group-modal">
+  <div class="modal-header">
+    <span class="modal-title">Nuevo grupo</span>
+    <button class="btn btn-ghost btn-icon" id="new-group-close">
+      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+  </div>
+  <div class="modal-body">
+    <div id="new-group-error" style="display:none;background:var(--error-bg);border:1px solid var(--error);color:var(--error);padding:10px 14px;border-radius:var(--radius-md);font-size:13px;"></div>
+    <div class="form-group">
+      <label class="form-label">Nombre <span style="color:var(--error)">*</span></label>
+      <input class="form-input" type="text" id="new-group-name" placeholder="Ej: Contabilidad, Soporte, TI…" maxlength="200">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Descripción</label>
+      <textarea class="form-input" id="new-group-desc" rows="3" placeholder="Descripción opcional…" style="resize:vertical;" maxlength="500"></textarea>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button class="btn btn-secondary" id="new-group-cancel">Cancelar</button>
+    <button class="btn btn-primary" id="new-group-save">
+      <span id="new-group-txt">Crear grupo</span>
+      <span class="spinner" id="new-group-spin" style="display:none;width:14px;height:14px;border-width:2px;"></span>
+    </button>
+  </div>
+</div>
+
+<!-- Modal: Editar grupo -->
+<div class="modal" id="edit-group-modal">
+  <div class="modal-header">
+    <span class="modal-title">Editar grupo</span>
+    <button class="btn btn-ghost btn-icon" id="edit-group-close">
+      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+  </div>
+  <div class="modal-body">
+    <div id="edit-group-error" style="display:none;background:var(--error-bg);border:1px solid var(--error);color:var(--error);padding:10px 14px;border-radius:var(--radius-md);font-size:13px;"></div>
+    <input type="hidden" id="edit-group-id">
+    <div class="form-group">
+      <label class="form-label">Nombre <span style="color:var(--error)">*</span></label>
+      <input class="form-input" type="text" id="edit-group-name" maxlength="200">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Descripción</label>
+      <textarea class="form-input" id="edit-group-desc" rows="3" style="resize:vertical;" maxlength="500"></textarea>
+    </div>
+    <div class="form-group">
+      <label style="display:flex;align-items:center;gap:9px;cursor:pointer;font-size:13px;color:var(--text-secondary);">
+        <input type="checkbox" id="edit-group-active" style="width:15px;height:15px;accent-color:var(--accent);">
+        Grupo activo
+      </label>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button class="btn btn-secondary" id="edit-group-cancel">Cancelar</button>
+    <button class="btn btn-primary" id="edit-group-save">
+      <span id="edit-group-txt">Guardar cambios</span>
+      <span class="spinner" id="edit-group-spin" style="display:none;width:14px;height:14px;border-width:2px;"></span>
+    </button>
+  </div>
+</div>
+
+<div id="toast-container"></div>
+
+<script type="module">
+import api from '/static/js/api.js?v=4';
+import { requireAuth, logout, renderProfile } from '/static/js/auth.js?v=3';
+import { initTheme, initProfileMenu, toggleTheme, openModal, closeModal, confirm } from '/static/js/ui.js?v=3';
+import { toast } from '/static/js/toast.js?v=3';
+
+initTheme();
+const user = await requireAuth();
+renderProfile(user);
+initProfileMenu();
+
+const isSuperadmin = user.role === 'superadmin';
+const isAdmin      = user.role === 'admin' || isSuperadmin;
+
+// ── Sidebar ────────────────────────────────────────────────────────────────────
+document.getElementById('sidebar-nav').innerHTML = `
+  <div class="nav-item" onclick="window.location.href='/app.html'">
+    <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+    Dashboard
+  </div>
+  ${isSuperadmin ? `
+  <div class="nav-section-label">Administración</div>
+  <div class="nav-item" onclick="window.location.href='/tenants.html'">
+    <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+    Tenants
+  </div>` : '<div class="nav-section-label">Mi organización</div>'}
+  <div class="nav-item" onclick="window.location.href='/users.html'">
+    <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+    Usuarios
+  </div>
+  <div class="nav-item active">
+    <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+    Grupos
+  </div>
+  <div class="nav-item" onclick="window.location.href='/roles.html'">
+    <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+    Roles
+  </div>
+`;
+
+// ── Profile menu ───────────────────────────────────────────────────────────────
+function _syncThemeUI() {
+  const dark = document.documentElement.getAttribute('data-theme') === 'dark';
+  document.getElementById('theme-label').textContent   = dark ? 'Modo claro' : 'Modo oscuro';
+  document.getElementById('theme-icon-sun').style.display  = dark ? 'none'  : 'block';
+  document.getElementById('theme-icon-moon').style.display = dark ? 'block' : 'none';
+}
+_syncThemeUI();
+document.getElementById('theme-toggle-btn').addEventListener('click', e => { e.stopPropagation(); toggleTheme(); _syncThemeUI(); });
+document.getElementById('help-btn').addEventListener('click', e => { e.stopPropagation(); document.getElementById('profile-menu').classList.remove('open'); toast.info('Sección de ayuda próximamente.'); });
+document.getElementById('logout-btn').addEventListener('click', e => { e.stopPropagation(); logout(); });
+
+// ── Helpers ────────────────────────────────────────────────────────────────────
+const esc = s => String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+const initials = s => s.split(' ').map(w => w[0] || '').join('').toUpperCase().slice(0, 2);
+
+// ── State ──────────────────────────────────────────────────────────────────────
+let allGroups  = [];
+let allRoles   = [];
+let allUsers   = [];
+let selectedId = null;
+
+// ── Load data ──────────────────────────────────────────────────────────────────
+async function loadRoles(tenantId = null) {
+  try {
+    const qs = tenantId ? `?size=100&is_active=true&tenant_id=${tenantId}` : '?size=100&is_active=true';
+    const d = await api.get(`/roles${qs}`);
+    allRoles = d.items || [];
+  } catch(e) { allRoles = []; }
+}
+
+async function loadUsers() {
+  try {
+    const tenantEl = document.getElementById('filter-tenant');
+    const tenantId = tenantEl ? tenantEl.value : '';
+    const qs = tenantId ? `?size=200&is_active=true&tenant_id=${tenantId}` : '?size=200&is_active=true';
+    const d = await api.get(`/users${qs}`);
+    allUsers = d.items || [];
+  } catch(e) { allUsers = []; }
+}
+
+async function loadGroups() {
+  const search   = document.getElementById('search-groups').value.trim();
+  const tenantEl = document.getElementById('filter-tenant');
+  const tenantId = tenantEl ? tenantEl.value : '';
+
+  const params = new URLSearchParams({ size: '100' });
+  if (search)   params.set('search', search);
+  if (tenantId) params.set('tenant_id', tenantId);
+
+  try {
+    const d = await api.get(`/groups?${params}`);
+    allGroups = d.items || [];
+    renderGroupList();
+  } catch(e) {
+    document.getElementById('groups-list').innerHTML =
+      `<p style="font-size:13px;color:var(--error);padding:8px 0;">Error al cargar grupos.</p>`;
+  }
+}
+
+// ── Render group list ──────────────────────────────────────────────────────────
+function renderGroupList() {
+  const el = document.getElementById('groups-list');
+  if (!allGroups.length) {
+    el.innerHTML = `<p style="font-size:13px;color:var(--text-muted);text-align:center;padding:20px 0;">
+      ${isAdmin ? 'Sin grupos. Usa <strong>+ Nuevo grupo</strong>.' : 'Sin grupos definidos.'}
+    </p>`;
+    return;
+  }
+  el.innerHTML = allGroups.map(g => `
+    <div class="group-card${g.id === selectedId ? ' selected' : ''}${!g.is_active ? ' inactive' : ''}"
+         onclick="selectGroup('${g.id}')">
+      <div class="group-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      </div>
+      <div style="flex:1;min-width:0;">
+        <div class="group-card-name">${esc(g.name)}</div>
+        <div class="group-card-meta">${g.member_count ?? 0} miembros · ${(g.roles||[]).length} roles</div>
+      </div>
+      ${!g.is_active ? '<span class="badge-inactive">Inactivo</span>' : ''}
+    </div>`).join('');
+}
+
+// ── Select group → editor ──────────────────────────────────────────────────────
+window.selectGroup = async function(groupId) {
+  selectedId = groupId;
+  renderGroupList();
+  const group = allGroups.find(g => g.id === groupId);
+  if (!group) return;
+  // Reload roles scoped to this group's tenant to avoid cross-tenant contamination
+  await loadRoles(group.tenant_id);
+  renderEditor(group);
+};
+
+// ── Render editor ──────────────────────────────────────────────────────────────
+function renderEditor(group) {
+  const canEdit = isAdmin;
+
+  document.getElementById('group-editor-area').innerHTML = `
+    <div class="card" style="padding:var(--space-5);">
+
+      <!-- Header -->
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:var(--space-4);margin-bottom:var(--space-5);">
+        <div style="flex:1;min-width:0;">
+          <h2 style="font-size:18px;font-weight:700;margin:0 0 3px;">${esc(group.name)}</h2>
+          <p style="font-size:13px;color:var(--text-muted);margin:0 0 6px;">
+            ${group.description ? esc(group.description) : '<em>Sin descripción</em>'}
+          </p>
+          <span style="font-size:11px;color:var(--text-muted);">${group.member_count ?? 0} miembros · ${(group.roles||[]).length} roles asignados</span>
+          ${!group.is_active ? ' &nbsp;<span style="background:var(--warning-bg);color:var(--warning);font-size:10px;font-weight:600;padding:2px 7px;border-radius:var(--radius-full);">INACTIVO</span>' : ''}
+        </div>
+        ${canEdit ? `
+        <div style="display:flex;gap:var(--space-2);flex-shrink:0;">
+          <button class="btn btn-secondary btn-sm" id="btn-edit-group">
+            <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+            Editar
+          </button>
+          <button class="btn btn-sm" id="btn-delete-group" style="background:var(--error-bg);color:var(--error);border:1px solid var(--error);">
+            <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+            Eliminar
+          </button>
+        </div>` : ''}
+      </div>
+
+      <!-- Tabs -->
+      <div class="tab-bar">
+        <button class="tab-btn active" data-tab="roles">Roles asignados</button>
+        <button class="tab-btn" data-tab="members">Miembros</button>
+      </div>
+
+      <!-- Tab: Roles -->
+      <div class="tab-panel active" id="tab-roles">
+        <div class="section-label">Roles que heredan todos los miembros</div>
+        <div id="roles-chips" style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:var(--space-4);">
+          ${(group.roles||[]).length
+            ? (group.roles||[]).map(r => `
+              <span class="role-chip${!r.role_is_active ? ' inactive' : ''}">
+                <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                ${esc(r.role_name)}
+              </span>`).join('')
+            : '<span style="font-size:13px;color:var(--text-muted);">Sin roles asignados</span>'}
+        </div>
+        ${canEdit ? `
+        <div class="section-label" style="margin-top:var(--space-4);">Cambiar roles</div>
+        <div id="role-checkboxes" style="display:flex;flex-direction:column;gap:6px;max-height:240px;overflow-y:auto;margin-bottom:var(--space-4);">
+          ${allRoles.length
+            ? allRoles.map(r => `
+              <label style="display:flex;align-items:center;gap:9px;cursor:pointer;font-size:13px;padding:4px 2px;">
+                <input type="checkbox" class="role-cb" value="${r.id}"
+                  ${(group.roles||[]).some(gr => gr.tenant_role_id === r.id) ? 'checked' : ''}
+                  style="width:15px;height:15px;accent-color:var(--accent);">
+                <span style="font-weight:500;">${esc(r.name)}</span>
+                ${r.description ? `<span style="color:var(--text-muted);font-size:11px;"> — ${esc(r.description)}</span>` : ''}
+              </label>`).join('')
+            : '<p style="font-size:13px;color:var(--text-muted);">No hay roles disponibles.</p>'}
+        </div>
+        <button class="btn btn-primary btn-sm" id="btn-save-roles">
+          <span id="save-roles-txt">Guardar roles</span>
+          <span class="spinner" id="save-roles-spin" style="display:none;width:13px;height:13px;border-width:2px;"></span>
+        </button>` : ''}
+      </div>
+
+      <!-- Tab: Members -->
+      <div class="tab-panel" id="tab-members">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:var(--space-4);">
+          <div class="section-label" style="margin:0;">${group.member_count ?? 0} miembro(s)</div>
+          ${canEdit ? `<button class="btn btn-secondary btn-sm" id="btn-manage-members">Gestionar miembros</button>` : ''}
+        </div>
+        <div id="members-list">
+          <div style="text-align:center;padding:16px;"><div class="spinner" style="margin:0 auto;"></div></div>
+        </div>
+
+        <!-- Add/remove members panel (hidden by default) -->
+        ${canEdit ? `
+        <div id="members-assign-panel" style="display:none;margin-top:var(--space-4);padding:var(--space-4);background:var(--bg-hover);border-radius:var(--radius-md);">
+          <div style="font-size:13px;font-weight:600;margin-bottom:var(--space-3);">Seleccionar miembros</div>
+          <div style="margin-bottom:var(--space-3);">
+            <input class="form-input" type="text" id="member-search" placeholder="Buscar usuario…" style="width:100%;">
+          </div>
+          <div id="member-checkboxes" style="display:flex;flex-direction:column;gap:5px;max-height:240px;overflow-y:auto;margin-bottom:var(--space-3);"></div>
+          <div style="display:flex;justify-content:flex-end;gap:var(--space-2);">
+            <button class="btn btn-secondary btn-sm" id="btn-cancel-members">Cancelar</button>
+            <button class="btn btn-primary btn-sm" id="btn-save-members">
+              <span id="save-members-txt">Guardar miembros</span>
+              <span class="spinner" id="save-members-spin" style="display:none;width:13px;height:13px;border-width:2px;"></span>
+            </button>
+          </div>
+        </div>` : ''}
+      </div>
+
+    </div>
+  `;
+
+  // ── Tab switching ───────────────────────────────────────────────────────────
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById(`tab-${btn.dataset.tab}`).classList.add('active');
+      if (btn.dataset.tab === 'members') loadMembers(group.id);
+    });
+  });
+
+  // ── Edit / Delete ───────────────────────────────────────────────────────────
+  if (canEdit) {
+    document.getElementById('btn-edit-group').addEventListener('click', () => openEditModal(group));
+    document.getElementById('btn-delete-group').addEventListener('click', () => deleteGroup(group));
+
+    // ── Save roles ────────────────────────────────────────────────────────────
+    document.getElementById('btn-save-roles').addEventListener('click', async () => {
+      const ids  = [...document.querySelectorAll('.role-cb:checked')].map(c => c.value);
+      const btn  = document.getElementById('btn-save-roles');
+      const txt  = document.getElementById('save-roles-txt');
+      const spin = document.getElementById('save-roles-spin');
+      btn.disabled = true; txt.style.display = 'none'; spin.style.display = 'inline-block';
+      try {
+        await api.put(`/groups/${group.id}/roles`, { tenant_role_ids: ids });
+        toast.success('Roles del grupo actualizados.');
+        await loadGroups();
+        const updated = allGroups.find(g => g.id === group.id);
+        if (updated) renderEditor(updated);
+      } catch(e) {
+        toast.error(e.message || 'Error al guardar roles.');
+        btn.disabled = false; txt.style.display = ''; spin.style.display = 'none';
+      }
+    });
+
+    // ── Manage members ────────────────────────────────────────────────────────
+    document.getElementById('btn-manage-members').addEventListener('click', async () => {
+      const panel = document.getElementById('members-assign-panel');
+      if (panel.style.display !== 'none') { panel.style.display = 'none'; return; }
+
+      // Load current members
+      let currentIds = new Set();
+      try {
+        const mData = await api.get(`/groups/${group.id}/members`);
+        currentIds = new Set((mData || []).map(m => m.user_id));
+      } catch(e) { /* proceed with empty set */ }
+
+      const searchEl = document.getElementById('member-search');
+      const cbContainer = document.getElementById('member-checkboxes');
+
+      function renderUserCheckboxes(filter = '') {
+        const filtered = filter
+          ? allUsers.filter(u => u.full_name.toLowerCase().includes(filter.toLowerCase()) || u.email.toLowerCase().includes(filter.toLowerCase()))
+          : allUsers;
+        if (!filtered.length) {
+          cbContainer.innerHTML = '<p style="font-size:12px;color:var(--text-muted);padding:8px 0;">No hay usuarios disponibles.</p>';
+          return;
+        }
+        cbContainer.innerHTML = filtered.map(u => `
+          <label style="display:flex;align-items:center;gap:9px;cursor:pointer;font-size:13px;padding:4px 2px;">
+            <input type="checkbox" class="member-cb" value="${u.id}"
+              ${currentIds.has(u.id) ? 'checked' : ''}
+              style="width:15px;height:15px;accent-color:var(--accent);">
+            <div>
+              <span style="font-weight:500;">${esc(u.full_name)}</span>
+              <span style="color:var(--text-muted);font-size:11px;"> ${esc(u.email)}</span>
+            </div>
+          </label>`).join('');
+      }
+
+      renderUserCheckboxes();
+      panel.style.display = 'block';
+
+      let _st;
+      searchEl.addEventListener('input', () => {
+        clearTimeout(_st); _st = setTimeout(() => renderUserCheckboxes(searchEl.value), 200);
+      });
+    });
+
+    document.getElementById('btn-cancel-members').addEventListener('click', () => {
+      document.getElementById('members-assign-panel').style.display = 'none';
+    });
+
+    document.getElementById('btn-save-members').addEventListener('click', async () => {
+      const ids  = [...document.querySelectorAll('.member-cb:checked')].map(c => c.value);
+      const btn  = document.getElementById('btn-save-members');
+      const txt  = document.getElementById('save-members-txt');
+      const spin = document.getElementById('save-members-spin');
+      btn.disabled = true; txt.style.display = 'none'; spin.style.display = 'inline-block';
+      try {
+        await api.put(`/groups/${group.id}/members`, { user_ids: ids });
+        toast.success(`Grupo actualizado con ${ids.length} miembro(s).`);
+        document.getElementById('members-assign-panel').style.display = 'none';
+        await loadGroups();
+        const updated = allGroups.find(g => g.id === group.id);
+        if (updated) {
+          renderEditor(updated);
+          // Switch to members tab and reload
+          document.querySelector('[data-tab="members"]').click();
+        }
+      } catch(e) {
+        toast.error(e.message || 'Error al guardar miembros.');
+        btn.disabled = false; txt.style.display = ''; spin.style.display = 'none';
+      }
+    });
+  }
+
+  // Load members immediately
+  loadMembers(group.id);
+}
+
+// ── Load members ───────────────────────────────────────────────────────────────
+async function loadMembers(groupId) {
+  const el = document.getElementById('members-list');
+  if (!el) return;
+  try {
+    const members = await api.get(`/groups/${groupId}/members`);
+    if (!members || !members.length) {
+      el.innerHTML = '<p style="font-size:13px;color:var(--text-muted);padding:8px 0;">Sin miembros en este grupo.</p>';
+      return;
+    }
+    el.innerHTML = members.map(m => `
+      <div class="member-row">
+        <div class="member-avatar">${esc(initials(m.full_name || m.email))}</div>
+        <div style="flex:1;min-width:0;">
+          <div style="font-size:13px;font-weight:600;">${esc(m.full_name)}</div>
+          <div style="font-size:11px;color:var(--text-muted);">${esc(m.email)}</div>
+        </div>
+        ${isAdmin ? `
+        <button class="btn btn-ghost btn-icon btn-sm" title="Quitar del grupo"
+          onclick="removeMember('${groupId}', '${m.user_id}', '${esc(m.email)}')">
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>` : ''}
+      </div>`).join('');
+  } catch(e) {
+    el.innerHTML = `<p style="font-size:13px;color:var(--error);">Error al cargar miembros.</p>`;
+  }
+}
+
+// ── Remove single member ───────────────────────────────────────────────────────
+window.removeMember = async function(groupId, userId, email) {
+  const ok = await confirm(`¿Quitar a "${email}" de este grupo?`, 'Quitar miembro');
+  if (!ok) return;
+  try {
+    await api.delete(`/groups/${groupId}/members/${userId}`);
+    toast.success(`"${email}" removido del grupo.`);
+    await loadGroups();
+    const updated = allGroups.find(g => g.id === groupId);
+    if (updated) {
+      renderEditor(updated);
+      document.querySelector('[data-tab="members"]').click();
+    }
+  } catch(e) {
+    toast.error(e.message || 'Error al quitar miembro.');
+  }
+};
+
+// ── Edit modal ─────────────────────────────────────────────────────────────────
+function openEditModal(group) {
+  document.getElementById('edit-group-id').value        = group.id;
+  document.getElementById('edit-group-name').value      = group.name;
+  document.getElementById('edit-group-desc').value      = group.description || '';
+  document.getElementById('edit-group-active').checked  = group.is_active;
+  document.getElementById('edit-group-error').style.display = 'none';
+  openModal('edit-group-modal');
+}
+
+document.getElementById('edit-group-close').addEventListener('click',  () => closeModal('edit-group-modal'));
+document.getElementById('edit-group-cancel').addEventListener('click', () => closeModal('edit-group-modal'));
+
+document.getElementById('edit-group-save').addEventListener('click', async () => {
+  const groupId = document.getElementById('edit-group-id').value;
+  const name    = document.getElementById('edit-group-name').value.trim();
+  const desc    = document.getElementById('edit-group-desc').value.trim();
+  const active  = document.getElementById('edit-group-active').checked;
+  const errEl   = document.getElementById('edit-group-error');
+  const btn     = document.getElementById('edit-group-save');
+  const txt     = document.getElementById('edit-group-txt');
+  const spin    = document.getElementById('edit-group-spin');
+
+  if (!name) { errEl.textContent = 'El nombre es obligatorio.'; errEl.style.display = 'block'; return; }
+  errEl.style.display = 'none';
+  btn.disabled = true; txt.style.display = 'none'; spin.style.display = 'inline-block';
+
+  try {
+    await api.patch(`/groups/${groupId}`, { name, description: desc || null, is_active: active });
+    toast.success('Grupo actualizado.');
+    closeModal('edit-group-modal');
+    await loadGroups();
+    const updated = allGroups.find(g => g.id === groupId);
+    if (updated) renderEditor(updated);
+  } catch(e) {
+    errEl.textContent = e.message || 'Error al actualizar el grupo.';
+    errEl.style.display = 'block';
+  } finally {
+    btn.disabled = false; txt.style.display = ''; spin.style.display = 'none';
+  }
+});
+
+// ── Delete group ───────────────────────────────────────────────────────────────
+async function deleteGroup(group) {
+  const ok = await confirm(`¿Eliminar el grupo "${group.name}"? Esta acción no se puede deshacer.`, 'Eliminar grupo');
+  if (!ok) return;
+  try {
+    await api.delete(`/groups/${group.id}`);
+    toast.success(`Grupo "${group.name}" eliminado.`);
+    selectedId = null;
+    document.getElementById('group-editor-area').innerHTML = `
+      <div class="card empty-editor">
+        <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" opacity=".25"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        <span style="font-size:14px;">Selecciona un grupo para gestionarlo</span>
+      </div>`;
+    await loadGroups();
+  } catch(e) {
+    toast.error(e.message || 'Error al eliminar el grupo.');
+  }
+}
+
+// ── New group modal ────────────────────────────────────────────────────────────
+if (isAdmin) document.getElementById('btn-new-group').style.display = '';
+
+document.getElementById('btn-new-group').addEventListener('click', () => {
+  document.getElementById('new-group-name').value = '';
+  document.getElementById('new-group-desc').value = '';
+  document.getElementById('new-group-error').style.display = 'none';
+  openModal('new-group-modal');
+});
+document.getElementById('new-group-close').addEventListener('click',  () => closeModal('new-group-modal'));
+document.getElementById('new-group-cancel').addEventListener('click', () => closeModal('new-group-modal'));
+
+document.getElementById('new-group-save').addEventListener('click', async () => {
+  const name  = document.getElementById('new-group-name').value.trim();
+  const desc  = document.getElementById('new-group-desc').value.trim();
+  const errEl = document.getElementById('new-group-error');
+  const btn   = document.getElementById('new-group-save');
+  const txt   = document.getElementById('new-group-txt');
+  const spin  = document.getElementById('new-group-spin');
+
+  if (!name) { errEl.textContent = 'El nombre es obligatorio.'; errEl.style.display = 'block'; return; }
+  errEl.style.display = 'none';
+  btn.disabled = true; txt.style.display = 'none'; spin.style.display = 'inline-block';
+
+  try {
+    const tenantEl = document.getElementById('filter-tenant');
+    const tenantId = tenantEl ? tenantEl.value : '';
+    const url = isSuperadmin && tenantId ? `/groups?tenant_id=${tenantId}` : '/groups';
+    const created = await api.post(url, { name, description: desc || null, role_ids: [] });
+    toast.success(`Grupo "${created.name}" creado. Ahora asígnale roles y miembros.`);
+    closeModal('new-group-modal');
+    await loadGroups();
+    selectGroup(created.id);
+  } catch(e) {
+    errEl.textContent = e.message || 'Error al crear el grupo.';
+    errEl.style.display = 'block';
+  } finally {
+    btn.disabled = false; txt.style.display = ''; spin.style.display = 'none';
+  }
+});
+
+// ── Search ─────────────────────────────────────────────────────────────────────
+let _st;
+document.getElementById('search-groups').addEventListener('input', () => {
+  clearTimeout(_st); _st = setTimeout(loadGroups, 280);
+});
+
+// ── Init ───────────────────────────────────────────────────────────────────────
+if (isSuperadmin) {
+  document.getElementById('tenant-filter-wrapper').style.display = 'block';
+  try {
+    const td = await api.get('/tenants?size=100');
+    const opts = (td.items || []).map(t => `<option value="${t.id}">${esc(t.name)}</option>`).join('');
+    document.getElementById('filter-tenant').innerHTML =
+      '<option value="">Todos los tenants</option>' + opts;
+  } catch(e) { /* ignore */ }
+  document.getElementById('filter-tenant').addEventListener('change', () => {
+    selectedId = null;
+    document.getElementById('group-editor-area').innerHTML = `
+      <div class="card empty-editor">
+        <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" opacity=".25"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        <span style="font-size:14px;">Selecciona un grupo para gestionarlo</span>
+      </div>`;
+    loadUsers();
+    loadGroups();
+  });
+}
+
+await Promise.all([loadUsers(), loadGroups()]);
+</script>
+</body>
+</html>

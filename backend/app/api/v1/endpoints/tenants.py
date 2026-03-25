@@ -12,6 +12,7 @@ from app.schemas.schemas import (
     MessageResponse, TenantCreate, TenantListResponse, TenantResponse, TenantUpdate
 )
 from app.services.audit import log_event
+from app.services.rbac import ensure_system_roles_for_tenant
 
 router = APIRouter(prefix="/tenants", tags=["tenants"])
 
@@ -67,6 +68,7 @@ def create_tenant(
     db.add(tenant)
     db.commit()
     db.refresh(tenant)
+    ensure_system_roles_for_tenant(tenant.id, db)
     log_event(db, "tenant.create", user_id=actor.id, actor_email=actor.email,
               resource_type="tenant", resource_id=str(tenant.id))
     return _to_response(tenant, db)

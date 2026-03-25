@@ -24,16 +24,20 @@ logger = logging.getLogger(__name__)
 # ── Default permissions for legacy roles (backward compatibility) ─────────────
 
 ROLE_DEFAULT_PERMISSIONS: dict[str, set[str]] = {
+    # Legacy role → minimum base permissions (backward compatibility)
+    # These apply even when no tenant_roles are assigned
     "admin": {
-        "platform.users.view",
-        "platform.users.create",
-        "platform.users.edit",
+        "platform.users.view", "platform.users.create",
+        "platform.users.edit", "platform.users.deactivate",
         "platform.users.invite",
-        "platform.roles.view",
-        "platform.roles.create",
-        "platform.roles.edit",
-        "platform.settings.view",
+        "platform.roles.view", "platform.roles.create",
+        "platform.roles.edit", "platform.roles.delete",
         "platform.audit.view",
+        "platform.settings.view", "platform.settings.edit",
+    },
+    "user": {
+        "platform.users.view",
+        "platform.settings.view",
     },
     "viewer": {
         "platform.users.view",
@@ -114,11 +118,13 @@ def load_user_permissions(user_id: UUID, user_role: str, db: Session) -> set[str
     """
     Load all effective permissions for a user from the database.
     Combines:
-      1. Permissions from assigned tenant_roles (RBAC)
-      2. Default permissions from legacy role (backward compat)
+      1. Permissions from directly assigned tenant_roles (RBAC)
+      2. Permissions inherited via group membership (group → group_roles → tenant_roles)
+      3. Default permissions from legacy role (backward compat)
     """
     try:
-        rows = db.execute(
+        # Direct role permissions
+        direct_rows = db.execute(
             text("""
                 SELECT DISTINCT p.code
                 FROM user_tenant_roles utr
@@ -131,11 +137,31 @@ def load_user_permissions(user_id: UUID, user_role: str, db: Session) -> set[str
             """),
             {"user_id": str(user_id)},
         ).fetchall()
+
+        # Group-inherited permissions
+        group_rows = db.execute(
+            text("""
+                SELECT DISTINCT p.code
+                FROM group_members gm
+                JOIN groups g ON g.id = gm.group_id
+                JOIN group_roles gr ON gr.group_id = gm.group_id
+                JOIN tenant_roles tr ON tr.id = gr.tenant_role_id
+                JOIN tenant_role_permissions trp ON trp.tenant_role_id = tr.id
+                JOIN permissions p ON p.id = trp.permission_id
+                WHERE gm.user_id = :user_id
+                  AND g.is_active = true
+                  AND tr.is_active = true
+                  AND p.is_active = true
+            """),
+            {"user_id": str(user_id)},
+        ).fetchall()
+
     except Exception as exc:
         logger.error(f"RBAC DB query failed for user {user_id}: {exc}")
-        rows = []
+        direct_rows = []
+        group_rows = []
 
-    rbac_perms = {r.code for r in rows}
+    rbac_perms = {r.code for r in direct_rows} | {r.code for r in group_rows}
     base_perms = ROLE_DEFAULT_PERMISSIONS.get(user_role, set())
     return rbac_perms | base_perms
 
@@ -211,25 +237,97 @@ def seed_permissions(db: Session) -> int:
 
 def ensure_system_roles_for_tenant(tenant_id: UUID, db: Session) -> None:
     """
-    Create system roles (Admin, Viewer) for a tenant if they don't exist yet.
-    These are is_system=True and cannot be deleted by the tenant admin.
+    Create the 4 canonical system roles for a tenant if they don't exist yet.
+    Called when a new tenant is created.
+    Roles are is_system=True — visible but not deletable by tenant admins.
+
+    Roles:
+      Superadmin  — all permissions (tenant-scoped, not platform superadmin)
+      Admin       — user/role/settings management
+      User        — standard operational access (no admin)
+      Viewer      — read-only
     """
-    system_roles = [
-        {"name": "Admin", "description": "Administrador del tenant con acceso completo a gestión"},
-        {"name": "Viewer", "description": "Usuario de solo lectura"},
+    from app.models.models import Permission, TenantRolePermission
+
+    SYSTEM_ROLES_DEF = [
+        (
+            "Superadmin",
+            "Acceso total a la plataforma sin restricciones",
+            [
+                "platform.tenants.view", "platform.tenants.create",
+                "platform.tenants.edit", "platform.tenants.deactivate",
+                "platform.users.view", "platform.users.create",
+                "platform.users.edit", "platform.users.deactivate",
+                "platform.users.invite",
+                "platform.roles.view", "platform.roles.create",
+                "platform.roles.edit", "platform.roles.delete",
+                "platform.audit.view",
+                "platform.settings.view", "platform.settings.edit",
+                "platform.billing.view", "platform.billing.edit",
+                "system.api_keys.manage", "system.webhooks.manage",
+                "system.integrations.manage",
+            ],
+        ),
+        (
+            "Admin",
+            "Administrador del tenant: gestión de usuarios, roles y configuración",
+            [
+                "platform.users.view", "platform.users.create",
+                "platform.users.edit", "platform.users.deactivate",
+                "platform.users.invite",
+                "platform.roles.view", "platform.roles.create",
+                "platform.roles.edit", "platform.roles.delete",
+                "platform.audit.view",
+                "platform.settings.view", "platform.settings.edit",
+            ],
+        ),
+        (
+            "User",
+            "Usuario estándar con acceso operacional (sin administración)",
+            [
+                "platform.users.view",
+                "platform.settings.view",
+            ],
+        ),
+        (
+            "Viewer",
+            "Solo consulta — sin capacidad de editar ni administrar",
+            [
+                "platform.users.view",
+            ],
+        ),
     ]
+
+    # Build permission code → id map
+    perm_map = {
+        p.code: p.id
+        for p in db.query(Permission).filter(Permission.is_active == True).all()  # noqa: E712
+    }
+
     existing_names = {
         row.name for row in db.query(TenantRole.name)
         .filter(TenantRole.tenant_id == tenant_id, TenantRole.is_system == True)  # noqa: E712
         .all()
     }
-    for role_def in system_roles:
-        if role_def["name"] not in existing_names:
-            db.add(TenantRole(
-                tenant_id=tenant_id,
-                name=role_def["name"],
-                description=role_def["description"],
-                is_system=True,
-                is_active=True,
-            ))
+
+    for role_name, role_desc, perm_codes in SYSTEM_ROLES_DEF:
+        if role_name in existing_names:
+            continue
+        role = TenantRole(
+            tenant_id=tenant_id,
+            name=role_name,
+            description=role_desc,
+            is_system=True,
+            is_active=True,
+        )
+        db.add(role)
+        db.flush()  # get role.id
+
+        for code in perm_codes:
+            if code in perm_map:
+                db.add(TenantRolePermission(
+                    tenant_role_id=role.id,
+                    permission_id=perm_map[code],
+                ))
+
     db.commit()

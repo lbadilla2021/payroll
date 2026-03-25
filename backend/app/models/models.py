@@ -336,3 +336,71 @@ class UserTenantRole(Base):
         Index("ix_utr_user_id", "user_id"),
         Index("ix_utr_tenant_role_id", "tenant_role_id"),
     )
+
+
+# ── Groups ────────────────────────────────────────────────────────────────────
+
+class Group(Base):
+    """
+    Named grouping of users within a tenant.
+    Groups can be assigned tenant_roles — all members inherit those permissions.
+    """
+    __tablename__ = "groups"
+
+    id          = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    tenant_id   = Column(UUID(as_uuid=True), ForeignKey("tenants.id", ondelete="CASCADE"), nullable=False, index=True)
+    name        = Column(String(200), nullable=False)
+    description = Column(Text, nullable=True)
+    is_active   = Column(Boolean, nullable=False, default=True)
+    created_by_id = Column(UUID(as_uuid=True), ForeignKey("users.id", ondelete="SET NULL"), nullable=True)
+    created_at  = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+    updated_at  = Column(DateTime(timezone=True), server_default=func.now(), onupdate=utcnow, nullable=False)
+
+    tenant      = relationship("Tenant")
+    created_by  = relationship("User", foreign_keys=[created_by_id])
+    members     = relationship("GroupMember", back_populates="group", cascade="all, delete-orphan")
+    group_roles = relationship("GroupRole", back_populates="group", cascade="all, delete-orphan")
+
+    __table_args__ = (
+        UniqueConstraint("tenant_id", "name", name="uq_groups_tenant_name"),
+        Index("ix_groups_tenant_id", "tenant_id"),
+        Index("ix_groups_is_active", "is_active"),
+    )
+
+
+class GroupMember(Base):
+    """User membership in a group."""
+    __tablename__ = "group_members"
+
+    group_id   = Column(UUID(as_uuid=True), ForeignKey("groups.id", ondelete="CASCADE"), primary_key=True)
+    user_id    = Column(UUID(as_uuid=True), ForeignKey("users.id",  ondelete="CASCADE"), primary_key=True)
+    added_by_id = Column(UUID(as_uuid=True), ForeignKey("users.id", ondelete="SET NULL"), nullable=True)
+    added_at   = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+
+    group    = relationship("Group", back_populates="members")
+    user     = relationship("User", foreign_keys=[user_id])
+    added_by = relationship("User", foreign_keys=[added_by_id])
+
+    __table_args__ = (
+        Index("ix_group_members_group_id", "group_id"),
+        Index("ix_group_members_user_id",  "user_id"),
+    )
+
+
+class GroupRole(Base):
+    """Which tenant_roles are assigned to a group."""
+    __tablename__ = "group_roles"
+
+    group_id       = Column(UUID(as_uuid=True), ForeignKey("groups.id",       ondelete="CASCADE"), primary_key=True)
+    tenant_role_id = Column(UUID(as_uuid=True), ForeignKey("tenant_roles.id", ondelete="CASCADE"), primary_key=True)
+    assigned_by_id = Column(UUID(as_uuid=True), ForeignKey("users.id",        ondelete="SET NULL"), nullable=True)
+    assigned_at    = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+
+    group       = relationship("Group", back_populates="group_roles")
+    tenant_role = relationship("TenantRole")
+    assigned_by = relationship("User", foreign_keys=[assigned_by_id])
+
+    __table_args__ = (
+        Index("ix_group_roles_group_id",       "group_id"),
+        Index("ix_group_roles_tenant_role_id", "tenant_role_id"),
+    )

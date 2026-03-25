@@ -145,6 +145,11 @@
         <!-- Lista de roles -->
         <div class="roles-sidebar">
           <div class="card" style="padding:var(--space-4);">
+            <div id="tenant-filter-wrapper" style="display:none;margin-bottom:var(--space-3);">
+              <select class="form-input form-select" id="filter-tenant" style="width:100%;">
+                <option value="">Todos los tenants</option>
+              </select>
+            </div>
             <div style="margin-bottom:var(--space-3);">
               <div class="search-input-wrapper">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
@@ -238,7 +243,7 @@
 <div id="toast-container"></div>
 
 <script type="module">
-import api from '/static/js/api.js?v=3';
+import api from '/static/js/api.js?v=4';
 import { requireAuth, logout, renderProfile } from '/static/js/auth.js?v=3';
 import { initTheme, initProfileMenu, toggleTheme, openModal, closeModal, confirm } from '/static/js/ui.js?v=3';
 import { toast } from '/static/js/toast.js?v=3';
@@ -266,6 +271,10 @@ document.getElementById('sidebar-nav').innerHTML = `
   <div class="nav-item" onclick="window.location.href='/users.html'">
     <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
     Usuarios
+  </div>
+  <div class="nav-item" onclick="window.location.href='/groups.html'">
+    <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+    Grupos
   </div>
   <div class="nav-item active">
     <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
@@ -309,10 +318,16 @@ async function loadPermissions() {
 
 // ── Load roles ─────────────────────────────────────────────────────────────────
 async function loadRoles() {
-  const search = document.getElementById('search-roles').value.trim();
-  const qs = search ? `?search=${encodeURIComponent(search)}&size=100` : '?size=100';
+  const search    = document.getElementById('search-roles').value.trim();
+  const tenantEl  = document.getElementById('filter-tenant');
+  const tenantId  = tenantEl ? tenantEl.value : '';
+
+  const params = new URLSearchParams({ size: '100' });
+  if (search)   params.set('search', search);
+  if (tenantId) params.set('tenant_id', tenantId);
+
   try {
-    const data = await api.get(`/roles${qs}`);
+    const data = await api.get(`/roles?${params}`);
     allRoles = data.items || [];
     renderRolesList();
   } catch(e) {
@@ -596,6 +611,18 @@ document.getElementById('new-role-save').addEventListener('click', async () => {
 });
 
 // ── Init ───────────────────────────────────────────────────────────────────────
+// Superadmin: load tenant selector first, then roles
+if (isSuperadmin) {
+  document.getElementById('tenant-filter-wrapper').style.display = 'block';
+  try {
+    const td = await api.get('/tenants?size=100');
+    const opts = (td.items || []).map(t => `<option value="${t.id}">${esc(t.name)}</option>`).join('');
+    document.getElementById('filter-tenant').innerHTML =
+      '<option value="">Todos los tenants</option>' + opts;
+  } catch(e) { /* ignore */ }
+  document.getElementById('filter-tenant').addEventListener('change', loadRoles);
+}
+
 await loadPermissions();
 await loadRoles();
 </script>

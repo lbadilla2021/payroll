@@ -330,3 +330,65 @@ class UserTenantRoleResponse(BaseModel):
 class UserRolesResponse(BaseModel):
     user_id: UUID
     roles: list[UserTenantRoleResponse]
+
+
+# ── Groups ────────────────────────────────────────────────────────────────────
+
+class GroupCreate(BaseModel):
+    name: str = Field(..., min_length=1, max_length=200)
+    description: Optional[str] = Field(None, max_length=500)
+    role_ids: list[UUID] = Field(default_factory=list)
+
+
+class GroupUpdate(BaseModel):
+    name: Optional[str] = Field(None, min_length=1, max_length=200)
+    description: Optional[str] = Field(None, max_length=500)
+    is_active: Optional[bool] = None
+
+
+class GroupRoleResponse(BaseModel):
+    tenant_role_id: UUID
+    role_name: str
+    role_is_active: bool
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class GroupMemberResponse(BaseModel):
+    user_id: UUID
+    email: str
+    full_name: str
+    added_at: datetime
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class GroupResponse(BaseModel):
+    id: UUID
+    tenant_id: UUID
+    name: str
+    description: Optional[str]
+    is_active: bool
+    created_at: datetime
+    updated_at: datetime
+    member_count: Optional[int] = None
+    roles: list[GroupRoleResponse] = Field(default_factory=list)
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class GroupListResponse(BaseModel):
+    items: list[GroupResponse]
+    total: int
+    page: int
+    size: int
+
+
+class GroupRolesSet(BaseModel):
+    """Replace the full set of roles assigned to a group."""
+    tenant_role_ids: list[UUID]
+
+
+class GroupMembersSet(BaseModel):
+    """Replace the full set of members in a group."""
+    user_ids: list[UUID]
