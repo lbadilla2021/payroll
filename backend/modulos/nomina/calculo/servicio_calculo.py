@@ -32,6 +32,7 @@ from modulos.nomina.models import (
 )
 from modulos.nomina.repositories import ParametroMensualRepository
 from modulos.nomina.repositories_operacional import MovimientoMensualRepository
+from modulos.nomina.services_operacional import _calcular_situacion_mes
 from modulos.rrhh.models import CargaFamiliar, Trabajador, TrabajadorApv
 
 
@@ -347,18 +348,13 @@ class ServicioCalculo:
         )
         apv_monto, apv_rebaja = ServicioCalculo._cargar_apv(db, tenant_id, trabajador.id)
 
-        # Resolver días no contratados: fecha_inicio_mov del movimiento tiene
-        # precedencia; si no está, se consulta la fecha de inicio del contrato.
-        contrato = ServicioCalculo._cargar_contrato_del_periodo(
-            db, tenant_id, movimiento.trabajador_id, anio, mes
-        )
-        fecha_inicio = movimiento.fecha_inicio_mov or (
-            contrato.fecha_inicio if contrato else None
-        )
-        dias_nc = (
-            _dias_no_contratado_desde(fecha_inicio, anio, mes)
-            or Decimal(str(movimiento.dias_no_contratado))
-        )
+        # Recalcular situación mensual antes de liquidar: licencias, permisos y
+        # días no cubiertos por contrato provienen de la ficha del trabajador.
+        situacion_mes = _calcular_situacion_mes(db, tenant_id, movimiento)
+        movimiento.dias_licencia = situacion_mes["dias_licencia"]
+        movimiento.dias_no_contratado = situacion_mes["dias_no_contratado"]
+        movimiento.dias_ausentes = situacion_mes["dias_ausentes"]
+        dias_nc = situacion_mes["dias_no_contratado"]
 
         # Cargar tramos tributarios
         tramos_af = ServicioCalculo._cargar_tramos_af(db, anio, mes)

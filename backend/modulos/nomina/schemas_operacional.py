@@ -191,7 +191,9 @@ class MovimientoMensualRead(BaseModel):
 
     dias_ausentes:               Decimal
     dias_no_contratado:          Decimal
+    dias_permiso:                Decimal = Decimal("0")
     dias_licencia:               Decimal
+    dias_trabajados:             Decimal = Decimal("0")
     dias_movilizacion:           Decimal
     dias_colacion:               Decimal
     dias_vacaciones:             Decimal
