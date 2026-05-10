@@ -131,18 +131,26 @@
 
     <!-- Datos del movimiento -->
     <div class="form-section-title" style="margin-bottom:var(--space-3);">Situación del mes</div>
-    <div class="form-row cols-3" style="margin-bottom:var(--space-3);">
+    <div style="display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:var(--space-2);margin-bottom:var(--space-3);">
       <div class="form-group">
-        <label class="form-label">Días ausentes</label>
-        <input class="form-input" id="p-dias-ausentes" type="number" min="0" step="0.01">
+        <label class="form-label">Días permiso</label>
+        <input class="form-input" id="p-dias-permiso" type="number" min="0" step="0.01" readonly disabled>
+      </div>
+      <div class="form-group">
+        <label class="form-label">No Contrato</label>
+        <input class="form-input" id="p-dias-no-contrato" type="number" min="0" step="0.01" readonly disabled>
       </div>
       <div class="form-group">
         <label class="form-label">Días licencia</label>
-        <input class="form-input" id="p-dias-licencia" type="number" min="0" step="0.01">
+        <input class="form-input" id="p-dias-licencia" type="number" min="0" step="0.01" readonly disabled>
       </div>
       <div class="form-group">
-        <label class="form-label">Días vacaciones</label>
-        <input class="form-input" id="p-dias-vacaciones" type="number" min="0" step="0.01">
+        <label class="form-label">Días ausentes</label>
+        <input class="form-input" id="p-dias-ausentes" type="number" min="0" step="0.01" readonly disabled>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Días trabajados</label>
+        <input class="form-input" id="p-dias-trabajados" type="number" min="0" step="0.01" readonly disabled>
       </div>
     </div>
     <div class="form-row cols-3" style="margin-bottom:var(--space-3);">
@@ -429,9 +437,11 @@ async function openMovPanel(id) {
     document.getElementById('panel-subtitle').textContent = `${MESES[mov.mes-1]} ${mov.anio} · Mov. ${mov.nro_movimiento} · ${mov.estado}`;
 
     // Rellenar campos
-    document.getElementById('p-dias-ausentes').value  = mov.dias_ausentes ?? 0;
+    document.getElementById('p-dias-permiso').value   = mov.dias_permiso ?? 0;
+    document.getElementById('p-dias-no-contrato').value = mov.dias_no_contratado ?? 0;
     document.getElementById('p-dias-licencia').value  = mov.dias_licencia ?? 0;
-    document.getElementById('p-dias-vacaciones').value = mov.dias_vacaciones ?? 0;
+    document.getElementById('p-dias-ausentes').value  = mov.dias_ausentes ?? 0;
+    document.getElementById('p-dias-trabajados').value = mov.dias_trabajados ?? 0;
     document.getElementById('p-dias-movil').value     = mov.dias_movilizacion ?? 0;
     document.getElementById('p-dias-colac').value     = mov.dias_colacion ?? 0;
     document.getElementById('p-anticipo').value       = mov.anticipo ?? 0;
@@ -526,8 +536,8 @@ document.getElementById('panel-guardar').addEventListener('click', async () => {
   const btn = document.getElementById('panel-guardar');
   const body = {
     dias_ausentes:      parseFloat(document.getElementById('p-dias-ausentes').value) || 0,
+    dias_no_contratado: parseFloat(document.getElementById('p-dias-no-contrato').value) || 0,
     dias_licencia:      parseFloat(document.getElementById('p-dias-licencia').value) || 0,
-    dias_vacaciones:    parseFloat(document.getElementById('p-dias-vacaciones').value) || 0,
     dias_movilizacion:  parseFloat(document.getElementById('p-dias-movil').value) || 0,
     dias_colacion:      parseFloat(document.getElementById('p-dias-colac').value) || 0,
     anticipo:           parseFloat(document.getElementById('p-anticipo').value) || 0,

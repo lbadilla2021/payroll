@@ -274,6 +274,14 @@ async function openDesglose(movId) {
       return;
     }
 
+    const detalle = await api.get(`/nomina/calculo/movimiento/${movId}/preview`);
+    const otrosHaberes = Number(detalle.total_haberes ?? 0)
+      - Number(detalle.sueldo_base_proporcional ?? 0)
+      - Number(detalle.gratificacion ?? 0)
+      - Number(detalle.total_horas_extra ?? 0)
+      - Number(detalle.movilizacion ?? 0)
+      - Number(detalle.colacion ?? 0);
+
     const fila = (label, val, sep=false, bold=false) => `
       <div style="display:flex;justify-content:space-between;padding:5px 0;
         ${sep?'border-top:2px solid var(--border);margin-top:4px;padding-top:8px;':'border-bottom:1px solid var(--border-light,var(--border))'}
@@ -285,8 +293,13 @@ async function openDesglose(movId) {
     document.getElementById('liq-content').innerHTML = `
       <div style="margin-bottom:var(--space-4);">
         <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--text-muted);margin-bottom:8px;">Haberes</div>
-        ${fila('Sueldo base', fmtCLP(mov.total_haberes))}
-        ${fila('Total haberes', fmtCLP(mov.total_haberes), false, true)}
+        ${fila('Sueldo base', fmtCLP(detalle.sueldo_base_proporcional))}
+        ${fila('Gratificación', fmtCLP(detalle.gratificacion))}
+        ${fila('Horas extras', fmtCLP(detalle.total_horas_extra))}
+        ${fila('Movilización', fmtCLP(detalle.movilizacion))}
+        ${fila('Colación', fmtCLP(detalle.colacion))}
+        ${fila('Haberes', fmtCLP(otrosHaberes))}
+        ${fila('Total haberes', fmtCLP(detalle.total_haberes), false, true)}
       </div>
       <div style="margin-bottom:var(--space-4);">
         <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--text-muted);margin-bottom:8px;">Descuentos previsionales</div>
