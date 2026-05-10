@@ -520,13 +520,23 @@ function renderResultados(mov) {
       <span style="color:${bold?'':'var(--text-secondary)'};">${label}</span>
       <span style="font-family:monospace;">${fmtCLP(val)}</span>
     </div>`;
+  const subtitle = title => `
+    <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--text-muted);margin:10px 0 4px;">${title}</div>`;
+  const otrosDescuentos = Number(mov.total_descuentos ?? 0)
+    - Number(mov.descuento_afp ?? 0)
+    - Number(mov.descuento_salud ?? 0)
+    - Number(mov.descuento_seg_cesantia ?? 0)
+    - Number(mov.impuesto_unico ?? 0);
   document.getElementById('resultados-content').innerHTML =
+    subtitle('Haberes') +
     row('Total haberes',   mov.total_haberes) +
     row('Total imponible', mov.total_imponible) +
+    subtitle('Descuentos') +
     row('Descuento AFP',         mov.descuento_afp) +
     row('Descuento salud',       mov.descuento_salud) +
     row('Seg. Cesantía (trab.)', mov.descuento_seg_cesantia) +
     row('Impuesto único',        mov.impuesto_unico) +
+    row('Otros descuentos',      otrosDescuentos) +
     row('Total descuentos', mov.total_descuentos) +
     row('Líquido a pagar', mov.liquido_pagar, true);
 }
