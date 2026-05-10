@@ -14,6 +14,33 @@ from pydantic import BaseModel, ConfigDict, Field, field_validator, model_valida
 
 
 # ─────────────────────────────────────────────────────────────────────────────
+# MANTENEDORES GLOBALES (estado civil, tipo trabajador, régimen previsional)
+# ─────────────────────────────────────────────────────────────────────────────
+
+class MantenedorGlobalCreate(BaseModel):
+    codigo:      int   = Field(..., ge=1, le=99)
+    descripcion: str   = Field(..., min_length=2, max_length=100)
+    referencia:  Optional[str] = Field(None, max_length=200)
+    es_activo:   bool  = True
+
+
+class MantenedorGlobalUpdate(BaseModel):
+    descripcion: Optional[str]  = Field(None, min_length=2, max_length=100)
+    referencia:  Optional[str]  = Field(None, max_length=200)
+    es_activo:   Optional[bool] = None
+
+
+class MantenedorGlobalRead(BaseModel):
+    id:          int
+    codigo:      int
+    descripcion: str
+    referencia:  Optional[str]
+    es_activo:   bool
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+# ─────────────────────────────────────────────────────────────────────────────
 # Helpers
 # ─────────────────────────────────────────────────────────────────────────────
 
@@ -65,11 +92,15 @@ class SupervisorList(BaseModel):
 class TipoPermisoCreate(BaseModel):
     codigo:      str = Field(..., min_length=1, max_length=20)
     descripcion: str = Field(..., min_length=2, max_length=100)
+    unidad:      str = Field('dias', pattern=r'^(dias|horas)$')
+    con_goce:    bool = True
     es_activo:   bool = True
 
 
 class TipoPermisoUpdate(BaseModel):
     descripcion: Optional[str]  = Field(None, min_length=2, max_length=100)
+    unidad:      Optional[str]  = Field(None, pattern=r'^(dias|horas)$')
+    con_goce:    Optional[bool] = None
     es_activo:   Optional[bool] = None
 
 
@@ -78,6 +109,8 @@ class TipoPermisoRead(BaseModel):
     tenant_id:   UUID
     codigo:      str
     descripcion: str
+    unidad:      str
+    con_goce:    bool
     es_activo:   bool
     created_at:  datetime
 
@@ -648,20 +681,25 @@ class FichaPermisoCreate(BaseModel):
 
 
 class FichaPermisoUpdate(BaseModel):
-    dias_otorgados: Optional[float] = Field(None, ge=0)
-    observaciones:  Optional[str]   = None
+    fecha_evento:    Optional[date]  = None
+    tipo_permiso_id: Optional[UUID]  = None
+    fecha_desde:     Optional[date]  = None
+    fecha_hasta:     Optional[date]  = None
+    dias_otorgados:  Optional[float] = Field(None, ge=0)
+    observaciones:   Optional[str]   = None
 
 
 class FichaPermisoRead(BaseModel):
-    id:              UUID
-    trabajador_id:   UUID
-    fecha_evento:    date
-    tipo_permiso_id: UUID
-    fecha_desde:     date
-    fecha_hasta:     date
-    dias_otorgados:  float
-    observaciones:   Optional[str]
-    created_at:      datetime
+    id:                  UUID
+    trabajador_id:       UUID
+    fecha_evento:        date
+    tipo_permiso_id:     UUID
+    tipo_permiso_nombre: Optional[str] = None   # descripcion de rrhh.tipo_permiso
+    fecha_desde:         date
+    fecha_hasta:         date
+    dias_otorgados:      float
+    observaciones:       Optional[str]
+    created_at:          datetime
 
     model_config = ConfigDict(from_attributes=True)
 
@@ -723,8 +761,11 @@ class CargoDesempenadoCreate(BaseModel):
 
 
 class CargoDesempenadoUpdate(BaseModel):
-    fecha_hasta:   Optional[date] = None
-    observaciones: Optional[str]  = None
+    cargo_id:          Optional[UUID] = None
+    cargo_descripcion: Optional[str]  = Field(None, max_length=100)
+    fecha_desde:       Optional[date] = None
+    fecha_hasta:       Optional[date] = None
+    observaciones:     Optional[str]  = None
 
 
 class CargoDesempenadoRead(BaseModel):
@@ -732,6 +773,7 @@ class CargoDesempenadoRead(BaseModel):
     trabajador_id:     UUID
     cargo_id:          Optional[UUID]
     cargo_descripcion: Optional[str]
+    cargo_nombre:      Optional[str] = None   # descripcion del catálogo nomina.cargo
     fecha_desde:       date
     fecha_hasta:       Optional[date]
     observaciones:     Optional[str]
@@ -784,3 +826,36 @@ class TrabajadorEvalCualitativaRead(BaseModel):
     created_at:       datetime
 
     model_config = ConfigDict(from_attributes=True)
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# LICENCIA MÉDICA
+# ─────────────────────────────────────────────────────────────────────────────
+
+class LicenciaMedicaCreate(BaseModel):
+    fecha_inicio:  date
+    dias:          int  = Field(..., ge=1)
+    observaciones: Optional[str] = None
+
+
+class LicenciaMedicaUpdate(BaseModel):
+    fecha_inicio:  Optional[date] = None
+    dias:          Optional[int]  = Field(None, ge=1)
+    observaciones: Optional[str]  = None
+
+
+class LicenciaMedicaRead(BaseModel):
+    id:             UUID
+    trabajador_id:  UUID
+    fecha_inicio:   date
+    dias:           int
+    fecha_termino:  date
+    observaciones:  Optional[str]
+    created_at:     datetime
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class LicenciaMedicaList(BaseModel):
+    items: list[LicenciaMedicaRead]
+    total: int

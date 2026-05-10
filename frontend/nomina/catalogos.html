@@ -1,0 +1,1305 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Catálogos Nómina — Nómina</title>
+  <link rel="stylesheet" href="/static/css/main.css?v=4">
+</head>
+<body data-page="nomina-catalogos">
+
+<div id="app-shell">
+  <nav class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <div class="brand-mark">N</div>
+      <span class="brand-name">Nómina SaaS</span>
+    </div>
+    <div class="sidebar-nav" id="sidebar-nav"></div>
+    <div class="sidebar-footer">
+      <div class="profile-trigger" id="profile-trigger">
+        <div class="avatar" id="sidebar-avatar">?</div>
+        <div class="profile-info">
+          <div class="profile-name" id="sidebar-name">…</div>
+          <div class="profile-role" id="sidebar-role"></div>
+        </div>
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <div class="profile-menu" id="profile-menu">
+        <div class="menu-item" onclick="window.location.href='/settings.html'">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+          Configuración
+        </div>
+        <div class="menu-item" id="theme-toggle-btn">
+          <svg id="theme-icon-sun" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+          <svg id="theme-icon-moon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none;"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+          <span id="theme-label">Modo oscuro</span>
+        </div>
+        <div class="menu-divider"></div>
+        <div class="menu-item" id="help-btn">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          Ayuda
+        </div>
+        <div class="menu-divider"></div>
+        <div class="menu-item danger" id="logout-btn">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+          Cerrar sesión
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <div class="main-content">
+    <header class="topbar">
+      <span class="topbar-title">Catálogos Nómina</span>
+      <div class="topbar-spacer"></div>
+      <button class="btn btn-primary btn-sm" id="btn-nuevo">
+        <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        <span id="btn-nuevo-label">Agregar</span>
+      </button>
+    </header>
+
+    <main class="page-area">
+      <div style="max-width:1060px;">
+
+        <div class="tab-bar" id="tab-bar">
+          <button class="tab-btn active" data-tab="conceptos">Conceptos</button>
+          <button class="tab-btn" data-tab="causales">Causales finiquito</button>
+          <button class="tab-btn" data-tab="clausulas">Cláusulas</button>
+          <button class="tab-btn" data-tab="sucursales">Sucursales</button>
+          <button class="tab-btn" data-tab="centroscosto">Centros de costo</button>
+          <button class="tab-btn" data-tab="cargos">Cargos</button>
+          <button class="tab-btn" data-tab="tiposcontrato">Tipos contrato</button>
+          <button class="tab-btn" data-tab="afp">AFP</button>
+          <button class="tab-btn" data-tab="isapres">Isapres</button>
+          <button class="tab-btn" data-tab="ccaf">CCAF</button>
+          <button class="tab-btn" data-tab="bancos">Bancos</button>
+          <button class="tab-btn" data-tab="regiones">Regiones</button>
+          <button class="tab-btn" data-tab="comunas">Comunas</button>
+        </div>
+
+        <!-- ── CONCEPTOS ──────────────────────────────────────────── -->
+        <div class="tab-panel active" id="tab-conceptos">
+          <div style="display:flex;gap:var(--space-2);margin-bottom:var(--space-3);">
+            <select class="form-input form-select" id="filter-tipo-concepto" style="width:auto;min-width:140px;">
+              <option value="">H y D</option>
+              <option value="H">Solo haberes</option>
+              <option value="D">Solo descuentos</option>
+            </select>
+          </div>
+          <div class="card">
+            <div class="table-wrapper">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Código</th>
+                    <th>Descripción</th>
+                    <th style="text-align:center;">Tipo</th>
+                    <th style="text-align:center;">Imponible</th>
+                    <th style="text-align:center;">Tributable</th>
+                    <th style="text-align:center;">Fijo</th>
+                    <th>Estado</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody id="tbody-conceptos">
+                  <tr><td colspan="8"><div style="padding:32px;text-align:center;"><div class="spinner" style="margin:0 auto;"></div></div></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── CAUSALES FINIQUITO ─────────────────────────────────── -->
+        <div class="tab-panel" id="tab-causales">
+          <div class="card">
+            <div class="table-wrapper">
+              <table>
+                <thead>
+                  <tr><th>Código</th><th>Descripción</th><th>Artículo</th><th>Estado</th><th></th></tr>
+                </thead>
+                <tbody id="tbody-causales">
+                  <tr><td colspan="5"><div style="padding:32px;text-align:center;"><div class="spinner" style="margin:0 auto;"></div></div></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── CLÁUSULAS ADICIONALES ──────────────────────────────── -->
+        <div class="tab-panel" id="tab-clausulas">
+          <div class="card">
+            <div class="table-wrapper">
+              <table>
+                <thead>
+                  <tr><th>Código</th><th>Descripción</th><th>Texto</th><th>Estado</th><th></th></tr>
+                </thead>
+                <tbody id="tbody-clausulas">
+                  <tr><td colspan="5"><div style="padding:32px;text-align:center;"><div class="spinner" style="margin:0 auto;"></div></div></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── AFP ───────────────────────────────────────────────── -->
+        <div class="tab-panel" id="tab-afp">
+          <div style="font-size:12px;color:var(--text-muted);margin-bottom:var(--space-3);">
+            Tasas globales según Previred. Solo administradores pueden editar.
+          </div>
+          <div class="card">
+            <div class="table-wrapper">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Código</th>
+                    <th>Nombre</th>
+                    <th style="text-align:right;">Tasa trabajador</th>
+                    <th style="text-align:right;">Tasa SIS</th>
+                    <th style="text-align:right;">T. trabajo pesado</th>
+                    <th>Estado</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody id="tbody-afp">
+                  <tr><td colspan="7"><div style="padding:32px;text-align:center;"><div class="spinner" style="margin:0 auto;"></div></div></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── ISAPRES ────────────────────────────────────────────── -->
+        <div class="tab-panel" id="tab-isapres">
+          <div class="card">
+            <div class="table-wrapper">
+              <table>
+                <thead>
+                  <tr><th>Código Previred</th><th>Nombre</th><th>Nombre corto</th><th>Estado</th><th></th></tr>
+                </thead>
+                <tbody id="tbody-isapres">
+                  <tr><td colspan="5"><div style="padding:32px;text-align:center;"><div class="spinner" style="margin:0 auto;"></div></div></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── CCAF ───────────────────────────────────────────────── -->
+        <div class="tab-panel" id="tab-ccaf">
+          <div class="card">
+            <div class="table-wrapper">
+              <table>
+                <thead>
+                  <tr><th>Código</th><th>Nombre</th><th>Nombre corto</th><th>Estado</th></tr>
+                </thead>
+                <tbody id="tbody-ccaf">
+                  <tr><td colspan="4"><div style="padding:32px;text-align:center;"><div class="spinner" style="margin:0 auto;"></div></div></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── BANCOS ─────────────────────────────────────────────── -->
+        <div class="tab-panel" id="tab-bancos">
+          <div class="card">
+            <div class="table-wrapper">
+              <table>
+                <thead>
+                  <tr><th>Código</th><th>Nombre</th><th>Estado</th></tr>
+                </thead>
+                <tbody id="tbody-bancos">
+                  <tr><td colspan="3"><div style="padding:32px;text-align:center;"><div class="spinner" style="margin:0 auto;"></div></div></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── SUCURSALES ──────────────────────────────────────────── -->
+        <div class="tab-panel" id="tab-sucursales">
+          <div class="table-wrapper">
+            <table>
+              <thead>
+                <tr><th>Código</th><th>Nombre</th><th>Dirección</th><th>Cód. Previred</th><th>Estado</th><th style="text-align:right;">Acciones</th></tr>
+              </thead>
+              <tbody id="tbody-sucursales">
+                <tr><td colspan="6"><div style="padding:32px;text-align:center;"><div class="spinner" style="margin:0 auto;"></div></div></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- ── CENTROS DE COSTO ────────────────────────────────────── -->
+        <div class="tab-panel" id="tab-centroscosto">
+          <div class="table-wrapper">
+            <table>
+              <thead>
+                <tr><th>Código</th><th>Descripción</th><th>Cód. Previred</th><th>Estado</th><th style="text-align:right;">Acciones</th></tr>
+              </thead>
+              <tbody id="tbody-centroscosto">
+                <tr><td colspan="5"><div style="padding:32px;text-align:center;"><div class="spinner" style="margin:0 auto;"></div></div></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- ── CARGOS ──────────────────────────────────────────────── -->
+        <div class="tab-panel" id="tab-cargos">
+          <div class="table-wrapper">
+            <table>
+              <thead>
+                <tr><th>Código</th><th>Descripción</th><th>Estado</th><th style="text-align:right;">Acciones</th></tr>
+              </thead>
+              <tbody id="tbody-cargos">
+                <tr><td colspan="4"><div style="padding:32px;text-align:center;"><div class="spinner" style="margin:0 auto;"></div></div></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- ── TIPOS DE CONTRATO ───────────────────────────────────── -->
+        <div class="tab-panel" id="tab-tiposcontrato">
+          <div class="table-wrapper">
+            <table>
+              <thead>
+                <tr><th>Código</th><th>Descripción</th><th>Estado</th><th style="text-align:right;">Acciones</th></tr>
+              </thead>
+              <tbody id="tbody-tiposcontrato">
+                <tr><td colspan="4"><div style="padding:32px;text-align:center;"><div class="spinner" style="margin:0 auto;"></div></div></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- ── REGIONES ────────────────────────────────────────────── -->
+        <div class="tab-panel" id="tab-regiones">
+          <div class="table-wrapper">
+            <table>
+              <thead>
+                <tr><th>Código</th><th>Nombre</th><th>Zona extrema</th></tr>
+              </thead>
+              <tbody id="tbody-regiones">
+                <tr><td colspan="3"><div style="padding:32px;text-align:center;"><div class="spinner" style="margin:0 auto;"></div></div></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- ── COMUNAS ─────────────────────────────────────────────── -->
+        <div class="tab-panel" id="tab-comunas">
+          <div style="display:flex;gap:var(--space-2);margin-bottom:var(--space-3);">
+            <select class="form-input form-select" id="filter-region-comunas" style="width:auto;min-width:200px;">
+              <option value="">Todas las regiones</option>
+            </select>
+          </div>
+          <div class="table-wrapper">
+            <table>
+              <thead>
+                <tr><th>Código</th><th>Nombre</th><th>Región</th></tr>
+              </thead>
+              <tbody id="tbody-comunas">
+                <tr><td colspan="3"><div style="padding:32px;text-align:center;"><div class="spinner" style="margin:0 auto;"></div></div></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- ── Panel: Concepto de remuneración (crear / editar) ── -->
+<div class="panel" id="panel-concepto" style="width:600px;overflow-y:auto;">
+  <div class="panel-header" style="display:flex;align-items:center;justify-content:space-between;padding:var(--space-4);border-bottom:1px solid var(--border);position:sticky;top:0;background:var(--surface);z-index:1;">
+    <span id="panel-con-title" style="font-size:15px;font-weight:600;">Nuevo concepto</span>
+    <button class="btn btn-ghost btn-sm" id="panel-con-close">
+      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+  </div>
+  <div style="padding:var(--space-4);">
+    <input type="hidden" id="con-id">
+
+    <div class="form-row cols-3" style="margin-bottom:var(--space-3);">
+      <div class="form-group">
+        <label class="form-label">Código *</label>
+        <input class="form-input" id="con-codigo" type="text" maxlength="10" placeholder="Ej: H001">
+      </div>
+      <div class="form-group" style="grid-column:span 2;">
+        <label class="form-label">Descripción *</label>
+        <input class="form-input" id="con-descripcion" type="text" maxlength="100" placeholder="Ej: Sueldo base">
+      </div>
+    </div>
+
+    <div class="form-row cols-2" style="margin-bottom:var(--space-4);">
+      <div class="form-group">
+        <label class="form-label">Tipo *</label>
+        <select class="form-input form-select" id="con-tipo">
+          <option value="H">H — Haber</option>
+          <option value="D">D — Descuento</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Clasificación LRE</label>
+        <input class="form-input" id="con-lre" type="text" maxlength="50" placeholder="Ej: 2510">
+      </div>
+    </div>
+
+    <!-- Checkboxes agrupados -->
+    <div class="form-section-title" style="margin-bottom:var(--space-3);">Propiedades tributarias y previsionales</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px 24px;margin-bottom:var(--space-4);">
+      <label class="chk-row"><input type="checkbox" id="con-imponible">  Imponible</label>
+      <label class="chk-row"><input type="checkbox" id="con-tributable"> Tributable</label>
+      <label class="chk-row"><input type="checkbox" id="con-renta-exenta"> Renta exenta</label>
+      <label class="chk-row"><input type="checkbox" id="con-reliquida"> Reliquida impuesto</label>
+    </div>
+
+    <div class="form-section-title" style="margin-bottom:var(--space-3);">Propiedades de cálculo</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px 24px;margin-bottom:var(--space-4);">
+      <label class="chk-row"><input type="checkbox" id="con-fijo">          Monto fijo</label>
+      <label class="chk-row"><input type="checkbox" id="con-porcentaje">    Es porcentaje</label>
+      <label class="chk-row"><input type="checkbox" id="con-valor-diario">  Valor diario</label>
+      <label class="chk-row"><input type="checkbox" id="con-semana-corrida"> Semana corrida</label>
+      <label class="chk-row"><input type="checkbox" id="con-horas-ext">     Horas extras</label>
+      <label class="chk-row"><input type="checkbox" id="con-adic-horas-ext"> Adicional HH ext.</label>
+      <label class="chk-row"><input type="checkbox" id="con-haber-var">     Haber variable</label>
+      <label class="chk-row"><input type="checkbox" id="con-adiciona-imm">  Adiciona sueldo IMM</label>
+    </div>
+
+    <div class="form-section-title" style="margin-bottom:var(--space-3);">Descuentos especiales</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px 24px;margin-bottom:var(--space-4);">
+      <label class="chk-row"><input type="checkbox" id="con-anticipo">      Es anticipo</label>
+      <label class="chk-row"><input type="checkbox" id="con-prestamo">      Es préstamo</label>
+      <label class="chk-row"><input type="checkbox" id="con-prestamo-ccaf"> Es préstamo CCAF</label>
+      <label class="chk-row"><input type="checkbox" id="con-exportable-lre"> Exportable LRE</label>
+    </div>
+
+    <div style="display:flex;align-items:center;gap:var(--space-3);padding-top:var(--space-3);border-top:1px solid var(--border);">
+      <label class="chk-row"><input type="checkbox" id="con-activo"> Activo</label>
+      <div style="flex:1;"></div>
+      <button class="btn btn-secondary" id="panel-con-cancel">Cancelar</button>
+      <button class="btn btn-primary" id="panel-con-save">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Modal compartido: causales y cláusulas ── -->
+<div class="modal" id="modal-cat">
+  <div class="modal-header">
+    <span class="modal-title" id="modal-cat-title">Agregar</span>
+    <button class="btn btn-ghost btn-sm" id="modal-cat-close">
+      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+  </div>
+  <div class="modal-body">
+    <input type="hidden" id="cat-id">
+    <input type="hidden" id="cat-mode"> <!-- "causal" | "clausula" -->
+
+    <div class="form-row cols-2">
+      <div class="form-group">
+        <label class="form-label">Código *</label>
+        <input class="form-input" id="cat-codigo" type="text" maxlength="20" placeholder="Ej: ART160A">
+      </div>
+      <div class="form-group" id="cat-extra-group" style="display:none;">
+        <!-- artículo para causales -->
+        <label class="form-label" id="cat-extra-label">Artículo</label>
+        <input class="form-input" id="cat-extra" type="text" maxlength="50" placeholder="Ej: Art. 160 Nº 1">
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Descripción *</label>
+      <input class="form-input" id="cat-descripcion" type="text" maxlength="200">
+    </div>
+    <div class="form-group" id="cat-texto-group" style="display:none;">
+      <label class="form-label">Texto de la cláusula *</label>
+      <textarea class="form-input" id="cat-texto" rows="4" placeholder="Texto completo…" style="resize:vertical;"></textarea>
+    </div>
+    <div class="form-group">
+      <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer;color:var(--text-secondary);">
+        <input type="checkbox" id="cat-activo" checked style="width:16px;height:16px;">
+        Activa
+      </label>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button class="btn btn-secondary" id="modal-cat-cancel">Cancelar</button>
+    <button class="btn btn-primary" id="modal-cat-save">Guardar</button>
+  </div>
+</div>
+
+<!-- Modal editar AFP (tasas) -->
+<div class="modal" id="modal-afp">
+  <div class="modal-header">
+    <span class="modal-title" id="modal-afp-title">Editar AFP</span>
+    <button class="btn btn-ghost btn-sm" id="modal-afp-close">
+      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+  </div>
+  <div class="modal-body">
+    <input type="hidden" id="afp-id">
+    <div style="font-size:13px;color:var(--text-muted);margin-bottom:var(--space-3);">Tasas expresadas como decimal (ej: 0.1145 = 11,45%)</div>
+    <div class="form-row cols-3">
+      <div class="form-group">
+        <label class="form-label">Tasa trabajador</label>
+        <input class="form-input" id="afp-tasa-t" type="number" min="0" max="1" step="0.0001">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Tasa SIS</label>
+        <input class="form-input" id="afp-tasa-s" type="number" min="0" max="1" step="0.0001">
+      </div>
+      <div class="form-group">
+        <label class="form-label">T. trabajo pesado</label>
+        <input class="form-input" id="afp-tasa-p" type="number" min="0" max="1" step="0.0001">
+      </div>
+    </div>
+    <div class="form-group">
+      <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer;color:var(--text-secondary);">
+        <input type="checkbox" id="afp-activa" style="width:16px;height:16px;">
+        Activa
+      </label>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button class="btn btn-secondary" id="modal-afp-cancel">Cancelar</button>
+    <button class="btn btn-primary" id="modal-afp-save">Guardar tasas</button>
+  </div>
+</div>
+
+<!-- ── Modal Sucursales ── -->
+<div class="modal" id="modal-suc">
+  <div class="modal-header">
+    <span class="modal-title" id="modal-suc-title">Nueva sucursal</span>
+    <button class="btn btn-ghost btn-sm" id="modal-suc-close">
+      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+  </div>
+  <div class="modal-body">
+    <input type="hidden" id="suc-id">
+    <div class="form-row cols-2" style="margin-bottom:var(--space-3);">
+      <div class="form-group">
+        <label class="form-label">Código *</label>
+        <input class="form-input" id="suc-codigo" type="text" maxlength="20" placeholder="Ej: SUC01">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Nombre *</label>
+        <input class="form-input" id="suc-nombre" type="text" maxlength="100" placeholder="Ej: Casa Matriz">
+      </div>
+    </div>
+    <div class="form-group" style="margin-bottom:var(--space-3);">
+      <label class="form-label">Dirección</label>
+      <input class="form-input" id="suc-direccion" type="text" maxlength="200" placeholder="Ej: Av. Providencia 1234">
+    </div>
+    <div class="form-row cols-2" style="margin-bottom:var(--space-3);">
+      <div class="form-group">
+        <label class="form-label">Región</label>
+        <select class="form-input form-select" id="suc-region">
+          <option value="">Sin especificar</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Comuna</label>
+        <select class="form-input form-select" id="suc-comuna">
+          <option value="">Sin especificar</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-row cols-2" style="margin-bottom:var(--space-3);">
+      <div class="form-group">
+        <label class="form-label">Teléfono</label>
+        <input class="form-input" id="suc-telefono" type="text" maxlength="30" placeholder="Ej: +56 2 2345 6789">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Código Previred</label>
+        <input class="form-input" id="suc-previred" type="text" maxlength="20" placeholder="Ej: 12345">
+      </div>
+    </div>
+    <div class="form-group">
+      <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer;color:var(--text-secondary);">
+        <input type="checkbox" id="suc-activa" checked style="width:16px;height:16px;">
+        Activa
+      </label>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button class="btn btn-secondary" id="modal-suc-cancel">Cancelar</button>
+    <button class="btn btn-primary" id="modal-suc-save">Guardar</button>
+  </div>
+</div>
+
+<div id="toast-container"></div>
+<style>
+.chk-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  padding: 2px 0;
+}
+.chk-row input[type="checkbox"] {
+  width: 15px;
+  height: 15px;
+  flex-shrink: 0;
+}
+</style>
+
+<script type="module">
+import api from '/static/js/api.js?v=4';
+import { requireAuth } from '/static/js/auth.js?v=3';
+import { initTheme, openModal, closeModal, openPanel, closePanel, setLoading, confirm } from '/static/js/ui.js?v=3';
+import { toast } from '/static/js/toast.js?v=3';
+import { initShellUI } from '/static/js/nav.js';
+
+initTheme();
+const user = await requireAuth();
+initShellUI(user);
+
+const fmtPct = n => n != null ? `${(Number(n) * 100).toFixed(2)}%` : '—';
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
+function spinner(cols) {
+  return `<tr><td colspan="${cols}"><div style="padding:32px;text-align:center;"><div class="spinner" style="margin:0 auto;"></div></div></td></tr>`;
+}
+function emptyRow(cols, msg = 'Sin registros') {
+  return `<tr><td colspan="${cols}"><div class="empty-state" style="padding:var(--space-8) 0;">
+    <div class="empty-state-icon"><svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="8" y1="12" x2="16" y2="12"/></svg></div>
+    <h3>${msg}</h3></div></td></tr>`;
+}
+function badgeActivo(v, field = 'es_activo') {
+  return `<span class="badge ${v ? 'badge-success' : 'badge-neutral'}">${v ? 'Activo' : 'Inactivo'}</span>`;
+}
+function chk(v) { return v ? '✓' : ''; }
+const cellChk = v => `<td style="text-align:center;font-size:13px;color:${v ? 'var(--success)' : 'var(--border)'}">${chk(v)}</td>`;
+
+function btnEdit(id) {
+  return `<button class="btn btn-ghost btn-sm" data-action="edit" data-id="${id}" title="Editar">
+    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+  </button>`;
+}
+function btnToggle(id, activo) {
+  return `<button class="btn btn-ghost btn-sm" data-action="toggle" data-id="${id}" data-activo="${activo}" title="${activo ? 'Desactivar' : 'Activar'}">
+    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="${activo ? 'var(--success)' : 'var(--text-muted)'}" stroke-width="2"><circle cx="12" cy="12" r="10"/>${activo ? '<line x1="8" y1="12" x2="16" y2="12"/>' : '<line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/>'}</svg>
+  </button>`;
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// CONCEPTOS DE REMUNERACIÓN
+// ═══════════════════════════════════════════════════════════════════════════════
+let conceptos = [];
+let filtroTipoConcepto = '';
+
+async function loadConceptos() {
+  const tbody = document.getElementById('tbody-conceptos');
+  tbody.innerHTML = spinner(8);
+  try {
+    const p = new URLSearchParams({ size: 200 });
+    if (filtroTipoConcepto) p.set('tipo', filtroTipoConcepto);
+    const data = await api.get(`/nomina/conceptos?${p}`);
+    conceptos = data.items ?? data ?? [];
+    if (!conceptos.length) { tbody.innerHTML = emptyRow(8, 'Sin conceptos'); return; }
+    tbody.innerHTML = conceptos.map(c => `<tr>
+      <td><code style="font-size:12px;color:var(--text-muted);">${c.codigo}</code></td>
+      <td class="td-primary">${c.descripcion}</td>
+      <td style="text-align:center;">
+        <span class="badge ${c.tipo === 'H' ? 'badge-success' : 'badge-warning'}">${c.tipo === 'H' ? 'Haber' : 'Descto.'}</span>
+      </td>
+      ${cellChk(c.es_imponible)}
+      ${cellChk(c.es_tributable)}
+      ${cellChk(c.es_fijo)}
+      <td>${badgeActivo(c.es_activo)}</td>
+      <td style="display:flex;gap:4px;justify-content:flex-end;">
+        ${btnEdit(c.id)}${btnToggle(c.id, c.es_activo)}
+      </td>
+    </tr>`).join('');
+    bindConceptosActions();
+  } catch (err) { tbody.innerHTML = emptyRow(8, err.message); }
+}
+
+function bindConceptosActions() {
+  document.getElementById('tbody-conceptos').addEventListener('click', async e => {
+    const btn = e.target.closest('[data-action]');
+    if (!btn) return;
+    const id = btn.dataset.id;
+    const c  = conceptos.find(x => String(x.id) === id);
+    if (!c) return;
+    if (btn.dataset.action === 'edit') {
+      openConceptoPanel(c);
+    } else if (btn.dataset.action === 'toggle') {
+      const activo = btn.dataset.activo === 'true';
+      try {
+        await api.patch(`/nomina/conceptos/${id}`, { es_activo: !activo });
+        toast.success(activo ? 'Desactivado.' : 'Activado.');
+        loadConceptos();
+      } catch (err) { toast.error(err.message); }
+    }
+  }, { once: true });
+}
+
+// Panel Concepto
+function openConceptoPanel(c = null) {
+  document.getElementById('panel-con-title').textContent = c ? 'Editar concepto' : 'Nuevo concepto';
+  document.getElementById('con-id').value          = c?.id ?? '';
+  document.getElementById('con-codigo').value      = c?.codigo ?? '';
+  document.getElementById('con-descripcion').value = c?.descripcion ?? '';
+  document.getElementById('con-tipo').value        = c?.tipo ?? 'H';
+  document.getElementById('con-lre').value         = c?.clasificacion_lre ?? '';
+
+  const setChk = (id, val) => { document.getElementById(id).checked = val ?? false; };
+  setChk('con-imponible',     c?.es_imponible ?? true);
+  setChk('con-tributable',    c?.es_tributable ?? true);
+  setChk('con-renta-exenta',  c?.es_renta_exenta ?? false);
+  setChk('con-reliquida',     c?.reliquida_impuesto ?? false);
+  setChk('con-fijo',          c?.es_fijo ?? true);
+  setChk('con-porcentaje',    c?.es_porcentaje ?? false);
+  setChk('con-valor-diario',  c?.es_valor_diario ?? false);
+  setChk('con-semana-corrida',c?.es_semana_corrida ?? false);
+  setChk('con-horas-ext',     c?.es_horas_extras ?? false);
+  setChk('con-adic-horas-ext',c?.es_adicional_horas_ext ?? false);
+  setChk('con-haber-var',     c?.es_haber_variable ?? false);
+  setChk('con-adiciona-imm',  c?.adiciona_sueldo_imm ?? false);
+  setChk('con-anticipo',      c?.es_anticipo ?? false);
+  setChk('con-prestamo',      c?.es_prestamo ?? false);
+  setChk('con-prestamo-ccaf', c?.es_prestamo_ccaf ?? false);
+  setChk('con-exportable-lre',c?.exportable_lre ?? false);
+  setChk('con-activo',        c?.es_activo ?? true);
+  openPanel('panel-concepto');
+}
+
+document.getElementById('panel-con-save').addEventListener('click', async () => {
+  const btn = document.getElementById('panel-con-save');
+  const id  = document.getElementById('con-id').value;
+  const codigo      = document.getElementById('con-codigo').value.trim();
+  const descripcion = document.getElementById('con-descripcion').value.trim();
+  if (!codigo)      { toast.error('El código es obligatorio.'); return; }
+  if (!descripcion) { toast.error('La descripción es obligatoria.'); return; }
+  const getChk = id => document.getElementById(id).checked;
+  const body = {
+    codigo, descripcion,
+    tipo:                   document.getElementById('con-tipo').value,
+    es_imponible:           getChk('con-imponible'),
+    es_tributable:          getChk('con-tributable'),
+    es_renta_exenta:        getChk('con-renta-exenta'),
+    reliquida_impuesto:     getChk('con-reliquida'),
+    es_fijo:                getChk('con-fijo'),
+    es_porcentaje:          getChk('con-porcentaje'),
+    es_valor_diario:        getChk('con-valor-diario'),
+    es_semana_corrida:      getChk('con-semana-corrida'),
+    es_horas_extras:        getChk('con-horas-ext'),
+    es_adicional_horas_ext: getChk('con-adic-horas-ext'),
+    es_haber_variable:      getChk('con-haber-var'),
+    adiciona_sueldo_imm:    getChk('con-adiciona-imm'),
+    es_anticipo:            getChk('con-anticipo'),
+    es_prestamo:            getChk('con-prestamo'),
+    es_prestamo_ccaf:       getChk('con-prestamo-ccaf'),
+    exportable_lre:         getChk('con-exportable-lre'),
+    clasificacion_lre:      document.getElementById('con-lre').value.trim() || null,
+    es_activo:              getChk('con-activo'),
+  };
+  setLoading(btn, true);
+  try {
+    if (id) {
+      await api.patch(`/nomina/conceptos/${id}`, body);
+      toast.success('Concepto actualizado.');
+    } else {
+      await api.post('/nomina/conceptos', body);
+      toast.success('Concepto creado.');
+    }
+    closePanel('panel-concepto');
+    loadConceptos();
+  } catch (err) { toast.error(err.message); }
+  finally { setLoading(btn, false); }
+});
+document.getElementById('panel-con-close').addEventListener('click',  () => closePanel('panel-concepto'));
+document.getElementById('panel-con-cancel').addEventListener('click', () => closePanel('panel-concepto'));
+
+document.getElementById('filter-tipo-concepto').addEventListener('change', e => {
+  filtroTipoConcepto = e.target.value; loadConceptos();
+});
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// MODAL COMPARTIDO: CAUSALES + CLÁUSULAS
+// ═══════════════════════════════════════════════════════════════════════════════
+let catItems = [];
+let catEndpoint = '';
+let catActivo   = 'es_activa';
+
+function openCatModal(item = null, mode = 'causal') {
+  const LABELS = { causal: 'causal', clausula: 'cláusula', cargo: 'cargo', tipocontrato: 'tipo de contrato', centrocosto: 'centro de costo' };
+  const label = LABELS[mode] ?? mode;
+  document.getElementById('cat-mode').value        = mode;
+  document.getElementById('cat-id').value          = item?.id ?? '';
+  document.getElementById('cat-codigo').value      = item?.codigo ?? '';
+  document.getElementById('cat-descripcion').value = item?.descripcion ?? '';
+  document.getElementById('cat-activo').checked    = item ? item[catActivo] : true;
+  document.getElementById('modal-cat-title').textContent = item ? `Editar ${label}` : `Nuevo ${label}`;
+
+  // Campos dinámicos según modo
+  const showExtra = mode === 'causal' || mode === 'centrocosto';
+  document.getElementById('cat-extra-group').style.display = showExtra ? '' : 'none';
+  if (mode === 'causal') {
+    document.getElementById('cat-extra-label').textContent = 'Artículo';
+    document.getElementById('cat-extra').placeholder = 'Ej: Art. 160 Nº 1';
+    document.getElementById('cat-extra').value = item?.articulo ?? '';
+  } else if (mode === 'centrocosto') {
+    document.getElementById('cat-extra-label').textContent = 'Código Previred';
+    document.getElementById('cat-extra').placeholder = 'Ej: 12345';
+    document.getElementById('cat-extra').value = item?.codigo_previred ?? '';
+  }
+  document.getElementById('cat-texto-group').style.display = mode === 'clausula' ? '' : 'none';
+  document.getElementById('cat-texto').value = item?.texto ?? '';
+  openModal('modal-cat');
+}
+
+document.getElementById('modal-cat-save').addEventListener('click', async () => {
+  const btn    = document.getElementById('modal-cat-save');
+  const id     = document.getElementById('cat-id').value;
+  const mode   = document.getElementById('cat-mode').value;
+  const codigo = document.getElementById('cat-codigo').value.trim();
+  const desc   = document.getElementById('cat-descripcion').value.trim();
+  if (!codigo) { toast.error('El código es obligatorio.'); return; }
+  if (!desc)   { toast.error('La descripción es obligatoria.'); return; }
+  let body = { codigo, descripcion: desc, [catActivo]: document.getElementById('cat-activo').checked };
+  if (mode === 'causal')      body.articulo       = document.getElementById('cat-extra').value.trim() || null;
+  if (mode === 'centrocosto') body.codigo_previred = document.getElementById('cat-extra').value.trim() || null;
+  if (mode === 'clausula') {
+    const texto = document.getElementById('cat-texto').value.trim();
+    if (!texto) { toast.error('El texto de la cláusula es obligatorio.'); return; }
+    body.texto = texto;
+  }
+  setLoading(btn, true);
+  try {
+    if (id) { await api.patch(`${catEndpoint}/${id}`, body); toast.success('Actualizado.'); }
+    else    { await api.post(catEndpoint, body); toast.success('Creado.'); }
+    closeModal('modal-cat');
+    if (mode === 'causal')       loadCausales();
+    if (mode === 'clausula')     loadClausulas();
+    if (mode === 'cargo')        loadCargos();
+    if (mode === 'tipocontrato') loadTiposContrato();
+    if (mode === 'centrocosto')  loadCentrosCosto();
+  } catch (err) { toast.error(err.message); }
+  finally { setLoading(btn, false); }
+});
+document.getElementById('modal-cat-close').addEventListener('click',  () => closeModal('modal-cat'));
+document.getElementById('modal-cat-cancel').addEventListener('click', () => closeModal('modal-cat'));
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// CAUSALES FINIQUITO
+// ═══════════════════════════════════════════════════════════════════════════════
+let causales = [];
+
+async function loadCausales() {
+  catEndpoint = '/nomina/causales-finiquito';
+  catActivo   = 'es_activa';
+  const tbody = document.getElementById('tbody-causales');
+  tbody.innerHTML = spinner(5);
+  try {
+    const data = await api.get('/nomina/causales-finiquito?size=200');
+    causales = data.items ?? data ?? [];
+    if (!causales.length) { tbody.innerHTML = emptyRow(5, 'Sin causales'); return; }
+    tbody.innerHTML = causales.map(c => `<tr>
+      <td><code style="font-size:12px;color:var(--text-muted);">${c.codigo}</code></td>
+      <td class="td-primary">${c.descripcion}</td>
+      <td style="font-size:13px;color:var(--text-muted);">${c.articulo ?? '—'}</td>
+      <td>${badgeActivo(c.es_activa)}</td>
+      <td style="display:flex;gap:4px;justify-content:flex-end;">${btnEdit(c.id)}${btnToggle(c.id, c.es_activa)}</td>
+    </tr>`).join('');
+    document.getElementById('tbody-causales').addEventListener('click', async e => {
+      const btn = e.target.closest('[data-action]');
+      if (!btn) return;
+      const id = btn.dataset.id;
+      const item = causales.find(x => String(x.id) === id);
+      if (!item) return;
+      if (btn.dataset.action === 'edit') { catEndpoint = '/nomina/causales-finiquito'; catActivo = 'es_activa'; openCatModal(item, 'causal'); }
+      else if (btn.dataset.action === 'toggle') {
+        try { await api.patch(`/nomina/causales-finiquito/${id}`, { es_activa: btn.dataset.activo !== 'true' }); toast.success('Actualizado.'); loadCausales(); }
+        catch (err) { toast.error(err.message); }
+      }
+    }, { once: true });
+  } catch (err) { tbody.innerHTML = emptyRow(5, err.message); }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// CLÁUSULAS ADICIONALES
+// ═══════════════════════════════════════════════════════════════════════════════
+let clausulas = [];
+
+async function loadClausulas() {
+  catEndpoint = '/nomina/clausulas-adicionales';
+  catActivo   = 'es_activa';
+  const tbody = document.getElementById('tbody-clausulas');
+  tbody.innerHTML = spinner(5);
+  try {
+    const data = await api.get('/nomina/clausulas-adicionales?size=200');
+    clausulas = data.items ?? data ?? [];
+    if (!clausulas.length) { tbody.innerHTML = emptyRow(5, 'Sin cláusulas'); return; }
+    tbody.innerHTML = clausulas.map(c => `<tr>
+      <td><code style="font-size:12px;color:var(--text-muted);">${c.codigo}</code></td>
+      <td class="td-primary">${c.descripcion}</td>
+      <td style="font-size:12px;color:var(--text-muted);max-width:280px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${c.texto}</td>
+      <td>${badgeActivo(c.es_activa)}</td>
+      <td style="display:flex;gap:4px;justify-content:flex-end;">${btnEdit(c.id)}${btnToggle(c.id, c.es_activa)}</td>
+    </tr>`).join('');
+    document.getElementById('tbody-clausulas').addEventListener('click', async e => {
+      const btn = e.target.closest('[data-action]');
+      if (!btn) return;
+      const id = btn.dataset.id;
+      const item = clausulas.find(x => String(x.id) === id);
+      if (!item) return;
+      if (btn.dataset.action === 'edit') { catEndpoint = '/nomina/clausulas-adicionales'; catActivo = 'es_activa'; openCatModal(item, 'clausula'); }
+      else if (btn.dataset.action === 'toggle') {
+        try { await api.patch(`/nomina/clausulas-adicionales/${id}`, { es_activa: btn.dataset.activo !== 'true' }); toast.success('Actualizado.'); loadClausulas(); }
+        catch (err) { toast.error(err.message); }
+      }
+    }, { once: true });
+  } catch (err) { tbody.innerHTML = emptyRow(5, err.message); }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// AFP
+// ═══════════════════════════════════════════════════════════════════════════════
+let afps = [];
+
+async function loadAfp() {
+  const tbody = document.getElementById('tbody-afp');
+  tbody.innerHTML = spinner(7);
+  try {
+    afps = await api.get('/nomina/catalogos/afp');
+    if (!afps.length) { tbody.innerHTML = emptyRow(7, 'Sin AFP'); return; }
+    tbody.innerHTML = afps.map(a => `<tr>
+      <td><code style="font-size:12px;">${a.codigo_previred}</code></td>
+      <td class="td-primary">${a.nombre}</td>
+      <td style="text-align:right;font-family:monospace;font-size:13px;">${fmtPct(a.tasa_trabajador)}</td>
+      <td style="text-align:right;font-family:monospace;font-size:13px;">${fmtPct(a.tasa_sis)}</td>
+      <td style="text-align:right;font-family:monospace;font-size:13px;">${fmtPct(a.tasa_trabajo_pesado)}</td>
+      <td>${badgeActivo(a.es_activa)}</td>
+      <td>${btnEdit(a.id)}</td>
+    </tr>`).join('');
+    document.getElementById('tbody-afp').addEventListener('click', e => {
+      const btn = e.target.closest('[data-action="edit"]');
+      if (!btn) return;
+      const a = afps.find(x => String(x.id) === btn.dataset.id);
+      if (!a) return;
+      document.getElementById('modal-afp-title').textContent = `Editar AFP — ${a.nombre}`;
+      document.getElementById('afp-id').value       = a.id;
+      document.getElementById('afp-tasa-t').value   = a.tasa_trabajador;
+      document.getElementById('afp-tasa-s').value   = a.tasa_sis;
+      document.getElementById('afp-tasa-p').value   = a.tasa_trabajo_pesado;
+      document.getElementById('afp-activa').checked = a.es_activa;
+      openModal('modal-afp');
+    }, { once: true });
+  } catch (err) { tbody.innerHTML = emptyRow(7, err.message); }
+}
+
+document.getElementById('modal-afp-save').addEventListener('click', async () => {
+  const btn = document.getElementById('modal-afp-save');
+  const id  = document.getElementById('afp-id').value;
+  setLoading(btn, true);
+  try {
+    await api.patch(`/nomina/catalogos/afp/${id}`, {
+      tasa_trabajador:     parseFloat(document.getElementById('afp-tasa-t').value),
+      tasa_sis:            parseFloat(document.getElementById('afp-tasa-s').value),
+      tasa_trabajo_pesado: parseFloat(document.getElementById('afp-tasa-p').value),
+      es_activa:           document.getElementById('afp-activa').checked,
+    });
+    toast.success('Tasas AFP actualizadas.');
+    closeModal('modal-afp');
+    loadAfp();
+  } catch (err) { toast.error(err.message); }
+  finally { setLoading(btn, false); }
+});
+document.getElementById('modal-afp-close').addEventListener('click',  () => closeModal('modal-afp'));
+document.getElementById('modal-afp-cancel').addEventListener('click', () => closeModal('modal-afp'));
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// ISAPRES
+// ═══════════════════════════════════════════════════════════════════════════════
+let isapres = [];
+
+async function loadIsapres() {
+  const tbody = document.getElementById('tbody-isapres');
+  tbody.innerHTML = spinner(5);
+  try {
+    isapres = await api.get('/nomina/catalogos/isapres');
+    if (!isapres.length) { tbody.innerHTML = emptyRow(5, 'Sin isapres'); return; }
+    tbody.innerHTML = isapres.map(i => `<tr>
+      <td><code style="font-size:12px;">${i.codigo_previred}</code></td>
+      <td class="td-primary">${i.nombre}</td>
+      <td style="color:var(--text-muted);font-size:13px;">${i.nombre_corto}</td>
+      <td>${badgeActivo(i.es_activa)}</td>
+      <td>${btnToggle(i.id, i.es_activa)}</td>
+    </tr>`).join('');
+    document.getElementById('tbody-isapres').addEventListener('click', async e => {
+      const btn = e.target.closest('[data-action="toggle"]');
+      if (!btn) return;
+      try {
+        await api.patch(`/nomina/catalogos/isapres/${btn.dataset.id}`, { es_activa: btn.dataset.activo !== 'true' });
+        toast.success('Actualizado.'); loadIsapres();
+      } catch (err) { toast.error(err.message); }
+    }, { once: true });
+  } catch (err) { tbody.innerHTML = emptyRow(5, err.message); }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// CCAF
+// ═══════════════════════════════════════════════════════════════════════════════
+async function loadCcaf() {
+  const tbody = document.getElementById('tbody-ccaf');
+  tbody.innerHTML = spinner(4);
+  try {
+    const data = await api.get('/nomina/catalogos/ccaf');
+    const items = data ?? [];
+    if (!items.length) { tbody.innerHTML = emptyRow(4, 'Sin CCAF'); return; }
+    tbody.innerHTML = items.map(c => `<tr>
+      <td><code style="font-size:12px;">${c.codigo}</code></td>
+      <td class="td-primary">${c.nombre}</td>
+      <td style="color:var(--text-muted);font-size:13px;">${c.nombre_corto}</td>
+      <td>${badgeActivo(c.es_activa)}</td>
+    </tr>`).join('');
+  } catch (err) { tbody.innerHTML = emptyRow(4, err.message); }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// BANCOS
+// ═══════════════════════════════════════════════════════════════════════════════
+async function loadBancos() {
+  const tbody = document.getElementById('tbody-bancos');
+  tbody.innerHTML = spinner(3);
+  try {
+    const data = await api.get('/nomina/catalogos/bancos');
+    const items = data ?? [];
+    if (!items.length) { tbody.innerHTML = emptyRow(3, 'Sin bancos'); return; }
+    tbody.innerHTML = items.map(b => `<tr>
+      <td><code style="font-size:12px;">${b.codigo}</code></td>
+      <td class="td-primary">${b.nombre}</td>
+      <td>${badgeActivo(b.es_activo)}</td>
+    </tr>`).join('');
+  } catch (err) { tbody.innerHTML = emptyRow(3, err.message); }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// REGIONES (cache compartido con sucursales + comunas)
+// ═══════════════════════════════════════════════════════════════════════════════
+let regiones = [];
+
+async function loadRegiones() {
+  const tbody = document.getElementById('tbody-regiones');
+  tbody.innerHTML = spinner(3);
+  try {
+    if (!regiones.length) regiones = await api.get('/nomina/catalogos/regiones');
+    if (!regiones.length) { tbody.innerHTML = emptyRow(3, 'Sin regiones'); return; }
+    tbody.innerHTML = regiones.map(r => `<tr>
+      <td><code style="font-size:12px;color:var(--text-muted);">${r.codigo}</code></td>
+      <td class="td-primary">${r.nombre}</td>
+      <td>${r.es_zona_extrema ? '<span class="badge badge-warning">Zona extrema</span>' : '<span class="badge badge-neutral">Normal</span>'}</td>
+    </tr>`).join('');
+  } catch (err) { tbody.innerHTML = emptyRow(3, err.message); }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// COMUNAS
+// ═══════════════════════════════════════════════════════════════════════════════
+let todasComunas = [];
+
+async function loadComunas() {
+  const tbody = document.getElementById('tbody-comunas');
+  tbody.innerHTML = spinner(3);
+  try {
+    if (!regiones.length) regiones = await api.get('/nomina/catalogos/regiones');
+    if (!todasComunas.length) todasComunas = await api.get('/nomina/catalogos/comunas');
+    // Poblar filtro de región
+    const sel = document.getElementById('filter-region-comunas');
+    if (sel.options.length === 1) {
+      regiones.forEach(r => sel.appendChild(Object.assign(document.createElement('option'), { value: r.id, textContent: r.nombre })));
+      sel.addEventListener('change', renderComunas);
+    }
+    renderComunas();
+  } catch (err) { tbody.innerHTML = emptyRow(3, err.message); }
+}
+
+function renderComunas() {
+  const regionId = parseInt(document.getElementById('filter-region-comunas').value) || null;
+  const regionMap = Object.fromEntries(regiones.map(r => [r.id, r.nombre]));
+  const lista = regionId ? todasComunas.filter(c => c.region_id === regionId) : todasComunas;
+  const tbody = document.getElementById('tbody-comunas');
+  if (!lista.length) { tbody.innerHTML = emptyRow(3, 'Sin comunas'); return; }
+  tbody.innerHTML = lista.map(c => `<tr>
+    <td><code style="font-size:12px;color:var(--text-muted);">${c.codigo}</code></td>
+    <td class="td-primary">${c.nombre}</td>
+    <td style="font-size:13px;color:var(--text-muted);">${regionMap[c.region_id] ?? c.region_id}</td>
+  </tr>`).join('');
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// SUCURSALES
+// ═══════════════════════════════════════════════════════════════════════════════
+let sucursales = [];
+
+async function loadSucursales() {
+  const tbody = document.getElementById('tbody-sucursales');
+  tbody.innerHTML = spinner(6);
+  try {
+    if (!regiones.length) regiones = await api.get('/nomina/catalogos/regiones');
+    const data = await api.get('/nomina/sucursales?size=200');
+    sucursales = data.items ?? data ?? [];
+    if (!sucursales.length) { tbody.innerHTML = emptyRow(6, 'Sin sucursales'); return; }
+    const regionMap = Object.fromEntries(regiones.map(r => [r.id, r.nombre]));
+    tbody.innerHTML = sucursales.map(s => `<tr>
+      <td><code style="font-size:12px;color:var(--text-muted);">${s.codigo}</code></td>
+      <td class="td-primary">${s.nombre}</td>
+      <td style="font-size:13px;color:var(--text-muted);max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${s.direccion ?? '—'}</td>
+      <td style="font-size:12px;color:var(--text-muted);">${s.codigo_previred ?? '—'}</td>
+      <td>${badgeActivo(s.es_activa)}</td>
+      <td style="display:flex;gap:4px;justify-content:flex-end;">${btnEdit(s.id)}${btnToggle(s.id, s.es_activa)}</td>
+    </tr>`).join('');
+    document.getElementById('tbody-sucursales').addEventListener('click', async e => {
+      const btn = e.target.closest('[data-action]');
+      if (!btn) return;
+      const item = sucursales.find(x => String(x.id) === btn.dataset.id);
+      if (!item) return;
+      if (btn.dataset.action === 'edit') openSucModal(item);
+      else if (btn.dataset.action === 'toggle') {
+        try { await api.patch(`/nomina/sucursales/${btn.dataset.id}`, { es_activa: btn.dataset.activo !== 'true' }); toast.success('Actualizado.'); loadSucursales(); }
+        catch (err) { toast.error(err.message); }
+      }
+    }, { once: true });
+  } catch (err) { tbody.innerHTML = emptyRow(6, err.message); }
+}
+
+async function openSucModal(item = null) {
+  document.getElementById('modal-suc-title').textContent = item ? 'Editar sucursal' : 'Nueva sucursal';
+  document.getElementById('suc-id').value       = item?.id ?? '';
+  document.getElementById('suc-codigo').value   = item?.codigo ?? '';
+  document.getElementById('suc-nombre').value   = item?.nombre ?? '';
+  document.getElementById('suc-direccion').value = item?.direccion ?? '';
+  document.getElementById('suc-telefono').value  = item?.telefono ?? '';
+  document.getElementById('suc-previred').value  = item?.codigo_previred ?? '';
+  document.getElementById('suc-activa').checked  = item ? item.es_activa : true;
+  // Poblar regiones en select
+  const selRegion = document.getElementById('suc-region');
+  selRegion.innerHTML = '<option value="">Sin especificar</option>' +
+    regiones.map(r => `<option value="${r.id}" ${item?.region_id === r.id ? 'selected' : ''}>${r.nombre}</option>`).join('');
+  // Poblar comunas si hay región seleccionada
+  const selComuna = document.getElementById('suc-comuna');
+  selComuna.innerHTML = '<option value="">Sin especificar</option>';
+  if (item?.region_id) {
+    try {
+      const comunasR = await api.get(`/nomina/catalogos/regiones/${item.region_id}/comunas`);
+      selComuna.innerHTML = '<option value="">Sin especificar</option>' +
+        comunasR.map(c => `<option value="${c.codigo}" ${item?.comuna_id === c.codigo ? 'selected' : ''}>${c.nombre}</option>`).join('');
+    } catch (_) {}
+  }
+  openModal('modal-suc');
+}
+
+document.getElementById('suc-region').addEventListener('change', async () => {
+  const regionId = document.getElementById('suc-region').value;
+  const sel = document.getElementById('suc-comuna');
+  sel.innerHTML = '<option value="">Sin especificar</option>';
+  if (!regionId) return;
+  try {
+    const comunasR = await api.get(`/nomina/catalogos/regiones/${regionId}/comunas`);
+    sel.innerHTML = '<option value="">Sin especificar</option>' +
+      comunasR.map(c => `<option value="${c.codigo}">${c.nombre}</option>`).join('');
+  } catch (err) { toast.error(err.message); }
+});
+
+document.getElementById('modal-suc-save').addEventListener('click', async () => {
+  const btn    = document.getElementById('modal-suc-save');
+  const id     = document.getElementById('suc-id').value;
+  const codigo = document.getElementById('suc-codigo').value.trim();
+  const nombre = document.getElementById('suc-nombre').value.trim();
+  if (!codigo) { toast.error('El código es obligatorio.'); return; }
+  if (!nombre) { toast.error('El nombre es obligatorio.'); return; }
+  const body = {
+    codigo,
+    nombre,
+    direccion:       document.getElementById('suc-direccion').value.trim() || null,
+    region_id:       parseInt(document.getElementById('suc-region').value) || null,
+    comuna_id:       parseInt(document.getElementById('suc-comuna').value) || null,
+    telefono:        document.getElementById('suc-telefono').value.trim() || null,
+    codigo_previred: document.getElementById('suc-previred').value.trim() || null,
+    es_activa:       document.getElementById('suc-activa').checked,
+  };
+  setLoading(btn, true);
+  try {
+    if (id) { await api.patch(`/nomina/sucursales/${id}`, body); toast.success('Sucursal actualizada.'); }
+    else    { await api.post('/nomina/sucursales', body); toast.success('Sucursal creada.'); }
+    closeModal('modal-suc');
+    loadSucursales();
+  } catch (err) { toast.error(err.message); }
+  finally { setLoading(btn, false); }
+});
+document.getElementById('modal-suc-close').addEventListener('click',  () => closeModal('modal-suc'));
+document.getElementById('modal-suc-cancel').addEventListener('click', () => closeModal('modal-suc'));
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// CENTROS DE COSTO
+// ═══════════════════════════════════════════════════════════════════════════════
+let centrosCosto = [];
+
+async function loadCentrosCosto() {
+  const tbody = document.getElementById('tbody-centroscosto');
+  tbody.innerHTML = spinner(5);
+  try {
+    const data = await api.get('/nomina/centros-costo?size=200');
+    centrosCosto = data.items ?? data ?? [];
+    if (!centrosCosto.length) { tbody.innerHTML = emptyRow(5, 'Sin centros de costo'); return; }
+    tbody.innerHTML = centrosCosto.map(c => `<tr>
+      <td><code style="font-size:12px;color:var(--text-muted);">${c.codigo}</code></td>
+      <td class="td-primary">${c.descripcion}</td>
+      <td style="font-size:12px;color:var(--text-muted);">${c.codigo_previred ?? '—'}</td>
+      <td>${badgeActivo(c.es_activo)}</td>
+      <td style="display:flex;gap:4px;justify-content:flex-end;">${btnEdit(c.id)}${btnToggle(c.id, c.es_activo)}</td>
+    </tr>`).join('');
+    document.getElementById('tbody-centroscosto').addEventListener('click', async e => {
+      const btn = e.target.closest('[data-action]');
+      if (!btn) return;
+      const item = centrosCosto.find(x => String(x.id) === btn.dataset.id);
+      if (!item) return;
+      if (btn.dataset.action === 'edit') { catEndpoint = '/nomina/centros-costo'; catActivo = 'es_activo'; openCatModal(item, 'centrocosto'); }
+      else if (btn.dataset.action === 'toggle') {
+        try { await api.patch(`/nomina/centros-costo/${btn.dataset.id}`, { es_activo: btn.dataset.activo !== 'true' }); toast.success('Actualizado.'); loadCentrosCosto(); }
+        catch (err) { toast.error(err.message); }
+      }
+    }, { once: true });
+  } catch (err) { tbody.innerHTML = emptyRow(5, err.message); }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// CARGOS
+// ═══════════════════════════════════════════════════════════════════════════════
+let cargos = [];
+
+async function loadCargos() {
+  const tbody = document.getElementById('tbody-cargos');
+  tbody.innerHTML = spinner(4);
+  try {
+    const data = await api.get('/nomina/cargos?size=200');
+    cargos = data.items ?? data ?? [];
+    if (!cargos.length) { tbody.innerHTML = emptyRow(4, 'Sin cargos'); return; }
+    tbody.innerHTML = cargos.map(c => `<tr>
+      <td><code style="font-size:12px;color:var(--text-muted);">${c.codigo}</code></td>
+      <td class="td-primary">${c.descripcion}</td>
+      <td>${badgeActivo(c.es_activo)}</td>
+      <td style="display:flex;gap:4px;justify-content:flex-end;">${btnEdit(c.id)}${btnToggle(c.id, c.es_activo)}</td>
+    </tr>`).join('');
+    document.getElementById('tbody-cargos').addEventListener('click', async e => {
+      const btn = e.target.closest('[data-action]');
+      if (!btn) return;
+      const item = cargos.find(x => String(x.id) === btn.dataset.id);
+      if (!item) return;
+      if (btn.dataset.action === 'edit') { catEndpoint = '/nomina/cargos'; catActivo = 'es_activo'; openCatModal(item, 'cargo'); }
+      else if (btn.dataset.action === 'toggle') {
+        try { await api.patch(`/nomina/cargos/${btn.dataset.id}`, { es_activo: btn.dataset.activo !== 'true' }); toast.success('Actualizado.'); loadCargos(); }
+        catch (err) { toast.error(err.message); }
+      }
+    }, { once: true });
+  } catch (err) { tbody.innerHTML = emptyRow(4, err.message); }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// TIPOS DE CONTRATO
+// ═══════════════════════════════════════════════════════════════════════════════
+let tiposContrato = [];
+
+async function loadTiposContrato() {
+  const tbody = document.getElementById('tbody-tiposcontrato');
+  tbody.innerHTML = spinner(4);
+  try {
+    const data = await api.get('/nomina/tipos-contrato?size=200');
+    tiposContrato = data.items ?? data ?? [];
+    if (!tiposContrato.length) { tbody.innerHTML = emptyRow(4, 'Sin tipos de contrato'); return; }
+    tbody.innerHTML = tiposContrato.map(t => `<tr>
+      <td><code style="font-size:12px;color:var(--text-muted);">${t.codigo}</code></td>
+      <td class="td-primary">${t.descripcion}</td>
+      <td>${badgeActivo(t.es_activo)}</td>
+      <td style="display:flex;gap:4px;justify-content:flex-end;">${btnEdit(t.id)}${btnToggle(t.id, t.es_activo)}</td>
+    </tr>`).join('');
+    document.getElementById('tbody-tiposcontrato').addEventListener('click', async e => {
+      const btn = e.target.closest('[data-action]');
+      if (!btn) return;
+      const item = tiposContrato.find(x => String(x.id) === btn.dataset.id);
+      if (!item) return;
+      if (btn.dataset.action === 'edit') { catEndpoint = '/nomina/tipos-contrato'; catActivo = 'es_activo'; openCatModal(item, 'tipocontrato'); }
+      else if (btn.dataset.action === 'toggle') {
+        try { await api.patch(`/nomina/tipos-contrato/${btn.dataset.id}`, { es_activo: btn.dataset.activo !== 'true' }); toast.success('Actualizado.'); loadTiposContrato(); }
+        catch (err) { toast.error(err.message); }
+      }
+    }, { once: true });
+  } catch (err) { tbody.innerHTML = emptyRow(4, err.message); }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// TABS + BOTÓN NUEVO DINÁMICO
+// ═══════════════════════════════════════════════════════════════════════════════
+const TAB_CFG = {
+  conceptos: {
+    label:  'Concepto',
+    nuevo:  () => openConceptoPanel(null),
+    load:   loadConceptos,
+  },
+  causales: {
+    label:  'Causal',
+    nuevo:  () => { catEndpoint = '/nomina/causales-finiquito'; catActivo = 'es_activa'; openCatModal(null, 'causal'); },
+    load:   loadCausales,
+  },
+  clausulas: {
+    label:  'Cláusula',
+    nuevo:  () => { catEndpoint = '/nomina/clausulas-adicionales'; catActivo = 'es_activa'; openCatModal(null, 'clausula'); },
+    load:   loadClausulas,
+  },
+  sucursales:    { label: 'Sucursal',         nuevo: () => openSucModal(null),                                                                                              load: loadSucursales   },
+  centroscosto:  { label: 'Centro de costo',  nuevo: () => { catEndpoint = '/nomina/centros-costo';  catActivo = 'es_activo'; openCatModal(null, 'centrocosto');  }, load: loadCentrosCosto },
+  cargos:        { label: 'Cargo',            nuevo: () => { catEndpoint = '/nomina/cargos';          catActivo = 'es_activo'; openCatModal(null, 'cargo');        }, load: loadCargos       },
+  tiposcontrato: { label: 'Tipo contrato',    nuevo: () => { catEndpoint = '/nomina/tipos-contrato'; catActivo = 'es_activo'; openCatModal(null, 'tipocontrato'); }, load: loadTiposContrato},
+  afp:           { label: null, nuevo: null, load: loadAfp     },
+  isapres:       { label: null, nuevo: null, load: loadIsapres },
+  ccaf:          { label: null, nuevo: null, load: loadCcaf    },
+  bancos:        { label: null, nuevo: null, load: loadBancos  },
+  regiones:      { label: null, nuevo: null, load: loadRegiones},
+  comunas:       { label: null, nuevo: null, load: loadComunas },
+};
+
+let activeTab = 'conceptos';
+const tabLoaded = {};
+
+function syncTopbarBtn() {
+  const cfg = TAB_CFG[activeTab];
+  const btn = document.getElementById('btn-nuevo');
+  if (cfg.label) {
+    btn.style.display = 'inline-flex';
+    document.getElementById('btn-nuevo-label').textContent = cfg.label;
+  } else {
+    btn.style.display = 'none';
+  }
+}
+
+document.getElementById('btn-nuevo').addEventListener('click', () => {
+  TAB_CFG[activeTab]?.nuevo?.();
+});
+
+document.getElementById('tab-bar').addEventListener('click', e => {
+  const btn = e.target.closest('.tab-btn');
+  if (!btn) return;
+  const tab = btn.dataset.tab;
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById(`tab-${tab}`).classList.add('active');
+  activeTab = tab;
+  syncTopbarBtn();
+  if (!tabLoaded[tab]) {
+    tabLoaded[tab] = true;
+    TAB_CFG[tab]?.load?.();
+  }
+});
+
+// ── Init ──────────────────────────────────────────────────────────────────────
+tabLoaded['conceptos'] = true;
+syncTopbarBtn();
+loadConceptos();
+</script>
+</body>
+</html>

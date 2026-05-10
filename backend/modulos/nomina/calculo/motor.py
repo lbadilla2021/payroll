@@ -320,8 +320,8 @@ class MotorCalculo:
             colacion    = _redondear(t.monto_colacion * dias_col)
             movilizacion = _redondear(t.monto_movilizacion * dias_mov)
         else:
-            colacion    = _redondear(t.monto_colacion * dias_col / DIAS_MES * DIAS_MES)
-            movilizacion = _redondear(t.monto_movilizacion * dias_mov / DIAS_MES * DIAS_MES)
+            colacion    = _redondear(t.monto_colacion * dias_col / DIAS_MES)
+            movilizacion = _redondear(t.monto_movilizacion * dias_mov / DIAS_MES)
 
         return colacion, movilizacion
 

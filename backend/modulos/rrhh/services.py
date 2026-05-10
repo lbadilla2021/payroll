@@ -5,6 +5,7 @@ Lógica de negocio para RRHH.
 Orquesta repositorios, valida reglas de negocio y hace commit.
 """
 
+from datetime import date as date_type
 from uuid import UUID
 
 from fastapi import HTTPException, status
@@ -15,7 +16,8 @@ from modulos.rrhh.repositories import (
     CargaFamiliarRepository, CargoDesempenadoRepository,
     ConyugeAfiliadoRepository, EvaluacionCualitativaRepository,
     EvaluacionCuantitativaRepository, FichaPermisoRepository,
-    FichaVacacionRepository, ObservacionRepository,
+    FichaVacacionRepository, LicenciaMedicaRepository, ObservacionRepository,
+    EstadoCivilRepository, TipoTrabajadorRepository, RegimenPrevisionalRepository,
     SupervisorRepository, TipoPermisoRepository,
     TrabajadorApvRepository, TrabajadorEvalRepository,
     TrabajadorRepository,
@@ -30,6 +32,7 @@ from modulos.rrhh.schemas import (
     EvaluacionCuantitativaCreate, EvaluacionCuantitativaUpdate,
     FichaPermisoCreate, FichaPermisoUpdate,
     FichaVacacionCreate, FichaVacacionUpdate,
+    LicenciaMedicaCreate, LicenciaMedicaUpdate,
     ObservacionCreate, ObservacionUpdate,
     SupervisorCreate, SupervisorUpdate,
     TipoPermisoCreate, TipoPermisoUpdate,
@@ -275,7 +278,24 @@ class TrabajadorService:
     @staticmethod
     def update(db: Session, tenant_id: UUID, trabajador_id: UUID, body: TrabajadorUpdate):
         obj = TrabajadorService.get_or_404(db, tenant_id, trabajador_id)
-        updated = TrabajadorRepository.update(db, obj, body.model_dump(exclude_unset=True))
+        data = body.model_dump(exclude_unset=True)
+
+        # Si cambia cargo_id, cerrar el vigente y abrir uno nuevo automáticamente
+        nuevo_cargo_id = data.get('cargo_id')
+        if nuevo_cargo_id and nuevo_cargo_id != obj.cargo_id:
+            hoy = date_type.today()
+            vigente = CargoDesempenadoRepository.get_latest_open(db, tenant_id, trabajador_id)
+            if vigente:
+                CargoDesempenadoRepository.update(db, vigente, {'fecha_hasta': hoy})
+            CargoDesempenadoRepository.create(db, tenant_id, trabajador_id, {
+                'cargo_id': nuevo_cargo_id,
+                'cargo_descripcion': None,
+                'fecha_desde': hoy,
+                'fecha_hasta': None,
+                'observaciones': None,
+            })
+
+        updated = TrabajadorRepository.update(db, obj, data)
         db.commit()
         db.refresh(updated)
         return updated
@@ -451,8 +471,7 @@ class FichaVacacionService:
 
     @staticmethod
     def resumen_dias(db: Session, tenant_id: UUID, trabajador_id: UUID) -> dict:
-        total_utilizados = FichaVacacionRepository.total_dias_utilizados(db, tenant_id, trabajador_id)
-        return {"total_dias_utilizados": total_utilizados}
+        return FichaVacacionRepository.resumen(db, tenant_id, trabajador_id)
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -462,9 +481,16 @@ class FichaVacacionService:
 class FichaPermisoService:
 
     @staticmethod
+    def _enrich(items: list) -> list:
+        for p in items:
+            p.tipo_permiso_nombre = p.tipo_permiso.descripcion if p.tipo_permiso else None
+        return items
+
+    @staticmethod
     def list(db: Session, tenant_id: UUID, trabajador_id: UUID, page: int, size: int):
         TrabajadorService.get_or_404(db, tenant_id, trabajador_id)
-        return FichaPermisoRepository.get_all(db, tenant_id, trabajador_id, page, size)
+        items, total = FichaPermisoRepository.get_all(db, tenant_id, trabajador_id, page, size)
+        return FichaPermisoService._enrich(items), total
 
     @staticmethod
     def get_or_404(db: Session, tenant_id: UUID, permiso_id: UUID):
@@ -479,6 +505,7 @@ class FichaPermisoService:
         obj = FichaPermisoRepository.create(db, tenant_id, trabajador_id, body.model_dump())
         db.commit()
         db.refresh(obj)
+        FichaPermisoService._enrich([obj])
         return obj
 
     @staticmethod
@@ -487,6 +514,7 @@ class FichaPermisoService:
         updated = FichaPermisoRepository.update(db, obj, body.model_dump(exclude_unset=True))
         db.commit()
         db.refresh(updated)
+        FichaPermisoService._enrich([updated])
         return updated
 
     @staticmethod
@@ -544,9 +572,23 @@ class ObservacionService:
 class CargoDesempenadoService:
 
     @staticmethod
+    def _enrich(db: Session, items: list) -> list:
+        """Agrega cargo_nombre consultando nomina.cargo."""
+        from modulos.nomina.models import Cargo
+        ids = [i.cargo_id for i in items if i.cargo_id]
+        nombres = {}
+        if ids:
+            nombres = {c.id: c.descripcion
+                       for c in db.query(Cargo).filter(Cargo.id.in_(ids)).all()}
+        for item in items:
+            item.cargo_nombre = nombres.get(item.cargo_id) if item.cargo_id else None
+        return items
+
+    @staticmethod
     def list(db: Session, tenant_id: UUID, trabajador_id: UUID):
         TrabajadorService.get_or_404(db, tenant_id, trabajador_id)
-        return CargoDesempenadoRepository.get_all(db, tenant_id, trabajador_id)
+        items = CargoDesempenadoRepository.get_all(db, tenant_id, trabajador_id)
+        return CargoDesempenadoService._enrich(db, items)
 
     @staticmethod
     def get_or_404(db: Session, tenant_id: UUID, cargo_id: UUID):
@@ -561,6 +603,7 @@ class CargoDesempenadoService:
         obj = CargoDesempenadoRepository.create(db, tenant_id, trabajador_id, body.model_dump())
         db.commit()
         db.refresh(obj)
+        CargoDesempenadoService._enrich(db, [obj])
         return obj
 
     @staticmethod
@@ -569,7 +612,14 @@ class CargoDesempenadoService:
         updated = CargoDesempenadoRepository.update(db, obj, body.model_dump(exclude_unset=True))
         db.commit()
         db.refresh(updated)
+        CargoDesempenadoService._enrich(db, [updated])
         return updated
+
+    @staticmethod
+    def delete(db: Session, tenant_id: UUID, cargo_id: UUID):
+        obj = CargoDesempenadoService.get_or_404(db, tenant_id, cargo_id)
+        CargoDesempenadoRepository.delete(db, obj)
+        db.commit()
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -609,3 +659,102 @@ class TrabajadorEvalService:
         db.commit()
         db.refresh(obj)
         return obj
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# MANTENEDORES GLOBALES
+# ─────────────────────────────────────────────────────────────────────────────
+
+class _MantenedorGlobalService:
+    """Servicio genérico para catálogos globales sin tenant."""
+
+    def __init__(self, repo, nombre: str):
+        self._repo   = repo
+        self._nombre = nombre
+
+    def list(self, db: Session) -> list:
+        return self._repo.get_all(db)
+
+    def get_or_404(self, db: Session, item_id: int):
+        obj = self._repo.get_by_id(db, item_id)
+        if not obj:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                                detail=f"{self._nombre} no encontrado.")
+        return obj
+
+    def create(self, db: Session, data: dict):
+        if self._repo.get_by_codigo(db, data["codigo"]):
+            raise HTTPException(status_code=status.HTTP_409_CONFLICT,
+                                detail=f"Ya existe un registro con código {data['codigo']}.")
+        obj = self._repo.create(db, data)
+        db.commit()
+        db.refresh(obj)
+        return obj
+
+    def update(self, db: Session, item_id: int, data: dict):
+        obj = self.get_or_404(db, item_id)
+        obj = self._repo.update(db, obj, {k: v for k, v in data.items() if v is not None})
+        db.commit()
+        db.refresh(obj)
+        return obj
+
+    def delete(self, db: Session, item_id: int) -> None:
+        obj = self.get_or_404(db, item_id)
+        self._repo.delete(db, obj)
+        db.commit()
+
+
+EstadoCivilService       = _MantenedorGlobalService(EstadoCivilRepository,       "Estado civil")
+TipoTrabajadorService    = _MantenedorGlobalService(TipoTrabajadorRepository,    "Tipo de trabajador")
+RegimenPrevisionalService = _MantenedorGlobalService(RegimenPrevisionalRepository, "Régimen previsional")
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# LICENCIAS MÉDICAS
+# ─────────────────────────────────────────────────────────────────────────────
+
+class LicenciaMedicaService:
+
+    @staticmethod
+    def _fecha_termino(fecha_inicio, dias: int):
+        from datetime import timedelta
+        return fecha_inicio + timedelta(days=dias - 1)
+
+    @staticmethod
+    def list(db: Session, tenant_id: UUID, trabajador_id: UUID, page: int = 1, size: int = 50):
+        return LicenciaMedicaRepository.get_all(db, tenant_id, trabajador_id, page, size)
+
+    @staticmethod
+    def get_or_404(db: Session, tenant_id: UUID, lic_id: UUID):
+        obj = LicenciaMedicaRepository.get_by_id(db, tenant_id, lic_id)
+        if not obj:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                                detail="Licencia médica no encontrada.")
+        return obj
+
+    @staticmethod
+    def create(db: Session, tenant_id: UUID, trabajador_id: UUID, body: LicenciaMedicaCreate):
+        data = body.model_dump()
+        data["fecha_termino"] = LicenciaMedicaService._fecha_termino(data["fecha_inicio"], data["dias"])
+        obj = LicenciaMedicaRepository.create(db, tenant_id, trabajador_id, data)
+        db.commit()
+        db.refresh(obj)
+        return obj
+
+    @staticmethod
+    def update(db: Session, tenant_id: UUID, lic_id: UUID, body: LicenciaMedicaUpdate):
+        obj = LicenciaMedicaService.get_or_404(db, tenant_id, lic_id)
+        data = body.model_dump(exclude_unset=True)
+        fecha_inicio = data.get("fecha_inicio", obj.fecha_inicio)
+        dias = data.get("dias", obj.dias)
+        data["fecha_termino"] = LicenciaMedicaService._fecha_termino(fecha_inicio, dias)
+        updated = LicenciaMedicaRepository.update(db, obj, data)
+        db.commit()
+        db.refresh(updated)
+        return updated
+
+    @staticmethod
+    def delete(db: Session, tenant_id: UUID, lic_id: UUID) -> None:
+        obj = LicenciaMedicaService.get_or_404(db, tenant_id, lic_id)
+        LicenciaMedicaRepository.delete(db, obj)
+        db.commit()

@@ -38,7 +38,7 @@ async function request(method, path, body, options = {}) {
     if (csrf) headers['X-CSRF-Token'] = csrf;
   }
 
-  const cfg = { method: method.toUpperCase(), headers, credentials: 'include' };
+  const cfg = { method: method.toUpperCase(), headers, credentials: 'include', cache: 'no-store' };
   if (body) cfg.body = (body instanceof FormData) ? body : JSON.stringify(body);
 
   let res = await fetch(`${API_BASE}${path}`, cfg);
@@ -68,7 +68,20 @@ async function request(method, path, body, options = {}) {
 
   if (!res.ok) {
     let detail = `HTTP ${res.status}`;
-    try { const e = await res.json(); detail = e.detail || detail; } catch {}
+    try {
+      const e = await res.json();
+      if (typeof e.detail === 'string') {
+        detail = e.detail;
+      } else if (Array.isArray(e.detail)) {
+        // FastAPI validation errors: [{loc, msg, type}, ...]
+        detail = e.detail.map(d => {
+          const field = d.loc ? d.loc.slice(1).join('.') : '';
+          return field ? `${field}: ${d.msg}` : d.msg;
+        }).join(' | ');
+      } else if (e.detail) {
+        detail = JSON.stringify(e.detail);
+      }
+    } catch {}
     const err = new Error(detail); err.status = res.status; throw err;
   }
   if (res.status === 204) return null;

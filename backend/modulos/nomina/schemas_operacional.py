@@ -223,10 +223,11 @@ class MovimientoMensualRead(BaseModel):
     total_haberes:      Optional[Decimal]
     total_imponible:    Optional[Decimal]
     total_tributable:   Optional[Decimal]
-    descuento_afp:      Optional[Decimal]
-    descuento_salud:    Optional[Decimal]
-    impuesto_unico:     Optional[Decimal]
-    total_descuentos:   Optional[Decimal]
+    descuento_afp:           Optional[Decimal]
+    descuento_salud:         Optional[Decimal]
+    descuento_seg_cesantia:  Optional[Decimal]
+    impuesto_unico:          Optional[Decimal]
+    total_descuentos:        Optional[Decimal]
     liquido_pagar:      Optional[Decimal]
     anticipo:           Decimal
 

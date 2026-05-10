@@ -121,6 +121,19 @@ class TipoMovimientoBancarioRead(BaseModel):
 # REGIÓN
 # ─────────────────────────────────────────────────────────────────────────────
 
+class RegionCreate(BaseModel):
+    id:              int = Field(..., ge=1, le=99)
+    codigo:          str = Field(..., min_length=1, max_length=5)
+    nombre:          str = Field(..., min_length=2, max_length=100)
+    es_zona_extrema: bool = False
+
+
+class RegionUpdate(BaseModel):
+    codigo:          Optional[str]  = Field(None, min_length=1, max_length=5)
+    nombre:          Optional[str]  = Field(None, min_length=2, max_length=100)
+    es_zona_extrema: Optional[bool] = None
+
+
 class RegionRead(BaseModel):
     id:              int
     codigo:          str
@@ -133,6 +146,17 @@ class RegionRead(BaseModel):
 # ─────────────────────────────────────────────────────────────────────────────
 # COMUNA
 # ─────────────────────────────────────────────────────────────────────────────
+
+class ComunaCreate(BaseModel):
+    codigo:    int = Field(..., ge=1000, le=99999)
+    nombre:    str = Field(..., min_length=2, max_length=80)
+    region_id: int = Field(..., ge=1)
+
+
+class ComunaUpdate(BaseModel):
+    nombre:    Optional[str] = Field(None, min_length=2, max_length=80)
+    region_id: Optional[int] = Field(None, ge=1)
+
 
 class ComunaRead(BaseModel):
     codigo:    int

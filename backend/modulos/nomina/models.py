@@ -495,6 +495,7 @@ class MovimientoMensual(Base):
     total_tributable             = Column(Numeric(12, 2))
     descuento_afp                = Column(Numeric(12, 2))
     descuento_salud              = Column(Numeric(12, 2))
+    descuento_seg_cesantia       = Column(Numeric(12, 2))
     impuesto_unico               = Column(Numeric(12, 2))
     total_descuentos             = Column(Numeric(12, 2))
     liquido_pagar                = Column(Numeric(12, 2))

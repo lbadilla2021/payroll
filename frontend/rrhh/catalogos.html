@@ -1,0 +1,907 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Catálogos RRHH — Nómina</title>
+  <link rel="stylesheet" href="/static/css/main.css?v=4">
+</head>
+<body data-page="rrhh-catalogos">
+
+<div id="app-shell">
+  <nav class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <div class="brand-mark">N</div>
+      <span class="brand-name">Nómina SaaS</span>
+    </div>
+    <div class="sidebar-nav" id="sidebar-nav"></div>
+    <div class="sidebar-footer">
+      <div class="profile-trigger" id="profile-trigger">
+        <div class="avatar" id="sidebar-avatar">?</div>
+        <div class="profile-info">
+          <div class="profile-name" id="sidebar-name">…</div>
+          <div class="profile-role" id="sidebar-role"></div>
+        </div>
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <div class="profile-menu" id="profile-menu">
+        <div class="menu-item" onclick="window.location.href='/settings.html'">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+          Configuración
+        </div>
+        <div class="menu-item" id="theme-toggle-btn">
+          <svg id="theme-icon-sun" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+          <svg id="theme-icon-moon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none;"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+          <span id="theme-label">Modo oscuro</span>
+        </div>
+        <div class="menu-divider"></div>
+        <div class="menu-item" id="help-btn">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          Ayuda
+        </div>
+        <div class="menu-divider"></div>
+        <div class="menu-item danger" id="logout-btn">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+          Cerrar sesión
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <div class="main-content">
+    <header class="topbar">
+      <span class="topbar-title">Catálogos RRHH</span>
+      <div class="topbar-spacer"></div>
+      <button class="btn btn-primary btn-sm" id="btn-nuevo">
+        <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        <span id="btn-nuevo-label">Agregar</span>
+      </button>
+    </header>
+
+    <main class="page-area">
+      <div style="max-width:960px;">
+
+        <!-- Tab bar -->
+        <div class="tab-bar" id="tab-bar">
+          <button class="tab-btn active" data-tab="supervisores">Supervisores</button>
+          <button class="tab-btn" data-tab="tipos-permiso">Tipos de permiso</button>
+          <button class="tab-btn" data-tab="eval-cuant">Eval. cuantitativas</button>
+          <button class="tab-btn" data-tab="eval-cual">Eval. cualitativas</button>
+        </div>
+
+        <!-- ── Supervisores ─────────────────────────────────────── -->
+        <div class="tab-panel active" id="tab-supervisores">
+          <div class="card">
+            <div class="table-wrapper">
+              <table>
+                <thead>
+                  <tr><th>Código</th><th>Nombre</th><th>Estado</th><th></th></tr>
+                </thead>
+                <tbody id="tbody-supervisores">
+                  <tr><td colspan="4"><div style="padding:32px;text-align:center;"><div class="spinner" style="margin:0 auto;"></div></div></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── Tipos de Permiso ─────────────────────────────────── -->
+        <div class="tab-panel" id="tab-tipos-permiso">
+          <div class="card">
+            <div class="table-wrapper">
+              <table>
+                <thead>
+                  <tr><th>Código</th><th>Descripción</th><th>Unidad</th><th>Goce</th><th>Estado</th><th></th></tr>
+                </thead>
+                <tbody id="tbody-tipos-permiso">
+                  <tr><td colspan="6"><div style="padding:32px;text-align:center;"><div class="spinner" style="margin:0 auto;"></div></div></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── Eval. Cuantitativas ──────────────────────────────── -->
+        <div class="tab-panel" id="tab-eval-cuant">
+          <!-- Evaluaciones -->
+          <div class="card" style="margin-bottom:var(--space-4);">
+            <div class="card-header">
+              <span class="card-title">Evaluaciones cuantitativas</span>
+              <button class="btn btn-ghost btn-sm" id="btn-add-ecuant"
+                style="font-size:12px;color:var(--accent);">+ Agregar evaluación</button>
+            </div>
+            <div class="table-wrapper">
+              <table>
+                <thead>
+                  <tr><th>Código</th><th>Descripción</th><th>Rango</th><th>Estado</th><th></th></tr>
+                </thead>
+                <tbody id="tbody-ecuant">
+                  <tr><td colspan="5"><div style="padding:32px;text-align:center;"><div class="spinner" style="margin:0 auto;"></div></div></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <!-- Atributos -->
+          <div class="card">
+            <div class="card-header">
+              <span class="card-title">Atributos cuantitativos</span>
+              <button class="btn btn-ghost btn-sm" id="btn-add-acuant"
+                style="font-size:12px;color:var(--accent);">+ Agregar atributo</button>
+            </div>
+            <div class="table-wrapper">
+              <table>
+                <thead>
+                  <tr><th>Código</th><th>Descripción</th><th>Estado</th><th></th></tr>
+                </thead>
+                <tbody id="tbody-acuant">
+                  <tr><td colspan="4"><div style="padding:32px;text-align:center;"><div class="spinner" style="margin:0 auto;"></div></div></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── Eval. Cualitativas ───────────────────────────────── -->
+        <div class="tab-panel" id="tab-eval-cual">
+          <!-- Evaluaciones -->
+          <div class="card" style="margin-bottom:var(--space-4);">
+            <div class="card-header">
+              <span class="card-title">Evaluaciones cualitativas</span>
+              <button class="btn btn-ghost btn-sm" id="btn-add-ecual"
+                style="font-size:12px;color:var(--accent);">+ Agregar evaluación</button>
+            </div>
+            <div class="table-wrapper">
+              <table>
+                <thead>
+                  <tr><th>Código</th><th>Descripción</th><th>Estado</th><th></th></tr>
+                </thead>
+                <tbody id="tbody-ecual">
+                  <tr><td colspan="4"><div style="padding:32px;text-align:center;"><div class="spinner" style="margin:0 auto;"></div></div></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <!-- Atributos -->
+          <div class="card">
+            <div class="card-header">
+              <span class="card-title">Atributos cualitativos</span>
+              <button class="btn btn-ghost btn-sm" id="btn-add-acual"
+                style="font-size:12px;color:var(--accent);">+ Agregar atributo</button>
+            </div>
+            <div class="table-wrapper">
+              <table>
+                <thead>
+                  <tr><th>Código</th><th>Descripción</th><th>Estado</th><th></th></tr>
+                </thead>
+                <tbody id="tbody-acual">
+                  <tr><td colspan="4"><div style="padding:32px;text-align:center;"><div class="spinner" style="margin:0 auto;"></div></div></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- ── Modal: Tipo de permiso ─────────────────────────────────── -->
+<div class="modal" id="modal-tp">
+  <div class="modal-header">
+    <span class="modal-title" id="modal-tp-title">Agregar tipo de permiso</span>
+    <button class="btn btn-ghost btn-sm" id="modal-tp-close">
+      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+  </div>
+  <div class="modal-body">
+    <input type="hidden" id="tp-id">
+    <div class="form-row cols-2">
+      <div class="form-group">
+        <label class="form-label">Código *</label>
+        <input class="form-input" id="tp-codigo" type="text" maxlength="20" placeholder="Ej: PERM001">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Descripción *</label>
+        <input class="form-input" id="tp-desc" type="text" maxlength="100" placeholder="Ej: Permiso médico">
+      </div>
+    </div>
+    <div class="form-row cols-2">
+      <div class="form-group">
+        <label class="form-label">Unidad *</label>
+        <select class="form-input form-select" id="tp-unidad">
+          <option value="dias">Días</option>
+          <option value="horas">Horas</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Goce de sueldo *</label>
+        <select class="form-input form-select" id="tp-goce">
+          <option value="true">Con goce</option>
+          <option value="false">Sin goce</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-group">
+      <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;color:var(--text-secondary);">
+        <input type="checkbox" id="tp-activo" checked style="width:16px;height:16px;">
+        Activo
+      </label>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button class="btn btn-secondary" id="modal-tp-cancel">Cancelar</button>
+    <button class="btn btn-primary" id="modal-tp-save">Guardar</button>
+  </div>
+</div>
+
+<!-- ── Modal compartido (un solo modal para todos los catálogos) ── -->
+<div class="modal" id="modal-cat">
+  <div class="modal-header">
+    <span class="modal-title" id="modal-cat-title">Agregar</span>
+    <button class="btn btn-ghost btn-sm" id="modal-cat-close">
+      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+  </div>
+  <div class="modal-body">
+    <!-- Contexto oculto -->
+    <input type="hidden" id="cat-id">
+    <input type="hidden" id="cat-endpoint">
+    <input type="hidden" id="cat-label-field"><!-- "nombre" o "descripcion" -->
+
+    <div class="form-row cols-2">
+      <div class="form-group">
+        <label class="form-label">Código *</label>
+        <input class="form-input" id="cat-codigo" type="text" maxlength="30"
+          placeholder="Ej: SUP001">
+      </div>
+      <div class="form-group">
+        <label class="form-label" id="cat-label-lbl">Nombre *</label>
+        <input class="form-input" id="cat-label-val" type="text" maxlength="200">
+      </div>
+    </div>
+
+    <!-- Solo para eval. cuantitativas -->
+    <div class="form-row cols-2" id="row-rango" style="display:none;">
+      <div class="form-group">
+        <label class="form-label">Valor mínimo *</label>
+        <input class="form-input" id="cat-vmin" type="number" step="0.01" value="0">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Valor máximo *</label>
+        <input class="form-input" id="cat-vmax" type="number" step="0.01" value="100">
+      </div>
+    </div>
+
+    <div class="form-group" id="row-activo">
+      <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;color:var(--text-secondary);">
+        <input type="checkbox" id="cat-activo" checked style="width:16px;height:16px;">
+        Activo
+      </label>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button class="btn btn-secondary" id="modal-cat-cancel">Cancelar</button>
+    <button class="btn btn-primary" id="modal-cat-save">Guardar</button>
+  </div>
+</div>
+
+<!-- ── Modal picker de trabajadores (solo para crear supervisor) ── -->
+<div class="modal" id="modal-sup-picker" style="max-width:500px;">
+  <div class="modal-header">
+    <span class="modal-title">Agregar supervisor</span>
+    <button class="btn btn-ghost btn-sm" id="sup-picker-close">
+      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+  </div>
+  <div class="modal-body" style="padding-bottom:0;">
+    <div class="form-group" style="margin-bottom:var(--space-3);">
+      <input class="form-input" id="sup-search" placeholder="Buscar por nombre o RUT…" autocomplete="off">
+    </div>
+    <div style="max-height:320px;overflow-y:auto;border:1px solid var(--border);border-radius:var(--radius-sm);" id="sup-picker-list">
+      <div style="padding:24px;text-align:center;"><div class="spinner" style="margin:0 auto;"></div></div>
+    </div>
+    <p id="sup-picker-count" style="font-size:12px;color:var(--text-muted);margin:var(--space-2) 0 0;min-height:16px;"></p>
+  </div>
+  <div class="modal-footer">
+    <button class="btn btn-secondary" id="sup-picker-cancel">Cancelar</button>
+    <button class="btn btn-primary" id="sup-picker-save" disabled>Agregar</button>
+  </div>
+</div>
+
+<div id="toast-container"></div>
+
+<script type="module">
+import api from '/static/js/api.js?v=4';
+import { requireAuth } from '/static/js/auth.js?v=3';
+import { initTheme, openModal, closeModal, setLoading, confirm } from '/static/js/ui.js?v=3';
+import { toast } from '/static/js/toast.js?v=3';
+import { initShellUI } from '/static/js/nav.js';
+
+initTheme();
+const user = await requireAuth();
+initShellUI(user);
+
+// ── Estado del modal ──────────────────────────────────────────────────────────
+// ctx describe qué catálogo está activo en el modal y qué hacer al guardar.
+let ctx = {
+  endpoint:    '',   // base de la API: /rrhh/supervisores
+  labelField:  '',   // campo de texto: 'nombre' | 'descripcion'
+  labelText:   '',   // etiqueta visible: 'Nombre' | 'Descripción'
+  hasRange:    false,// true solo para eval. cuantitativas
+  activoField: '',   // 'es_activo' | 'es_activa'
+  canDelete:   false,// true solo para supervisores
+  reload:      null, // función para recargar la tabla correspondiente
+};
+
+// ── Helpers de tabla ──────────────────────────────────────────────────────────
+function spinner(cols) {
+  return `<tr><td colspan="${cols}"><div style="padding:32px;text-align:center;"><div class="spinner" style="margin:0 auto;"></div></div></td></tr>`;
+}
+
+function emptyRow(cols, msg = 'Sin registros') {
+  return `<tr><td colspan="${cols}">
+    <div class="empty-state" style="padding:var(--space-8) 0;">
+      <div class="empty-state-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+      </div>
+      <h3>${msg}</h3>
+    </div>
+  </td></tr>`;
+}
+
+function badgeActivo(v) {
+  return `<span class="badge ${v ? 'badge-success' : 'badge-neutral'}">${v ? 'Activo' : 'Inactivo'}</span>`;
+}
+
+function btnEdit(item) {
+  return `<button class="btn btn-ghost btn-sm" data-action="edit" data-id="${item.id}" title="Editar">
+    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+  </button>`;
+}
+
+function btnToggle(item, activoField) {
+  const activo = item[activoField];
+  return `<button class="btn btn-ghost btn-sm" data-action="toggle" data-id="${item.id}" data-activo="${activo}" title="${activo ? 'Desactivar' : 'Activar'}">
+    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="${activo ? 'var(--success)' : 'var(--text-muted)'}" stroke-width="2"><circle cx="12" cy="12" r="10"/>${activo ? '<line x1="8" y1="12" x2="16" y2="12"/>' : '<line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/>'}</svg>
+  </button>`;
+}
+
+function btnDelete(item) {
+  return `<button class="btn btn-ghost btn-sm" data-action="delete" data-id="${item.id}" title="Eliminar">
+    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--error)" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
+  </button>`;
+}
+
+// ── Modal: abrir para crear ───────────────────────────────────────────────────
+function openCreate(config) {
+  ctx = config;
+  document.getElementById('modal-cat-title').textContent = `Agregar ${config.entityName}`;
+  document.getElementById('cat-id').value       = '';
+  document.getElementById('cat-endpoint').value = config.endpoint;
+  document.getElementById('cat-label-field').value = config.labelField;
+  document.getElementById('cat-label-lbl').textContent = config.labelText + ' *';
+  document.getElementById('cat-codigo').value   = '';
+  document.getElementById('cat-label-val').value= '';
+  document.getElementById('cat-activo').checked = true;
+  document.getElementById('cat-vmin').value     = '0';
+  document.getElementById('cat-vmax').value     = '100';
+  document.getElementById('row-rango').style.display = config.hasRange ? '' : 'none';
+  openModal('modal-cat');
+}
+
+// ── Modal: abrir para editar ──────────────────────────────────────────────────
+function openEdit(item, config) {
+  ctx = config;
+  document.getElementById('modal-cat-title').textContent = `Editar ${config.entityName}`;
+  document.getElementById('cat-id').value            = item.id;
+  document.getElementById('cat-endpoint').value      = config.endpoint;
+  document.getElementById('cat-label-field').value   = config.labelField;
+  document.getElementById('cat-label-lbl').textContent = config.labelText + ' *';
+  document.getElementById('cat-codigo').value        = item.codigo;
+  document.getElementById('cat-label-val').value     = item[config.labelField] ?? '';
+  document.getElementById('cat-activo').checked      = item[config.activoField] ?? true;
+  document.getElementById('cat-vmin').value          = item.valor_min ?? '0';
+  document.getElementById('cat-vmax').value          = item.valor_max ?? '100';
+  document.getElementById('row-rango').style.display = config.hasRange ? '' : 'none';
+  openModal('modal-cat');
+}
+
+// ── Modal: guardar ────────────────────────────────────────────────────────────
+document.getElementById('modal-cat-save').addEventListener('click', async () => {
+  const btn    = document.getElementById('modal-cat-save');
+  const id     = document.getElementById('cat-id').value;
+  const codigo = document.getElementById('cat-codigo').value.trim();
+  const label  = document.getElementById('cat-label-val').value.trim();
+
+  if (!codigo) { toast.error('El código es obligatorio.'); return; }
+  if (!label)  { toast.error(`${ctx.labelText} es obligatorio.`); return; }
+  if (ctx.hasRange) {
+    const vmin = parseFloat(document.getElementById('cat-vmin').value);
+    const vmax = parseFloat(document.getElementById('cat-vmax').value);
+    if (isNaN(vmin) || isNaN(vmax)) { toast.error('Los rangos deben ser números.'); return; }
+    if (vmin >= vmax) { toast.error('El valor mínimo debe ser menor que el máximo.'); return; }
+  }
+
+  setLoading(btn, true);
+  try {
+    const body = { codigo, [ctx.labelField]: label, [ctx.activoField]: document.getElementById('cat-activo').checked };
+    if (ctx.hasRange) {
+      body.valor_min = parseFloat(document.getElementById('cat-vmin').value);
+      body.valor_max = parseFloat(document.getElementById('cat-vmax').value);
+    }
+
+    if (id) {
+      await api.patch(`${ctx.endpoint}/${id}`, body);
+      toast.success('Registro actualizado.');
+    } else {
+      await api.post(ctx.endpoint, body);
+      toast.success('Registro creado.');
+    }
+    closeModal('modal-cat');
+    ctx.reload?.();
+  } catch (err) { toast.error(err.message); }
+  finally { setLoading(btn, false); }
+});
+
+document.getElementById('modal-cat-close').addEventListener('click',  () => closeModal('modal-cat'));
+document.getElementById('modal-cat-cancel').addEventListener('click', () => closeModal('modal-cat'));
+
+// ── Acción de toggle activo ───────────────────────────────────────────────────
+async function toggleActivo(endpoint, id, currentActivo, activoField, reload) {
+  try {
+    await api.patch(`${endpoint}/${id}`, { [activoField]: !currentActivo });
+    toast.success(currentActivo ? 'Desactivado.' : 'Activado.');
+    reload();
+  } catch (err) { toast.error(err.message); }
+}
+
+// ── Acción de eliminar ────────────────────────────────────────────────────────
+async function deleteItem(endpoint, id, nombre, reload) {
+  if (!await confirm(`¿Eliminar "${nombre}"? Esta acción no se puede deshacer.`, 'Eliminar')) return;
+  try {
+    await api.delete(`${endpoint}/${id}`);
+    toast.success('Eliminado.');
+    reload();
+  } catch (err) { toast.error(err.message); }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// SUPERVISORES
+// ═══════════════════════════════════════════════════════════════════════════════
+const cfgSupervisores = {
+  endpoint:   '/rrhh/supervisores',
+  labelField: 'nombre',
+  labelText:  'Nombre',
+  activoField:'es_activo',
+  hasRange:   false,
+  canDelete:  true,
+  entityName: 'supervisor',
+  reload:     loadSupervisores,
+};
+
+async function loadSupervisores() {
+  const tbody = document.getElementById('tbody-supervisores');
+  tbody.innerHTML = spinner(4);
+  try {
+    const data = await api.get('/rrhh/supervisores?size=100');
+    const items = data.items ?? data ?? [];
+    if (!items.length) { tbody.innerHTML = emptyRow(4, 'Sin supervisores'); return; }
+    tbody.innerHTML = items.map(s => `<tr>
+      <td><code style="font-size:12px;color:var(--text-muted);">${s.codigo}</code></td>
+      <td class="td-primary">${s.nombre}</td>
+      <td>${badgeActivo(s.es_activo)}</td>
+      <td style="display:flex;gap:4px;justify-content:flex-end;">
+        ${btnEdit(s)}${btnToggle(s,'es_activo')}${btnDelete(s)}
+      </td>
+    </tr>`).join('');
+    bindTableActions(tbody, items, cfgSupervisores);
+  } catch (err) {
+    tbody.innerHTML = emptyRow(4, err.message);
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// TIPOS DE PERMISO
+// ═══════════════════════════════════════════════════════════════════════════════
+const cfgTiposPermiso = {
+  endpoint:   '/rrhh/tipos-permiso',
+  labelField: 'descripcion',
+  labelText:  'Descripción',
+  activoField:'es_activo',
+  hasRange:   false,
+  canDelete:  false,
+  entityName: 'tipo de permiso',
+  reload:     loadTiposPermiso,
+  onEdit:     item => openTpEdit(item),
+};
+
+// ── Modal dedicado: Tipo de permiso ───────────────────────────────────────────
+function openTpCreate() {
+  document.getElementById('modal-tp-title').textContent = 'Agregar tipo de permiso';
+  document.getElementById('tp-id').value       = '';
+  document.getElementById('tp-codigo').value   = '';
+  document.getElementById('tp-desc').value     = '';
+  document.getElementById('tp-unidad').value   = 'dias';
+  document.getElementById('tp-goce').value     = 'true';
+  document.getElementById('tp-activo').checked = true;
+  openModal('modal-tp');
+}
+
+function openTpEdit(item) {
+  document.getElementById('modal-tp-title').textContent = 'Editar tipo de permiso';
+  document.getElementById('tp-id').value       = item.id;
+  document.getElementById('tp-codigo').value   = item.codigo;
+  document.getElementById('tp-desc').value     = item.descripcion;
+  document.getElementById('tp-unidad').value   = item.unidad ?? 'dias';
+  document.getElementById('tp-goce').value     = String(item.con_goce ?? true);
+  document.getElementById('tp-activo').checked = item.es_activo ?? true;
+  openModal('modal-tp');
+}
+
+document.getElementById('modal-tp-close').addEventListener('click',  () => closeModal('modal-tp'));
+document.getElementById('modal-tp-cancel').addEventListener('click', () => closeModal('modal-tp'));
+
+document.getElementById('modal-tp-save').addEventListener('click', async () => {
+  const btn    = document.getElementById('modal-tp-save');
+  const id     = document.getElementById('tp-id').value;
+  const codigo = document.getElementById('tp-codigo').value.trim();
+  const desc   = document.getElementById('tp-desc').value.trim();
+  if (!codigo) { toast.error('El código es obligatorio.'); return; }
+  if (!desc)   { toast.error('La descripción es obligatoria.'); return; }
+  setLoading(btn, true);
+  try {
+    const body = {
+      codigo,
+      descripcion: desc,
+      unidad:      document.getElementById('tp-unidad').value,
+      con_goce:    document.getElementById('tp-goce').value === 'true',
+      es_activo:   document.getElementById('tp-activo').checked,
+    };
+    if (id) {
+      await api.patch(`/rrhh/tipos-permiso/${id}`, body);
+      toast.success('Tipo de permiso actualizado.');
+    } else {
+      await api.post('/rrhh/tipos-permiso', body);
+      toast.success('Tipo de permiso creado.');
+    }
+    closeModal('modal-tp');
+    loadTiposPermiso();
+  } catch (err) { toast.error(err.message); }
+  finally { setLoading(btn, false); }
+});
+
+async function loadTiposPermiso() {
+  const tbody = document.getElementById('tbody-tipos-permiso');
+  tbody.innerHTML = spinner(6);
+  try {
+    const data = await api.get('/rrhh/tipos-permiso?size=200');
+    const items = data.items ?? data ?? [];
+    if (!items.length) { tbody.innerHTML = emptyRow(6, 'Sin tipos de permiso'); return; }
+    tbody.innerHTML = items.map(t => `<tr>
+      <td><code style="font-size:12px;color:var(--text-muted);">${t.codigo}</code></td>
+      <td class="td-primary">${t.descripcion}</td>
+      <td><span class="badge badge-info">${t.unidad === 'horas' ? 'Horas' : 'Días'}</span></td>
+      <td><span class="badge ${t.con_goce ? 'badge-success' : 'badge-neutral'}">${t.con_goce ? 'Con goce' : 'Sin goce'}</span></td>
+      <td>${badgeActivo(t.es_activo)}</td>
+      <td style="display:flex;gap:4px;justify-content:flex-end;">
+        ${btnEdit(t)}${btnToggle(t,'es_activo')}
+      </td>
+    </tr>`).join('');
+    bindTableActions(tbody, items, cfgTiposPermiso);
+  } catch (err) {
+    tbody.innerHTML = emptyRow(6, err.message);
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// EVALUACIONES CUANTITATIVAS
+// ═══════════════════════════════════════════════════════════════════════════════
+const cfgECuant = {
+  endpoint:   '/rrhh/evaluaciones/cuantitativas',
+  labelField: 'descripcion',
+  labelText:  'Descripción',
+  activoField:'es_activa',
+  hasRange:   true,
+  canDelete:  false,
+  entityName: 'evaluación cuantitativa',
+  reload:     loadECuant,
+};
+
+async function loadECuant() {
+  const tbody = document.getElementById('tbody-ecuant');
+  tbody.innerHTML = spinner(5);
+  try {
+    const data = await api.get('/rrhh/evaluaciones/cuantitativas');
+    const items = data.items ?? data ?? [];
+    if (!items.length) { tbody.innerHTML = emptyRow(5, 'Sin evaluaciones'); return; }
+    tbody.innerHTML = items.map(e => `<tr>
+      <td><code style="font-size:12px;color:var(--text-muted);">${e.codigo}</code></td>
+      <td class="td-primary">${e.descripcion}</td>
+      <td style="font-size:12px;color:var(--text-secondary);">
+        <span style="font-variant-numeric:tabular-nums;">${e.valor_min} – ${e.valor_max}</span>
+      </td>
+      <td>${badgeActivo(e.es_activa)}</td>
+      <td style="display:flex;gap:4px;justify-content:flex-end;">
+        ${btnEdit(e)}${btnToggle(e,'es_activa')}
+      </td>
+    </tr>`).join('');
+    bindTableActions(tbody, items, cfgECuant);
+  } catch (err) {
+    tbody.innerHTML = emptyRow(5, err.message);
+  }
+}
+
+// ── Atributos cuantitativos ────────────────────────────────────────────────────
+const cfgACuant = {
+  endpoint:   '/rrhh/evaluaciones/cuantitativas/atributos',
+  labelField: 'descripcion',
+  labelText:  'Descripción',
+  activoField:'es_activo',
+  hasRange:   false,
+  canDelete:  false,
+  entityName: 'atributo cuantitativo',
+  reload:     loadACuant,
+};
+
+async function loadACuant() {
+  const tbody = document.getElementById('tbody-acuant');
+  tbody.innerHTML = spinner(4);
+  try {
+    const data = await api.get('/rrhh/evaluaciones/cuantitativas/atributos');
+    const items = data.items ?? data ?? [];
+    if (!items.length) { tbody.innerHTML = emptyRow(4, 'Sin atributos'); return; }
+    tbody.innerHTML = items.map(a => `<tr>
+      <td><code style="font-size:12px;color:var(--text-muted);">${a.codigo}</code></td>
+      <td class="td-primary">${a.descripcion}</td>
+      <td>${badgeActivo(a.es_activo)}</td>
+      <td style="display:flex;gap:4px;justify-content:flex-end;">${btnEdit(a)}</td>
+    </tr>`).join('');
+    bindTableActions(tbody, items, cfgACuant);
+  } catch (err) {
+    tbody.innerHTML = emptyRow(4, err.message);
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// EVALUACIONES CUALITATIVAS
+// ═══════════════════════════════════════════════════════════════════════════════
+const cfgECual = {
+  endpoint:   '/rrhh/evaluaciones/cualitativas',
+  labelField: 'descripcion',
+  labelText:  'Descripción',
+  activoField:'es_activa',
+  hasRange:   false,
+  canDelete:  false,
+  entityName: 'evaluación cualitativa',
+  reload:     loadECual,
+};
+
+async function loadECual() {
+  const tbody = document.getElementById('tbody-ecual');
+  tbody.innerHTML = spinner(4);
+  try {
+    const data = await api.get('/rrhh/evaluaciones/cualitativas');
+    const items = data.items ?? data ?? [];
+    if (!items.length) { tbody.innerHTML = emptyRow(4, 'Sin evaluaciones'); return; }
+    tbody.innerHTML = items.map(e => `<tr>
+      <td><code style="font-size:12px;color:var(--text-muted);">${e.codigo}</code></td>
+      <td class="td-primary">${e.descripcion}</td>
+      <td>${badgeActivo(e.es_activa)}</td>
+      <td style="display:flex;gap:4px;justify-content:flex-end;">
+        ${btnEdit(e)}${btnToggle(e,'es_activa')}
+      </td>
+    </tr>`).join('');
+    bindTableActions(tbody, items, cfgECual);
+  } catch (err) {
+    tbody.innerHTML = emptyRow(4, err.message);
+  }
+}
+
+// ── Atributos cualitativos ────────────────────────────────────────────────────
+const cfgACual = {
+  endpoint:   '/rrhh/evaluaciones/cualitativas/atributos',
+  labelField: 'descripcion',
+  labelText:  'Descripción',
+  activoField:'es_activo',
+  hasRange:   false,
+  canDelete:  false,
+  entityName: 'atributo cualitativo',
+  reload:     loadACual,
+};
+
+async function loadACual() {
+  const tbody = document.getElementById('tbody-acual');
+  tbody.innerHTML = spinner(4);
+  try {
+    const data = await api.get('/rrhh/evaluaciones/cualitativas/atributos');
+    const items = data.items ?? data ?? [];
+    if (!items.length) { tbody.innerHTML = emptyRow(4, 'Sin atributos'); return; }
+    tbody.innerHTML = items.map(a => `<tr>
+      <td><code style="font-size:12px;color:var(--text-muted);">${a.codigo}</code></td>
+      <td class="td-primary">${a.descripcion}</td>
+      <td>${badgeActivo(a.es_activo)}</td>
+      <td style="display:flex;gap:4px;justify-content:flex-end;">${btnEdit(a)}</td>
+    </tr>`).join('');
+    bindTableActions(tbody, items, cfgACual);
+  } catch (err) {
+    tbody.innerHTML = emptyRow(4, err.message);
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// Bind acciones de tabla (delegación de eventos)
+// ═══════════════════════════════════════════════════════════════════════════════
+function bindTableActions(tbody, items, cfg) {
+  tbody.addEventListener('click', async e => {
+    const btn = e.target.closest('[data-action]');
+    if (!btn) return;
+    const id     = btn.dataset.id;
+    const action = btn.dataset.action;
+    const item   = items.find(x => x.id === id);
+    if (!item) return;
+
+    if (action === 'edit') {
+      cfg.onEdit ? cfg.onEdit(item) : openEdit(item, cfg);
+    } else if (action === 'toggle') {
+      const activo = btn.dataset.activo === 'true';
+      await toggleActivo(cfg.endpoint, id, activo, cfg.activoField, cfg.reload);
+    } else if (action === 'delete' && cfg.canDelete) {
+      await deleteItem(cfg.endpoint, id, item[cfg.labelField] ?? item.nombre ?? item.codigo, cfg.reload);
+    }
+  }, { once: false });
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// Tabs + botón "Nuevo" dinámico
+// ═══════════════════════════════════════════════════════════════════════════════
+const tabLoaded = { supervisores: false, 'tipos-permiso': false, 'eval-cuant': false, 'eval-cual': false };
+let activeTab = 'supervisores';
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// PICKER DE TRABAJADORES — crear supervisor
+// ═══════════════════════════════════════════════════════════════════════════════
+let _trabajadores = [];
+let _selectedWorker = null;
+
+function _renderPickerRows(items) {
+  const list  = document.getElementById('sup-picker-list');
+  const count = document.getElementById('sup-picker-count');
+  if (!items.length) {
+    list.innerHTML = `<div style="padding:24px;text-align:center;color:var(--text-muted);">Sin resultados</div>`;
+    count.textContent = '';
+    return;
+  }
+  count.textContent = `${items.length} trabajador${items.length !== 1 ? 'es' : ''}`;
+  list.innerHTML = items.map(w => `
+    <div class="sup-row" data-id="${w.id}" data-rut="${w.rut}" data-nombre="${encodeURIComponent(w.nombre_completo)}"
+      style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;
+             cursor:pointer;border-bottom:1px solid var(--border);transition:background .1s;">
+      <span style="font-size:14px;font-weight:500;color:var(--text-primary);">${w.nombre_completo}</span>
+      <code style="font-size:12px;color:var(--text-muted);">${w.rut}</code>
+    </div>`).join('');
+
+  list.querySelectorAll('.sup-row').forEach(row => {
+    row.addEventListener('mouseenter', () => { if (!row.classList.contains('chosen')) row.style.background = 'var(--bg-hover)'; });
+    row.addEventListener('mouseleave', () => { if (!row.classList.contains('chosen')) row.style.background = ''; });
+    row.addEventListener('click', () => {
+      list.querySelectorAll('.sup-row').forEach(r => { r.classList.remove('chosen'); r.style.background = ''; });
+      row.classList.add('chosen');
+      row.style.background = 'var(--bg-active, var(--bg-tertiary))';
+      _selectedWorker = { rut: row.dataset.rut, nombre: decodeURIComponent(row.dataset.nombre) };
+      document.getElementById('sup-picker-save').disabled = false;
+    });
+  });
+}
+
+async function openSupervisorPicker() {
+  _selectedWorker = null;
+  document.getElementById('sup-picker-save').disabled = true;
+  document.getElementById('sup-search').value = '';
+  openModal('modal-sup-picker');
+
+  if (!_trabajadores.length) {
+    document.getElementById('sup-picker-list').innerHTML =
+      `<div style="padding:24px;text-align:center;"><div class="spinner" style="margin:0 auto;"></div></div>`;
+    try {
+      const data = await api.get('/rrhh/trabajadores?size=500&solo_activos=true');
+      _trabajadores = data.items ?? [];
+    } catch {
+      document.getElementById('sup-picker-list').innerHTML =
+        `<div style="padding:24px;text-align:center;color:var(--error);">Error al cargar trabajadores.</div>`;
+      return;
+    }
+  }
+  _renderPickerRows(_trabajadores);
+  document.getElementById('sup-search').focus();
+}
+
+document.getElementById('sup-search').addEventListener('input', e => {
+  const q = e.target.value.toLowerCase().trim();
+  _renderPickerRows(q
+    ? _trabajadores.filter(w => w.nombre_completo.toLowerCase().includes(q) || w.rut.includes(q))
+    : _trabajadores
+  );
+});
+
+document.getElementById('sup-picker-close').addEventListener('click',  () => closeModal('modal-sup-picker'));
+document.getElementById('sup-picker-cancel').addEventListener('click', () => closeModal('modal-sup-picker'));
+
+document.getElementById('sup-picker-save').addEventListener('click', async () => {
+  if (!_selectedWorker) return;
+  const btn = document.getElementById('sup-picker-save');
+  setLoading(btn, true);
+  try {
+    await api.post('/rrhh/supervisores', { codigo: _selectedWorker.rut, nombre: _selectedWorker.nombre });
+    toast.success('Supervisor agregado.');
+    closeModal('modal-sup-picker');
+    _trabajadores = [];
+    await loadSupervisores();
+  } catch (err) {
+    toast.error(err.message);
+  } finally {
+    setLoading(btn, false);
+  }
+});
+
+// Mapa tab → config del botón "Nuevo" del topbar
+const tabPrimaryAction = {
+  'supervisores':  () => openSupervisorPicker(),
+  'tipos-permiso': () => openTpCreate(),
+  'eval-cuant':    () => openCreate(cfgECuant),
+  'eval-cual':     () => openCreate(cfgECual),
+};
+
+const tabBtnLabel = {
+  'supervisores':  'Supervisor',
+  'tipos-permiso': 'Tipo de permiso',
+  'eval-cuant':    'Evaluación cuant.',
+  'eval-cual':     'Evaluación cual.',
+};
+
+function syncTopbarBtn() {
+  document.getElementById('btn-nuevo-label').textContent = tabBtnLabel[activeTab] ?? 'Agregar';
+}
+
+document.getElementById('btn-nuevo').addEventListener('click', () => {
+  tabPrimaryAction[activeTab]?.();
+});
+
+// Botones "Agregar" dentro de las tabs de evaluaciones
+document.getElementById('btn-add-ecuant').addEventListener('click', () => openCreate(cfgECuant));
+document.getElementById('btn-add-acuant').addEventListener('click', () => openCreate(cfgACuant));
+document.getElementById('btn-add-ecual').addEventListener('click',  () => openCreate(cfgECual));
+document.getElementById('btn-add-acual').addEventListener('click',  () => openCreate(cfgACual));
+
+document.getElementById('tab-bar').addEventListener('click', e => {
+  const btn = e.target.closest('.tab-btn');
+  if (!btn) return;
+  const tab = btn.dataset.tab;
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById(`tab-${tab}`).classList.add('active');
+  activeTab = tab;
+  syncTopbarBtn();
+  if (!tabLoaded[tab]) {
+    tabLoaded[tab] = true;
+    loadTab(tab);
+  }
+});
+
+function loadTab(tab) {
+  switch (tab) {
+    case 'supervisores':  loadSupervisores(); break;
+    case 'tipos-permiso': loadTiposPermiso(); break;
+    case 'eval-cuant':    loadECuant(); loadACuant(); break;
+    case 'eval-cual':     loadECual(); loadACual(); break;
+  }
+}
+
+// ── Init ──────────────────────────────────────────────────────────────────────
+tabLoaded['supervisores'] = true;
+syncTopbarBtn();
+loadSupervisores();
+</script>
+</body>
+</html>

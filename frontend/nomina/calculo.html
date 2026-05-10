@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Liquidaciones — Nómina</title>
+  <link rel="stylesheet" href="/static/css/main.css?v=4">
+</head>
+<body data-page="calculo">
+
+<div id="app-shell">
+  <nav class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <div class="brand-mark">N</div>
+      <span class="brand-name">Nómina SaaS</span>
+    </div>
+    <div class="sidebar-nav" id="sidebar-nav"></div>
+    <div class="sidebar-footer">
+      <div class="profile-trigger" id="profile-trigger">
+        <div class="avatar" id="sidebar-avatar">?</div>
+        <div class="profile-info">
+          <div class="profile-name" id="sidebar-name">…</div>
+          <div class="profile-role" id="sidebar-role"></div>
+        </div>
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <div class="profile-menu" id="profile-menu">
+        <div class="menu-item" onclick="window.location.href='/settings.html'">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+          Configuración
+        </div>
+        <div class="menu-item" id="theme-toggle-btn">
+          <svg id="theme-icon-sun" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+          <svg id="theme-icon-moon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none;"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+          <span id="theme-label">Modo oscuro</span>
+        </div>
+        <div class="menu-divider"></div>
+        <div class="menu-item" id="help-btn">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          Ayuda
+        </div>
+        <div class="menu-divider"></div>
+        <div class="menu-item danger" id="logout-btn">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+          Cerrar sesión
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <div class="main-content">
+    <header class="topbar">
+      <span class="topbar-title">Liquidaciones</span>
+      <div class="topbar-spacer"></div>
+      <button class="btn btn-primary btn-sm" id="btn-calcular-empresa">
+        <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="6" x2="16" y2="6"/><line x1="16" y1="10" x2="8" y2="10"/><line x1="11" y1="14" x2="8" y2="14"/><line x1="8" y1="18" x2="11" y2="18"/></svg>
+        Calcular período
+      </button>
+    </header>
+
+    <main class="page-area">
+      <div style="max-width:1200px;">
+
+        <!-- Selector de período -->
+        <div style="display:flex;align-items:center;gap:var(--space-3);margin-bottom:var(--space-4);">
+          <button class="btn btn-ghost btn-sm" id="btn-prev">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+          </button>
+          <span id="periodo-label" style="font-size:16px;font-weight:600;min-width:140px;text-align:center;"></span>
+          <button class="btn btn-ghost btn-sm" id="btn-next">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+          </button>
+        </div>
+
+        <!-- Stats del período -->
+        <div id="stats-cards" style="display:grid;grid-template-columns:repeat(5,1fr);gap:var(--space-3);margin-bottom:var(--space-4);"></div>
+
+        <!-- Resultado del último cálculo masivo -->
+        <div id="resultado-masivo" style="display:none;margin-bottom:var(--space-4);"></div>
+
+        <!-- Tabla de movimientos -->
+        <div class="card">
+          <div class="card-header" style="padding:var(--space-3) var(--space-4);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;">
+            <span style="font-size:14px;font-weight:600;">Movimientos del período</span>
+            <span id="total-count" style="font-size:13px;color:var(--text-muted);"></span>
+          </div>
+          <div class="table-wrapper">
+            <table>
+              <thead>
+                <tr>
+                  <th>Trabajador</th>
+                  <th style="text-align:right;">Total haberes</th>
+                  <th style="text-align:right;">Desc. previsión</th>
+                  <th style="text-align:right;">Imp. único</th>
+                  <th style="text-align:right;">Líquido</th>
+                  <th>Estado</th>
+                  <th>Calculado</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody id="tbody">
+                <tr><td colspan="8"><div style="padding:40px;text-align:center;"><div class="spinner" style="margin:0 auto;"></div></div></td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="pagination" id="pagination"></div>
+        </div>
+
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- Panel desglose de liquidación -->
+<div class="panel" id="panel-liq" style="width:460px;overflow-y:auto;">
+  <div class="panel-header" style="display:flex;align-items:center;justify-content:space-between;padding:var(--space-4);border-bottom:1px solid var(--border);position:sticky;top:0;background:var(--surface);z-index:1;">
+    <div>
+      <div class="panel-title" id="liq-title" style="font-size:15px;font-weight:600;"></div>
+      <div id="liq-subtitle" style="font-size:12px;color:var(--text-muted);margin-top:2px;"></div>
+    </div>
+    <button class="btn btn-ghost btn-sm" id="panel-liq-close">
+      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+  </div>
+  <div style="padding:var(--space-4);" id="liq-content">
+    <div style="text-align:center;padding:32px;color:var(--text-muted);">Cargando…</div>
+  </div>
+</div>
+
+<div id="toast-container"></div>
+
+<script type="module">
+import api from '/static/js/api.js?v=4';
+import { requireAuth } from '/static/js/auth.js?v=3';
+import { initTheme, openPanel, closePanel, setLoading, renderPagination, confirm } from '/static/js/ui.js?v=3';
+import { toast } from '/static/js/toast.js?v=3';
+import { initShellUI } from '/static/js/nav.js';
+
+initTheme();
+const user = await requireAuth();
+initShellUI(user);
+
+const MESES = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+const fmtCLP = n => n != null ? `$\u00A0${Number(n).toLocaleString('es-CL')}` : '—';
+const fmtDT  = d => d ? new Date(d).toLocaleString('es-CL', { dateStyle:'short', timeStyle:'short' }) : '—';
+const ESTADO_CLASS = { pendiente:'badge-warning', calculado:'badge-success', cerrado:'badge-neutral' };
+
+const now = new Date();
+let period = { anio: now.getFullYear(), mes: now.getMonth() + 1 };
+let state  = { page: 1, size: 25 };
+let trabajadores = [];
+
+// ── Catálogos ─────────────────────────────────────────────────────────────────
+async function loadCatalogs() {
+  try {
+    const data = await api.get('/rrhh/trabajadores?size=200&solo_activos=true');
+    trabajadores = data.items ?? [];
+  } catch { /* silently fail */ }
+}
+function lookup(id) {
+  return trabajadores.find(w => w.id === id)?.nombre_completo ?? '—';
+}
+
+// ── Período ───────────────────────────────────────────────────────────────────
+function updateLabel() {
+  document.getElementById('periodo-label').textContent = `${MESES[period.mes - 1]} ${period.anio}`;
+}
+
+async function loadStats() {
+  try {
+    const r = await api.get(`/nomina/movimientos/resumen/${period.anio}/${period.mes}`);
+    const stat = (label, val, color='') => `
+      <div class="card" style="padding:var(--space-3);">
+        <div style="font-size:11px;color:var(--text-muted);margin-bottom:4px;text-transform:uppercase;letter-spacing:.4px;">${label}</div>
+        <div style="font-size:20px;font-weight:700;color:${color || 'inherit'};">${val}</div>
+      </div>`;
+    document.getElementById('stats-cards').innerHTML =
+      stat('Total', r.total ?? 0) +
+      stat('Pendientes', r.pendientes ?? 0, 'var(--warning)') +
+      stat('Calculados', r.calculados ?? 0, 'var(--success)') +
+      stat('Cerrados', r.cerrados ?? 0) +
+      stat('Líquido total', fmtCLP(r.liquido_total));
+  } catch { document.getElementById('stats-cards').innerHTML = ''; }
+}
+
+// ── Lista ─────────────────────────────────────────────────────────────────────
+async function loadList() {
+  updateLabel();
+  const tbody = document.getElementById('tbody');
+  tbody.innerHTML = `<tr><td colspan="8"><div style="padding:32px;text-align:center;"><div class="spinner" style="margin:0 auto;"></div></div></td></tr>`;
+  const p = new URLSearchParams({ page: state.page, size: state.size, anio: period.anio, mes: period.mes });
+  try {
+    const data = await api.get(`/nomina/movimientos?${p}`);
+    const items = data.items ?? [];
+    document.getElementById('total-count').textContent =
+      `${data.total} movimiento${data.total !== 1 ? 's' : ''}`;
+    if (!items.length) {
+      tbody.innerHTML = `<tr><td colspan="8"><div class="empty-state">
+        <div class="empty-state-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="6" x2="16" y2="6"/></svg></div>
+        <h3>Sin movimientos</h3>
+        <p>No hay movimientos para ${MESES[period.mes-1]} ${period.anio}.<br>Crea movimientos en <a href="/nomina/movimientos.html" style="color:var(--accent);">Proceso mensual</a>.</p>
+      </div></td></tr>`;
+      renderPagination(document.getElementById('pagination'), { page:1, total:0, size:state.size }, ()=>{});
+      return;
+    }
+    tbody.innerHTML = items.map(m => `
+      <tr style="cursor:pointer;" data-id="${m.id}">
+        <td class="td-primary">${lookup(m.trabajador_id)}</td>
+        <td style="text-align:right;font-family:monospace;font-size:13px;">—</td>
+        <td style="text-align:right;font-family:monospace;font-size:13px;">—</td>
+        <td style="text-align:right;font-family:monospace;font-size:13px;">—</td>
+        <td style="text-align:right;font-family:monospace;font-size:13px;font-weight:600;">${fmtCLP(m.liquido_pagar)}</td>
+        <td><span class="badge ${ESTADO_CLASS[m.estado] ?? 'badge-neutral'}">${m.estado}</span></td>
+        <td style="font-size:12px;color:var(--text-muted);">${fmtDT(m.calculado_en)}</td>
+        <td>
+          <button class="btn btn-ghost btn-sm btn-calc-uno" data-id="${m.id}" title="Calcular esta liquidación">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="6" x2="16" y2="6"/><line x1="16" y1="10" x2="8" y2="10"/><line x1="11" y1="14" x2="8" y2="14"/></svg>
+          </button>
+        </td>
+      </tr>`).join('');
+
+    tbody.querySelectorAll('tr[data-id]').forEach(row =>
+      row.addEventListener('click', e => {
+        if (e.target.closest('.btn-calc-uno')) return;
+        openDesglose(row.dataset.id);
+      }));
+    tbody.querySelectorAll('.btn-calc-uno').forEach(btn =>
+      btn.addEventListener('click', async e => {
+        e.stopPropagation();
+        setLoading(btn, true);
+        try {
+          await api.post(`/nomina/calculo/movimiento/${btn.dataset.id}`, {});
+          toast.success('Liquidación calculada.');
+          loadList(); loadStats();
+        } catch (err) { toast.error(err.message); }
+        finally { setLoading(btn, false); }
+      }));
+
+    renderPagination(document.getElementById('pagination'),
+      { page: data.page, total: data.total, size: data.size },
+      pg => { state.page = pg; loadList(); });
+  } catch (err) {
+    tbody.innerHTML = `<tr><td colspan="8"><div class="empty-state"><div class="empty-state-icon">⚠</div><h3>Error</h3><p>${err.message}</p></div></td></tr>`;
+  }
+}
+
+// ── Panel desglose ────────────────────────────────────────────────────────────
+async function openDesglose(movId) {
+  document.getElementById('liq-title').textContent    = 'Cargando…';
+  document.getElementById('liq-subtitle').textContent = '';
+  document.getElementById('liq-content').innerHTML    = '<div style="text-align:center;padding:32px;color:var(--text-muted);">Cargando…</div>';
+  openPanel('panel-liq');
+  try {
+    const mov = await api.get(`/nomina/movimientos/${movId}`);
+    document.getElementById('liq-title').textContent    = lookup(mov.trabajador_id);
+    document.getElementById('liq-subtitle').textContent = `${MESES[mov.mes-1]} ${mov.anio} · ${mov.estado}`;
+
+    if (mov.estado === 'pendiente') {
+      document.getElementById('liq-content').innerHTML = `
+        <div style="text-align:center;padding:32px;">
+          <div style="font-size:14px;color:var(--text-muted);margin-bottom:16px;">Esta liquidación aún no ha sido calculada.</div>
+          <button class="btn btn-primary" id="liq-calc-now" data-id="${movId}">Calcular ahora</button>
+        </div>`;
+      document.getElementById('liq-calc-now').addEventListener('click', async e => {
+        const btn = e.currentTarget;
+        setLoading(btn, true);
+        try {
+          await api.post(`/nomina/calculo/movimiento/${movId}`, {});
+          toast.success('Liquidación calculada.');
+          openDesglose(movId); loadList(); loadStats();
+        } catch (err) { toast.error(err.message); }
+        finally { setLoading(btn, false); }
+      });
+      return;
+    }
+
+    const fila = (label, val, sep=false, bold=false) => `
+      <div style="display:flex;justify-content:space-between;padding:5px 0;
+        ${sep?'border-top:2px solid var(--border);margin-top:4px;padding-top:8px;':'border-bottom:1px solid var(--border-light,var(--border))'}
+        ${bold?'font-weight:600;':''}">
+        <span style="font-size:13px;color:${bold?'inherit':'var(--text-secondary)'};">${label}</span>
+        <span style="font-size:13px;font-family:monospace;">${val}</span>
+      </div>`;
+
+    document.getElementById('liq-content').innerHTML = `
+      <div style="margin-bottom:var(--space-4);">
+        <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--text-muted);margin-bottom:8px;">Haberes</div>
+        ${fila('Sueldo base', fmtCLP(mov.total_haberes))}
+        ${fila('Total haberes', fmtCLP(mov.total_haberes), false, true)}
+      </div>
+      <div style="margin-bottom:var(--space-4);">
+        <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--text-muted);margin-bottom:8px;">Descuentos previsionales</div>
+        ${fila('Descuento AFP', fmtCLP(mov.descuento_afp))}
+        ${fila('Descuento salud', fmtCLP(mov.descuento_salud))}
+        ${fila('Impuesto único', fmtCLP(mov.impuesto_unico))}
+        ${fila('Total descuentos', fmtCLP(mov.total_descuentos), false, true)}
+      </div>
+      <div>
+        ${fila('Anticipo', fmtCLP(mov.anticipo))}
+        ${fila('LÍQUIDO A PAGAR', fmtCLP(mov.liquido_pagar), true, true)}
+      </div>
+      <div style="margin-top:var(--space-3);font-size:11px;color:var(--text-muted);">
+        Calculado: ${fmtDT(mov.calculado_en)}
+      </div>`;
+  } catch (err) { toast.error(err.message); }
+}
+document.getElementById('panel-liq-close').addEventListener('click', () => closePanel('panel-liq'));
+
+// ── Calcular empresa ──────────────────────────────────────────────────────────
+document.getElementById('btn-calcular-empresa').addEventListener('click', async () => {
+  const btn = document.getElementById('btn-calcular-empresa');
+  if (!await confirm(
+    `¿Calcular todas las liquidaciones pendientes de ${MESES[period.mes-1]} ${period.anio}?\nEsta operación sobreescribirá los cálculos anteriores.`,
+    'Calcular período completo'
+  )) return;
+  setLoading(btn, true);
+  document.getElementById('resultado-masivo').style.display = 'none';
+  try {
+    const r = await api.post('/nomina/calculo/empresa', { anio: period.anio, mes: period.mes });
+    const errores = r.detalle_errores ?? [];
+    document.getElementById('resultado-masivo').style.display = 'block';
+    document.getElementById('resultado-masivo').innerHTML = `
+      <div class="card" style="padding:var(--space-4);border-left:4px solid ${r.errores > 0 ? 'var(--warning)' : 'var(--success)'};">
+        <div style="font-size:14px;font-weight:600;margin-bottom:8px;">Resultado del cálculo</div>
+        <div style="display:flex;gap:var(--space-6);font-size:13px;flex-wrap:wrap;">
+          <span>Total: <strong>${r.total_movimientos}</strong></span>
+          <span style="color:var(--success);">Procesados: <strong>${r.procesados}</strong></span>
+          ${r.errores > 0 ? `<span style="color:var(--warning);">Errores: <strong>${r.errores}</strong></span>` : ''}
+        </div>
+        ${errores.length ? `<div style="margin-top:8px;font-size:12px;color:var(--warning);">${errores.map(e => `<div>• ${e.mensaje ?? JSON.stringify(e)}</div>`).join('')}</div>` : ''}
+      </div>`;
+    toast.success(`${r.procesados} liquidaciones calculadas.`);
+    loadList(); loadStats();
+  } catch (err) { toast.error(err.message); }
+  finally { setLoading(btn, false); }
+});
+
+// ── Navegación ────────────────────────────────────────────────────────────────
+document.getElementById('btn-prev').addEventListener('click', () => {
+  if (period.mes === 1) { period.mes = 12; period.anio--; }
+  else { period.mes--; }
+  state.page = 1; loadList(); loadStats();
+  document.getElementById('resultado-masivo').style.display = 'none';
+});
+document.getElementById('btn-next').addEventListener('click', () => {
+  if (period.mes === 12) { period.mes = 1; period.anio++; }
+  else { period.mes++; }
+  state.page = 1; loadList(); loadStats();
+  document.getElementById('resultado-masivo').style.display = 'none';
+});
+
+// ── Init ──────────────────────────────────────────────────────────────────────
+await loadCatalogs();
+loadList();
+loadStats();
+</script>
+</body>
+</html>

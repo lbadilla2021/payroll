@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mantenedores RRHH — Nómina</title>
+  <link rel="stylesheet" href="/static/css/main.css?v=4">
+</head>
+<body data-page="rrhh-mantenedores">
+
+<div id="app-shell">
+  <nav class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <div class="brand-mark">N</div>
+      <span class="brand-name">Nómina SaaS</span>
+    </div>
+    <div class="sidebar-nav" id="sidebar-nav"></div>
+    <div class="sidebar-footer">
+      <div class="profile-trigger" id="profile-trigger">
+        <div class="avatar" id="sidebar-avatar">?</div>
+        <div class="profile-info">
+          <div class="profile-name" id="sidebar-name">…</div>
+          <div class="profile-role" id="sidebar-role"></div>
+        </div>
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <div class="profile-menu" id="profile-menu">
+        <div class="menu-item" onclick="window.location.href='/settings.html'">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+          Configuración
+        </div>
+        <div class="menu-item" id="theme-toggle-btn">
+          <svg id="theme-icon-sun" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+          <svg id="theme-icon-moon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none;"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+          <span id="theme-label">Modo oscuro</span>
+        </div>
+        <div class="menu-divider"></div>
+        <div class="menu-item" id="help-btn">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          Ayuda
+        </div>
+        <div class="menu-divider"></div>
+        <div class="menu-item danger" id="logout-btn">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+          Cerrar sesión
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <div class="main-content">
+    <header class="topbar">
+      <span class="topbar-title">Mantenedores RRHH</span>
+      <div class="topbar-spacer"></div>
+      <button class="btn btn-primary btn-sm" id="btn-nuevo" style="display:none;">
+        <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        <span id="btn-nuevo-label">Agregar</span>
+      </button>
+    </header>
+
+    <main class="page-area">
+      <div style="max-width:900px;">
+
+        <div class="tab-bar" id="tab-bar">
+          <button class="tab-btn active" data-tab="regiones"    data-editable="true" data-label="Región">Regiones</button>
+          <button class="tab-btn" data-tab="comunas"           data-editable="true" data-label="Comuna">Comunas</button>
+          <button class="tab-btn" data-tab="estado-civil"      data-editable="true" data-label="Estado civil">Estado civil</button>
+          <button class="tab-btn" data-tab="tipo-trabajador"   data-editable="true" data-label="Tipo de trabajador">Tipo de trabajador</button>
+          <button class="tab-btn" data-tab="regimen-previsional" data-editable="true" data-label="Régimen previsional">Régimen previsional</button>
+        </div>
+
+        <!-- ── REGIONES ─────────────────────────────────────────────── -->
+        <div class="tab-panel active" id="tab-regiones" data-path="/nomina/catalogos/regiones" data-pk="id">
+          <div class="card">
+            <div class="table-wrapper">
+              <table>
+                <thead>
+                  <tr>
+                    <th style="width:60px;">ID</th>
+                    <th style="width:80px;">Código</th>
+                    <th>Nombre</th>
+                    <th style="width:110px;text-align:center;">Zona extrema</th>
+                    <th style="width:80px;"></th>
+                  </tr>
+                </thead>
+                <tbody id="tbody-regiones">
+                  <tr><td colspan="5"><div style="padding:32px;text-align:center;"><div class="spinner" style="margin:0 auto;"></div></div></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── COMUNAS ───────────────────────────────────────────────── -->
+        <div class="tab-panel" id="tab-comunas" data-path="/nomina/catalogos/comunas" data-pk="codigo">
+          <div style="display:flex;gap:var(--space-2);margin-bottom:var(--space-3);align-items:center;">
+            <select class="form-input form-select" id="filter-region" style="width:auto;min-width:220px;">
+              <option value="">Todas las regiones</option>
+            </select>
+            <span id="comunas-count" style="font-size:13px;color:var(--text-muted);"></span>
+          </div>
+          <div class="card">
+            <div class="table-wrapper">
+              <table>
+                <thead>
+                  <tr>
+                    <th style="width:80px;">Código</th>
+                    <th>Nombre</th>
+                    <th>Región</th>
+                    <th style="width:80px;"></th>
+                  </tr>
+                </thead>
+                <tbody id="tbody-comunas">
+                  <tr><td colspan="4"><div style="padding:32px;text-align:center;"><div class="spinner" style="margin:0 auto;"></div></div></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── ESTADO CIVIL (editable) ──────────────────────────────── -->
+        <div class="tab-panel" id="tab-estado-civil" data-path="/rrhh/mantenedores/estado-civil">
+          <div class="card">
+            <div class="table-wrapper">
+              <table>
+                <thead>
+                  <tr>
+                    <th style="width:70px;">Código</th>
+                    <th>Descripción</th>
+                    <th>Referencia legal</th>
+                    <th style="width:80px;text-align:center;">Estado</th>
+                    <th style="width:80px;"></th>
+                  </tr>
+                </thead>
+                <tbody id="tbody-estado-civil">
+                  <tr><td colspan="5"><div style="padding:32px;text-align:center;"><div class="spinner" style="margin:0 auto;"></div></div></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── TIPO DE TRABAJADOR (editable) ────────────────────────── -->
+        <div class="tab-panel" id="tab-tipo-trabajador" data-path="/rrhh/mantenedores/tipo-trabajador">
+          <div class="card">
+            <div class="table-wrapper">
+              <table>
+                <thead>
+                  <tr>
+                    <th style="width:70px;">Código</th>
+                    <th>Descripción</th>
+                    <th>Referencia legal</th>
+                    <th style="width:80px;text-align:center;">Estado</th>
+                    <th style="width:80px;"></th>
+                  </tr>
+                </thead>
+                <tbody id="tbody-tipo-trabajador">
+                  <tr><td colspan="5"><div style="padding:32px;text-align:center;"><div class="spinner" style="margin:0 auto;"></div></div></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── RÉGIMEN PREVISIONAL (editable) ───────────────────────── -->
+        <div class="tab-panel" id="tab-regimen-previsional" data-path="/rrhh/mantenedores/regimen-previsional">
+          <div class="card">
+            <div class="table-wrapper">
+              <table>
+                <thead>
+                  <tr>
+                    <th style="width:70px;">Código</th>
+                    <th>Descripción</th>
+                    <th>Referencia legal</th>
+                    <th style="width:80px;text-align:center;">Estado</th>
+                    <th style="width:80px;"></th>
+                  </tr>
+                </thead>
+                <tbody id="tbody-regimen-previsional">
+                  <tr><td colspan="5"><div style="padding:32px;text-align:center;"><div class="spinner" style="margin:0 auto;"></div></div></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- ── Modal CRUD ──────────────────────────────────────────────────────────── -->
+<div class="modal" id="crud-modal" style="max-width:480px;">
+    <div class="modal-header">
+      <h3 class="modal-title" id="modal-title">Agregar</h3>
+      <button class="modal-close" id="modal-close">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <!-- Campos comunes -->
+      <div class="form-group" id="m-row-codigo">
+        <label class="form-label" id="m-label-codigo">Código <span style="color:var(--danger);">*</span></label>
+        <input type="number" class="form-input" id="m-codigo" min="1" placeholder="Ej: 7">
+      </div>
+      <div class="form-group" id="m-row-nombre">
+        <label class="form-label" id="m-label-nombre">Nombre <span style="color:var(--danger);">*</span></label>
+        <input type="text" class="form-input" id="m-nombre" maxlength="100" placeholder="Nombre">
+      </div>
+      <!-- Campos específicos de catálogos globales (estado civil, etc.) -->
+      <div class="form-group" id="m-row-referencia" style="display:none;">
+        <label class="form-label">Referencia legal</label>
+        <input type="text" class="form-input" id="m-referencia" maxlength="200" placeholder="Ej: Art. 1 Código Civil">
+      </div>
+      <div class="form-group" id="m-row-activo" style="display:none;">
+        <label class="form-label">Estado</label>
+        <select class="form-input form-select" id="m-activo">
+          <option value="true">Activo</option>
+          <option value="false">Inactivo</option>
+        </select>
+      </div>
+      <!-- Campos específicos de región -->
+      <div class="form-group" id="m-row-region-id" style="display:none;">
+        <label class="form-label">ID región <span style="color:var(--danger);">*</span></label>
+        <input type="number" class="form-input" id="m-region-id" min="1" max="99" placeholder="Ej: 8">
+        <small style="color:var(--text-muted);">Número oficial SUBDERE (1–16, etc.)</small>
+      </div>
+      <div class="form-group" id="m-row-codigo-romano" style="display:none;">
+        <label class="form-label">Código romano</label>
+        <input type="text" class="form-input" id="m-codigo-romano" maxlength="5" placeholder="Ej: VIII">
+      </div>
+      <div class="form-group" id="m-row-zona-extrema" style="display:none;">
+        <label class="form-label">Zona extrema</label>
+        <select class="form-input form-select" id="m-zona-extrema">
+          <option value="false">No</option>
+          <option value="true">Sí</option>
+        </select>
+      </div>
+      <!-- Campos específicos de comuna -->
+      <div class="form-group" id="m-row-codigo-comuna" style="display:none;">
+        <label class="form-label">Código INE <span style="color:var(--danger);">*</span></label>
+        <input type="number" class="form-input" id="m-codigo-comuna" min="1000" max="99999" placeholder="Ej: 8101">
+        <small style="color:var(--text-muted);">Código numérico oficial INE (4-5 dígitos)</small>
+      </div>
+      <div class="form-group" id="m-row-region-sel" style="display:none;">
+        <label class="form-label">Región <span style="color:var(--danger);">*</span></label>
+        <select class="form-input form-select" id="m-region-sel">
+          <option value="">Seleccionar…</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" id="modal-cancel">Cancelar</button>
+      <button class="btn btn-primary" id="modal-save">Guardar</button>
+    </div>
+  </div>
+
+<script type="module">
+import { requireAuth } from '/static/js/auth.js';
+import { initShellUI }  from '/static/js/nav.js';
+import { api }          from '/static/js/api.js';
+import { toast }        from '/static/js/toast.js';
+import { confirm, openModal as uiOpen, closeModal as uiClose } from '/static/js/ui.js';
+
+const $ = id => document.getElementById(id);
+function emptyRow(cols, msg) {
+  return `<tr><td colspan="${cols}" style="text-align:center;padding:32px;color:var(--text-muted);">${msg}</td></tr>`;
+}
+function badgeSi(v) {
+  return v ? `<span class="badge badge-success">Sí</span>` : '—';
+}
+function badgeActivo(v) {
+  return v ? `<span class="badge badge-success">Activo</span>` : `<span class="badge badge-neutral">Inactivo</span>`;
+}
+const ICON_EDIT = `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>`;
+const ICON_DEL  = `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>`;
+
+// ── Estado global ─────────────────────────────────────────────────────────────
+let activeTab   = 'regiones';
+let activePath  = null;
+let activePk    = 'id';
+let activeLabel = '';
+let regiones    = [];
+let todasComunas = [];
+const loaded = {};
+
+// ─────────────────────────────────────────────────────────────────────────────
+// RENDER REGIONES
+// ─────────────────────────────────────────────────────────────────────────────
+function renderRegiones(data) {
+  const tbody = $('tbody-regiones');
+  if (!data.length) { tbody.innerHTML = emptyRow(5, 'Sin regiones'); return; }
+  tbody.innerHTML = data.map(r => `
+    <tr>
+      <td style="color:var(--text-muted);">${r.id}</td>
+      <td><code style="font-size:12px;">${r.codigo}</code></td>
+      <td>${r.nombre}</td>
+      <td style="text-align:center;">${badgeSi(r.es_zona_extrema)}</td>
+      <td style="text-align:right;">
+        <div style="display:flex;gap:6px;justify-content:flex-end;">
+          <button class="btn btn-xs btn-secondary" data-action="edit"
+            data-pk="${r.id}" data-tipo="region"
+            data-id="${r.id}" data-codigo="${encodeURIComponent(r.codigo)}"
+            data-nombre="${encodeURIComponent(r.nombre)}" data-zona="${r.es_zona_extrema}"
+            title="Editar">${ICON_EDIT}</button>
+          <button class="btn btn-xs btn-danger" data-action="del"
+            data-pk="${r.id}" data-nombre="${encodeURIComponent(r.nombre)}"
+            title="Eliminar">${ICON_DEL}</button>
+        </div>
+      </td>
+    </tr>`).join('');
+}
+
+async function loadRegiones() {
+  const tbody = $('tbody-regiones');
+  try {
+    regiones = await api.get('/nomina/catalogos/regiones');
+    renderRegiones(regiones);
+  } catch {
+    tbody.innerHTML = emptyRow(5, 'Error al cargar');
+    toast.error('No se pudo cargar regiones.');
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// RENDER COMUNAS
+// ─────────────────────────────────────────────────────────────────────────────
+function renderComunas() {
+  const regionId  = parseInt($('filter-region').value) || null;
+  const regionMap = Object.fromEntries(regiones.map(r => [r.id, r.nombre]));
+  const lista     = regionId ? todasComunas.filter(c => c.region_id === regionId) : todasComunas;
+  $('comunas-count').textContent = lista.length ? `${lista.length} comunas` : '';
+  const tbody = $('tbody-comunas');
+  if (!lista.length) { tbody.innerHTML = emptyRow(4, 'Sin comunas'); return; }
+  tbody.innerHTML = lista.map(c => `
+    <tr>
+      <td><code style="font-size:12px;">${c.codigo}</code></td>
+      <td>${c.nombre}</td>
+      <td style="font-size:13px;color:var(--text-muted);">${regionMap[c.region_id] ?? '—'}</td>
+      <td style="text-align:right;">
+        <div style="display:flex;gap:6px;justify-content:flex-end;">
+          <button class="btn btn-xs btn-secondary" data-action="edit"
+            data-pk="${c.codigo}" data-tipo="comuna"
+            data-codigo="${c.codigo}" data-nombre="${encodeURIComponent(c.nombre)}"
+            data-region-id="${c.region_id}"
+            title="Editar">${ICON_EDIT}</button>
+          <button class="btn btn-xs btn-danger" data-action="del"
+            data-pk="${c.codigo}" data-nombre="${encodeURIComponent(c.nombre)}"
+            title="Eliminar">${ICON_DEL}</button>
+        </div>
+      </td>
+    </tr>`).join('');
+}
+
+async function loadComunas() {
+  const selReg = $('filter-region');
+  try {
+    if (!regiones.length) regiones = await api.get('/nomina/catalogos/regiones');
+    todasComunas = await api.get('/nomina/catalogos/comunas');
+    if (selReg.options.length === 1) {
+      regiones.forEach(r => selReg.appendChild(
+        Object.assign(document.createElement('option'), { value: r.id, textContent: r.nombre })
+      ));
+    }
+    renderComunas();
+  } catch {
+    $('tbody-comunas').innerHTML = emptyRow(4, 'Error al cargar');
+    toast.error('No se pudo cargar comunas.');
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// RENDER CATÁLOGOS GLOBALES (estado civil, tipo trabajador, régimen)
+// ─────────────────────────────────────────────────────────────────────────────
+function renderGlobal(tbodyId, items) {
+  const tbody = $(tbodyId);
+  if (!items.length) { tbody.innerHTML = emptyRow(5, 'Sin registros'); return; }
+  tbody.innerHTML = items.map(i => `
+    <tr>
+      <td><code style="font-size:12px;">${i.codigo}</code></td>
+      <td>${i.descripcion}</td>
+      <td style="font-size:13px;color:var(--text-muted);">${i.referencia ?? '—'}</td>
+      <td style="text-align:center;">${badgeActivo(i.es_activo)}</td>
+      <td style="text-align:right;">
+        <div style="display:flex;gap:6px;justify-content:flex-end;">
+          <button class="btn btn-xs btn-secondary" data-action="edit" data-tipo="global"
+            data-pk="${i.id}" data-codigo="${i.codigo}"
+            data-nombre="${encodeURIComponent(i.descripcion)}"
+            data-ref="${encodeURIComponent(i.referencia ?? '')}" data-activo="${i.es_activo}"
+            title="Editar">${ICON_EDIT}</button>
+          <button class="btn btn-xs btn-danger" data-action="del"
+            data-pk="${i.id}" data-nombre="${encodeURIComponent(i.descripcion)}"
+            title="Eliminar">${ICON_DEL}</button>
+        </div>
+      </td>
+    </tr>`).join('');
+}
+
+async function loadGlobal(tabId) {
+  const path    = $(`tab-${tabId}`).dataset.path;
+  const tbodyId = `tbody-${tabId}`;
+  try {
+    const items = await api.get(path);
+    renderGlobal(tbodyId, items);
+  } catch {
+    $(tbodyId).innerHTML = emptyRow(5, 'Error al cargar');
+    toast.error('No se pudo cargar el catálogo.');
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// MODAL
+// ─────────────────────────────────────────────────────────────────────────────
+let editingPk   = null;
+let modalTipo   = null;   // 'region' | 'comuna' | 'global'
+
+const ALL_ROWS = ['m-row-codigo','m-row-nombre','m-row-referencia','m-row-activo',
+                  'm-row-region-id','m-row-codigo-romano','m-row-zona-extrema',
+                  'm-row-codigo-comuna','m-row-region-sel'];
+
+function showRows(...ids) {
+  ALL_ROWS.forEach(id => $(id).style.display = ids.includes(id) ? '' : 'none');
+}
+
+function openModalRegion(item = null) {
+  modalTipo = 'region';
+  editingPk = item ? item.id : null;
+  $('modal-title').textContent = item ? 'Editar región' : 'Nueva región';
+  showRows('m-row-region-id','m-row-codigo-romano','m-row-nombre','m-row-zona-extrema');
+  $('m-region-id').value      = item ? item.id      : '';
+  $('m-region-id').disabled   = !!item;
+  $('m-codigo-romano').value  = item ? decodeURIComponent(item.codigo ?? '') : '';
+  $('m-nombre').value         = item ? decodeURIComponent(item.nombre) : '';
+  $('m-zona-extrema').value   = String(item?.zona ?? false);
+  uiOpen('crud-modal');
+  ($('m-region-id').disabled ? $('m-nombre') : $('m-region-id')).focus();
+}
+
+function openModalComuna(item = null) {
+  modalTipo = 'comuna';
+  editingPk = item ? item.codigo : null;
+  $('modal-title').textContent = item ? 'Editar comuna' : 'Nueva comuna';
+  showRows('m-row-codigo-comuna','m-row-nombre','m-row-region-sel');
+  $('m-codigo-comuna').value    = item ? item.codigo : '';
+  $('m-codigo-comuna').disabled = !!item;
+  $('m-nombre').value           = item ? decodeURIComponent(item.nombre) : '';
+  // Poblar select de región
+  const sel = $('m-region-sel');
+  sel.innerHTML = '<option value="">Seleccionar…</option>';
+  regiones.forEach(r => {
+    const opt = Object.assign(document.createElement('option'), { value: r.id, textContent: r.nombre });
+    if (item && r.id === item.region_id) opt.selected = true;
+    sel.appendChild(opt);
+  });
+  uiOpen('crud-modal');
+  ($('m-codigo-comuna').disabled ? $('m-nombre') : $('m-codigo-comuna')).focus();
+}
+
+function openModalGlobal(item = null) {
+  modalTipo = 'global';
+  editingPk = item ? item.id : null;
+  $('modal-title').textContent = item ? `Editar ${activeLabel.toLowerCase()}` : `Nuevo ${activeLabel.toLowerCase()}`;
+  showRows('m-row-codigo','m-row-nombre','m-row-referencia', ...(item ? ['m-row-activo'] : []));
+  $('m-codigo').value       = item ? item.codigo : '';
+  $('m-codigo').disabled    = !!item;
+  $('m-nombre').value       = item ? decodeURIComponent(item.nombre) : '';
+  $('m-referencia').value   = item ? decodeURIComponent(item.ref ?? '') : '';
+  $('m-activo').value       = String(item?.activo ?? true);
+  uiOpen('crud-modal');
+  ($('m-codigo').disabled ? $('m-nombre') : $('m-codigo')).focus();
+}
+
+function closeCrudModal() { uiClose('crud-modal'); }
+
+$('modal-close').addEventListener('click',  closeCrudModal);
+$('modal-cancel').addEventListener('click', closeCrudModal);
+
+$('modal-save').addEventListener('click', async () => {
+  const btn = $('modal-save');
+  btn.disabled = true;
+  try {
+    if (modalTipo === 'region') {
+      const nombre = $('m-nombre').value.trim();
+      if (!nombre) { toast.warning('El nombre es obligatorio.'); return; }
+      if (editingPk) {
+        await api.patch(`/nomina/catalogos/regiones/${editingPk}`, {
+          codigo:          $('m-codigo-romano').value.trim() || null,
+          nombre,
+          es_zona_extrema: $('m-zona-extrema').value === 'true',
+        });
+      } else {
+        const id = parseInt($('m-region-id').value);
+        if (!id) { toast.warning('El ID es obligatorio.'); return; }
+        await api.post('/nomina/catalogos/regiones', {
+          id,
+          codigo:          $('m-codigo-romano').value.trim() || String(id),
+          nombre,
+          es_zona_extrema: $('m-zona-extrema').value === 'true',
+        });
+      }
+      toast.success(editingPk ? 'Región actualizada.' : 'Región creada.');
+      regiones = [];
+      loaded.regiones = false;
+      await loadRegiones();
+
+    } else if (modalTipo === 'comuna') {
+      const nombre    = $('m-nombre').value.trim();
+      const region_id = parseInt($('m-region-sel').value);
+      if (!nombre || !region_id) { toast.warning('Nombre y región son obligatorios.'); return; }
+      if (editingPk) {
+        await api.patch(`/nomina/catalogos/comunas/${editingPk}`, { nombre, region_id });
+      } else {
+        const codigo = parseInt($('m-codigo-comuna').value);
+        if (!codigo) { toast.warning('El código es obligatorio.'); return; }
+        await api.post('/nomina/catalogos/comunas', { codigo, nombre, region_id });
+      }
+      toast.success(editingPk ? 'Comuna actualizada.' : 'Comuna creada.');
+      todasComunas = [];
+      loaded.comunas = false;
+      await loadComunas();
+
+    } else {
+      const codigo      = parseInt($('m-codigo').value);
+      const descripcion = $('m-nombre').value.trim();
+      if (!descripcion || (!editingPk && !codigo)) { toast.warning('Código y descripción son obligatorios.'); return; }
+      if (editingPk) {
+        await api.patch(`${activePath}/${editingPk}`, {
+          descripcion,
+          referencia: $('m-referencia').value.trim() || null,
+          es_activo:  $('m-activo').value === 'true',
+        });
+      } else {
+        await api.post(activePath, {
+          codigo, descripcion,
+          referencia: $('m-referencia').value.trim() || null,
+        });
+      }
+      toast.success(editingPk ? 'Registro actualizado.' : 'Registro creado.');
+      loaded[activeTab] = false;
+      await loadGlobal(activeTab);
+    }
+    closeCrudModal();
+  } catch (err) {
+    toast.error(err.message || 'Error al guardar.');
+  } finally {
+    btn.disabled = false;
+  }
+});
+
+// ── Delegación de clicks (editar / eliminar) ──────────────────────────────────
+document.querySelector('.main-content').addEventListener('click', async e => {
+  const btn = e.target.closest('[data-action]');
+  if (!btn) return;
+
+  if (btn.dataset.action === 'edit') {
+    if (btn.dataset.tipo === 'region') {
+      openModalRegion({
+        id:     parseInt(btn.dataset.pk),
+        codigo: btn.dataset.codigo,
+        nombre: btn.dataset.nombre,
+        zona:   btn.dataset.zona === 'true',
+      });
+    } else if (btn.dataset.tipo === 'comuna') {
+      openModalComuna({
+        codigo:    parseInt(btn.dataset.pk),
+        nombre:    btn.dataset.nombre,
+        region_id: parseInt(btn.dataset.regionId),
+      });
+    } else {
+      openModalGlobal({
+        id:     parseInt(btn.dataset.pk),
+        codigo: parseInt(btn.dataset.codigo),
+        nombre: btn.dataset.nombre,
+        ref:    btn.dataset.ref,
+        activo: btn.dataset.activo === 'true',
+      });
+    }
+  }
+
+  if (btn.dataset.action === 'del') {
+    const nombre = decodeURIComponent(btn.dataset.nombre);
+    const ok = await confirm(`¿Eliminar "${nombre}"? Esta acción no se puede deshacer.`);
+    if (!ok) return;
+    try {
+      const delPath = activePath;
+      await api.delete(`${delPath}/${btn.dataset.pk}`);
+      toast.success('Registro eliminado.');
+      loaded[activeTab] = false;
+      if (activeTab === 'regiones') { regiones = []; await loadRegiones(); }
+      else if (activeTab === 'comunas') { todasComunas = []; await loadComunas(); }
+      else await loadGlobal(activeTab);
+    } catch (err) {
+      toast.error(err.message || 'No se pudo eliminar.');
+    }
+  }
+});
+
+// ── Tab system ────────────────────────────────────────────────────────────────
+const TAB_LOADERS = {
+  regiones:              loadRegiones,
+  comunas:               loadComunas,
+  'estado-civil':        () => loadGlobal('estado-civil'),
+  'tipo-trabajador':     () => loadGlobal('tipo-trabajador'),
+  'regimen-previsional': () => loadGlobal('regimen-previsional'),
+};
+
+function activateTab(tabId) {
+  document.querySelectorAll('.tab-btn').forEach(b  => b.classList.toggle('active', b.dataset.tab === tabId));
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.toggle('active', p.id === `tab-${tabId}`));
+
+  activeTab   = tabId;
+  const tabBtn = document.querySelector(`.tab-btn[data-tab="${tabId}"]`);
+  const panel  = $(`tab-${tabId}`);
+  activePath   = panel?.dataset.path ?? null;
+  activePk     = panel?.dataset.pk   ?? 'id';
+  activeLabel  = tabBtn?.dataset.label ?? tabId;
+  $('btn-nuevo').style.display    = '';
+  $('btn-nuevo-label').textContent = activeLabel;
+
+  if (!loaded[tabId]) {
+    loaded[tabId] = true;
+    TAB_LOADERS[tabId]?.();
+  }
+}
+
+$('tab-bar').addEventListener('click', e => {
+  const btn = e.target.closest('.tab-btn');
+  if (btn) activateTab(btn.dataset.tab);
+});
+
+$('filter-region').addEventListener('change', renderComunas);
+
+$('btn-nuevo').addEventListener('click', () => {
+  if (activeTab === 'regiones')     openModalRegion(null);
+  else if (activeTab === 'comunas') openModalComuna(null);
+  else                              openModalGlobal(null);
+});
+
+// ── Init ──────────────────────────────────────────────────────────────────────
+const user = await requireAuth();
+initShellUI(user);
+// Activar primer tab manualmente para mostrar el botón Agregar
+activateTab('regiones');
+</script>
+</body>
+</html>

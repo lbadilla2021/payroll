@@ -13,6 +13,7 @@ Responsabilidades:
   7. Calcular por empresa (masivo)
 """
 
+from datetime import date
 from decimal import Decimal
 from typing import Optional
 from uuid import UUID
@@ -26,7 +27,7 @@ from modulos.nomina.calculo.motor import (
     ParametrosPeriodo, ResultadoCalculo,
 )
 from modulos.nomina.models import (
-    Afp, MovimientoConcepto, MovimientoMensual, ParametroMensual,
+    Afp, Contrato, MovimientoConcepto, MovimientoMensual, ParametroMensual,
     TramoAsignacionFamiliar, TramoImpuestoUnicoUTM,
 )
 from modulos.nomina.repositories import ParametroMensualRepository
@@ -36,6 +37,14 @@ from modulos.rrhh.models import CargaFamiliar, Trabajador, TrabajadorApv
 
 def _set_tenant(db: Session, tenant_id: UUID) -> None:
     db.execute(text("SET LOCAL app.current_tenant_id = :tid"), {"tid": str(tenant_id)})
+
+
+def _dias_no_contratado_desde(fecha: Optional[date], anio: int, mes: int) -> Optional[Decimal]:
+    """Retorna días no contratados si la fecha cae en el período, o None si no aplica."""
+    if fecha and fecha.year == anio and fecha.month == mes:
+        dia = min(fecha.day, 30)
+        return Decimal(str(max(0, dia - 1)))
+    return None
 
 
 class ServicioCalculo:
@@ -121,6 +130,24 @@ class ServicioCalculo:
         return Decimal(str(afp.tasa_trabajador)), Decimal(str(afp.tasa_sis))
 
     @staticmethod
+    def _cargar_contrato_del_periodo(db: Session, tenant_id: UUID,
+                                      trabajador_id: UUID,
+                                      anio: int, mes: int) -> Optional[Contrato]:
+        """
+        Retorna el contrato cuya fecha_inicio cae dentro del período.
+        Si el trabajador inició antes del período retorna None (mes completo).
+        """
+        import calendar
+        primer_dia = date(anio, mes, 1)
+        ultimo_dia = date(anio, mes, calendar.monthrange(anio, mes)[1])
+        return db.query(Contrato).filter(
+            Contrato.tenant_id == tenant_id,
+            Contrato.trabajador_id == trabajador_id,
+            Contrato.fecha_inicio >= primer_dia,
+            Contrato.fecha_inicio <= ultimo_dia,
+        ).order_by(Contrato.fecha_inicio).first()
+
+    @staticmethod
     def _cargar_cargas_familiares(db: Session, tenant_id: UUID,
                                    trabajador_id: UUID) -> tuple[int, int, int]:
         """Retorna (simples, invalidez, maternales) vigentes."""
@@ -145,7 +172,7 @@ class ServicioCalculo:
             TrabajadorApv.trabajador_id == trabajador_id,
             TrabajadorApv.es_activo == True
         ).all()
-        total = sum(Decimal(str(a.monto_trabajador)) for a in apvs)
+        total = sum((Decimal(str(a.monto_trabajador)) for a in apvs), Decimal("0"))
         rebaja = any(a.rebaja_art42bis for a in apvs)
         return total, rebaja
 
@@ -245,10 +272,11 @@ class ServicioCalculo:
 
     @staticmethod
     def _construir_datos_movimiento(m: MovimientoMensual,
-                                     conceptos_extra: dict) -> DatosMovimiento:
+                                     conceptos_extra: dict,
+                                     dias_no_contratado: Decimal) -> DatosMovimiento:
         return DatosMovimiento(
             dias_ausentes        = Decimal(str(m.dias_ausentes)),
-            dias_no_contratado   = Decimal(str(m.dias_no_contratado)),
+            dias_no_contratado   = dias_no_contratado,
             dias_licencia        = Decimal(str(m.dias_licencia)),
             dias_movilizacion    = Decimal(str(m.dias_movilizacion)),
             dias_colacion        = Decimal(str(m.dias_colacion)),
@@ -319,6 +347,19 @@ class ServicioCalculo:
         )
         apv_monto, apv_rebaja = ServicioCalculo._cargar_apv(db, tenant_id, trabajador.id)
 
+        # Resolver días no contratados: fecha_inicio_mov del movimiento tiene
+        # precedencia; si no está, se consulta la fecha de inicio del contrato.
+        contrato = ServicioCalculo._cargar_contrato_del_periodo(
+            db, tenant_id, movimiento.trabajador_id, anio, mes
+        )
+        fecha_inicio = movimiento.fecha_inicio_mov or (
+            contrato.fecha_inicio if contrato else None
+        )
+        dias_nc = (
+            _dias_no_contratado_desde(fecha_inicio, anio, mes)
+            or Decimal(str(movimiento.dias_no_contratado))
+        )
+
         # Cargar tramos tributarios
         tramos_af = ServicioCalculo._cargar_tramos_af(db, anio, mes)
         tramos_iu = ServicioCalculo._cargar_tramos_iu(db, anio, mes)
@@ -331,7 +372,7 @@ class ServicioCalculo:
             trabajador, tasa_afp, tasa_sis, simples, invalidez, maternal,
             apv_monto, apv_rebaja
         )
-        datos_m = ServicioCalculo._construir_datos_movimiento(movimiento, conceptos_extra)
+        datos_m = ServicioCalculo._construir_datos_movimiento(movimiento, conceptos_extra, dias_nc)
         params  = ServicioCalculo._construir_params_periodo(params_db)
 
         # Ejecutar cálculo
@@ -340,15 +381,16 @@ class ServicioCalculo:
 
         # Persistir resultados
         MovimientoMensualRepository.marcar_calculado(db, movimiento, {
-            "total_haberes":    resultado.total_haberes,
-            "total_imponible":  resultado.total_imponible,
-            "total_tributable": resultado.total_tributable,
-            "descuento_afp":    resultado.descuento_afp,
-            "descuento_salud":  resultado.descuento_salud,
-            "impuesto_unico":   resultado.impuesto_unico,
-            "total_descuentos": resultado.total_descuentos,
-            "liquido_pagar":    resultado.liquido_a_pagar,
-            "anticipo":         resultado.anticipo,
+            "total_haberes":          resultado.total_haberes,
+            "total_imponible":        resultado.total_imponible,
+            "total_tributable":       resultado.total_tributable,
+            "descuento_afp":          resultado.descuento_afp,
+            "descuento_salud":        resultado.descuento_salud,
+            "descuento_seg_cesantia": resultado.descuento_seg_cesantia_t,
+            "impuesto_unico":         resultado.impuesto_unico,
+            "total_descuentos":       resultado.total_descuentos,
+            "liquido_pagar":          resultado.liquido_a_pagar,
+            "anticipo":               resultado.anticipo,
         })
         db.commit()
 

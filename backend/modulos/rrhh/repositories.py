@@ -15,8 +15,10 @@ from sqlalchemy.orm import Session
 from modulos.rrhh.models import (
     AtributoEvalCualitativa, AtributoEvalCuantitativa,
     CargaFamiliar, CargoDesempenado,
+    EstadoCivilGlobal, TipoTrabajadorGlobal, RegimenPrevisionalGlobal,
     EvaluacionCualitativa, EvaluacionCuantitativa,
     FichaPermiso, FichaPrestamo, FichaVacacion,
+    LicenciaMedica,
     Observacion, Supervisor, TipoPermiso,
     Trabajador, TrabajadorApv, TrabajadorConyugeAfiliado,
     TrabajadorEvalCualitativa, TrabajadorEvalCuantitativa,
@@ -523,13 +525,23 @@ class FichaVacacionRepository:
         db.flush()
 
     @staticmethod
-    def total_dias_utilizados(db: Session, tenant_id: UUID, trabajador_id: UUID) -> float:
+    def resumen(db: Session, tenant_id: UUID, trabajador_id: UUID) -> dict:
         _set_tenant(db, tenant_id)
-        result = db.query(func.sum(FichaVacacion.dias_utilizados)).filter(
+        filtro = [
             FichaVacacion.tenant_id == tenant_id,
-            FichaVacacion.trabajador_id == trabajador_id
-        ).scalar()
-        return float(result or 0)
+            FichaVacacion.trabajador_id == trabajador_id,
+        ]
+        ganados = db.query(func.sum(FichaVacacion.dias_otorgados)).filter(*filtro).scalar() or 0
+        usados  = db.query(func.sum(FichaVacacion.dias_utilizados)).filter(*filtro).scalar() or 0
+        progresivos = db.query(func.sum(FichaVacacion.dias_otorgados)).filter(
+            *filtro, FichaVacacion.es_progresiva == True
+        ).scalar() or 0
+        return {
+            "dias_ganados":    float(ganados),
+            "dias_usados":     float(usados),
+            "dias_pendientes": float(ganados) - float(usados),
+            "dias_progresivos": float(progresivos),
+        }
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -667,6 +679,22 @@ class CargoDesempenadoRepository:
         db.refresh(obj)
         return obj
 
+    @staticmethod
+    def delete(db: Session, obj: CargoDesempenado) -> None:
+        db.delete(obj)
+        db.flush()
+
+    @staticmethod
+    def get_latest_open(db: Session, tenant_id: UUID,
+                        trabajador_id: UUID) -> Optional[CargoDesempenado]:
+        """Cargo vigente más reciente (sin fecha_hasta)."""
+        _set_tenant(db, tenant_id)
+        return db.query(CargoDesempenado).filter(
+            CargoDesempenado.tenant_id == tenant_id,
+            CargoDesempenado.trabajador_id == trabajador_id,
+            CargoDesempenado.fecha_hasta.is_(None),
+        ).order_by(CargoDesempenado.fecha_desde.desc()).first()
+
 
 # ─────────────────────────────────────────────────────────────────────────────
 # EVALUACIONES DEL TRABAJADOR
@@ -719,3 +747,90 @@ class TrabajadorEvalRepository:
         db.flush()
         db.refresh(obj)
         return obj
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# MANTENEDORES GLOBALES (sin tenant_id)
+# ─────────────────────────────────────────────────────────────────────────────
+
+class _MantenedorGlobalRepo:
+    """Repositorio genérico para catálogos globales sin tenant."""
+
+    def __init__(self, model):
+        self._model = model
+
+    def get_all(self, db: Session) -> list:
+        return db.query(self._model).order_by(self._model.codigo).all()
+
+    def get_by_id(self, db: Session, item_id: int):
+        return db.query(self._model).filter(self._model.id == item_id).first()
+
+    def get_by_codigo(self, db: Session, codigo: int):
+        return db.query(self._model).filter(self._model.codigo == codigo).first()
+
+    def create(self, db: Session, data: dict):
+        obj = self._model(**data)
+        db.add(obj)
+        db.flush()
+        db.refresh(obj)
+        return obj
+
+    def update(self, db: Session, obj, data: dict):
+        for k, v in data.items():
+            setattr(obj, k, v)
+        db.flush()
+        db.refresh(obj)
+        return obj
+
+    def delete(self, db: Session, obj) -> None:
+        db.delete(obj)
+        db.flush()
+
+
+EstadoCivilRepository      = _MantenedorGlobalRepo(EstadoCivilGlobal)
+TipoTrabajadorRepository   = _MantenedorGlobalRepo(TipoTrabajadorGlobal)
+RegimenPrevisionalRepository = _MantenedorGlobalRepo(RegimenPrevisionalGlobal)
+
+
+class LicenciaMedicaRepository:
+
+    @staticmethod
+    def get_all(db: Session, tenant_id: UUID, trabajador_id: UUID, page: int = 1, size: int = 50):
+        _set_tenant(db, tenant_id)
+        q = db.query(LicenciaMedica).filter(
+            LicenciaMedica.tenant_id == tenant_id,
+            LicenciaMedica.trabajador_id == trabajador_id,
+        )
+        total = q.count()
+        items = q.order_by(LicenciaMedica.fecha_inicio.desc()).offset((page - 1) * size).limit(size).all()
+        return items, total
+
+    @staticmethod
+    def get_by_id(db: Session, tenant_id: UUID, lic_id: UUID) -> Optional[LicenciaMedica]:
+        _set_tenant(db, tenant_id)
+        return db.query(LicenciaMedica).filter(
+            LicenciaMedica.tenant_id == tenant_id,
+            LicenciaMedica.id == lic_id,
+        ).first()
+
+    @staticmethod
+    def create(db: Session, tenant_id: UUID, trabajador_id: UUID, data: dict) -> LicenciaMedica:
+        _set_tenant(db, tenant_id)
+        obj = LicenciaMedica(tenant_id=tenant_id, trabajador_id=trabajador_id, **data)
+        db.add(obj)
+        db.flush()
+        db.refresh(obj)
+        return obj
+
+    @staticmethod
+    def update(db: Session, obj: LicenciaMedica, data: dict) -> LicenciaMedica:
+        for k, v in data.items():
+            setattr(obj, k, v)
+        db.flush()
+        db.refresh(obj)
+        return obj
+
+    @staticmethod
+    def delete(db: Session, obj: LicenciaMedica) -> None:
+        db.delete(obj)
+        db.flush()

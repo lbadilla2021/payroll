@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Carga masiva — Nómina</title>
+  <link rel="stylesheet" href="/static/css/main.css?v=4">
+  <style>
+    .cm-header {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: var(--space-4);
+      margin-bottom: var(--space-4);
+    }
+    .cm-header-row {
+      display: flex;
+      gap: var(--space-3);
+      align-items: flex-end;
+      flex-wrap: wrap;
+    }
+    .cm-header-group {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .cm-header-group label {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--text-muted);
+    }
+    .cm-toolbar {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      margin-bottom: var(--space-3);
+    }
+    .cm-search {
+      flex: 1;
+      max-width: 280px;
+    }
+    .cm-count {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-left: auto;
+    }
+    .worker-row td { vertical-align: middle; }
+    .worker-row input[type="number"] {
+      width: 130px;
+      text-align: right;
+      font-family: monospace;
+      padding: 5px 8px;
+      border: 1px solid var(--border);
+      border-radius: 5px;
+      background: var(--surface);
+      color: var(--text-primary);
+      font-size: 13px;
+    }
+    .worker-row input[type="number"]:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 15%, transparent);
+    }
+    .worker-row.checked-row { background: color-mix(in srgb, var(--accent) 4%, transparent); }
+    .status-cell { width: 100px; }
+    .st-ok    { color: var(--success); font-size: 12px; font-weight: 600; }
+    .st-err   { color: var(--danger);  font-size: 12px; }
+    .st-skip  { color: var(--text-muted); font-size: 12px; }
+    .st-proc  { font-size: 12px; color: var(--text-muted); }
+    .progress-bar-wrap {
+      height: 4px;
+      background: var(--border);
+      border-radius: 2px;
+      margin-top: var(--space-2);
+      display: none;
+    }
+    .progress-bar-fill {
+      height: 100%;
+      background: var(--accent);
+      border-radius: 2px;
+      transition: width .2s;
+      width: 0%;
+    }
+    .chk-all-wrap {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+      cursor: pointer;
+      color: var(--text-secondary);
+    }
+    .chk-all-wrap input { width: 15px; height: 15px; cursor: pointer; }
+  </style>
+</head>
+<body data-page="carga-masiva">
+
+<div id="app-shell">
+  <nav class="sidebar" id="sidebar">
+    <div class="sidebar-brand"><div class="brand-mark">N</div><span class="brand-name">Nómina SaaS</span></div>
+    <div class="sidebar-nav" id="sidebar-nav"></div>
+    <div class="sidebar-footer">
+      <div class="profile-trigger" id="profile-trigger">
+        <div class="avatar" id="sidebar-avatar">?</div>
+        <div class="profile-info">
+          <div class="profile-name" id="sidebar-name">…</div>
+          <div class="profile-role" id="sidebar-role"></div>
+        </div>
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <div class="profile-menu" id="profile-menu">
+        <div class="menu-item" onclick="window.location.href='/settings.html'">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+          Configuración
+        </div>
+        <div class="menu-item" id="theme-toggle-btn">
+          <svg id="theme-icon-sun" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+          <svg id="theme-icon-moon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none;"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+          <span id="theme-label">Modo oscuro</span>
+        </div>
+        <div class="menu-divider"></div>
+        <div class="menu-item" id="help-btn">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          Ayuda
+        </div>
+        <div class="menu-divider"></div>
+        <div class="menu-item danger" id="logout-btn">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+          Cerrar sesión
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <div class="main-content">
+    <header class="topbar">
+      <span class="topbar-title">Carga masiva de haberes/descuentos</span>
+      <div class="topbar-spacer"></div>
+      <button class="btn btn-primary btn-sm" id="btn-procesar" disabled>
+        <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+        <span id="btn-procesar-label">Procesar seleccionados</span>
+      </button>
+    </header>
+
+    <main class="page-area">
+      <div style="max-width:1000px;">
+
+        <!-- ── Encabezado de configuración ── -->
+        <div class="cm-header">
+          <div class="cm-header-row">
+            <div class="cm-header-group">
+              <label>Período</label>
+              <div style="display:flex;gap:6px;">
+                <select class="form-input form-select" id="h-anio" style="width:90px;"></select>
+                <select class="form-input form-select" id="h-mes" style="width:120px;">
+                  <option value="1">Enero</option><option value="2">Febrero</option>
+                  <option value="3">Marzo</option><option value="4">Abril</option>
+                  <option value="5">Mayo</option><option value="6">Junio</option>
+                  <option value="7">Julio</option><option value="8">Agosto</option>
+                  <option value="9">Septiembre</option><option value="10">Octubre</option>
+                  <option value="11">Noviembre</option><option value="12">Diciembre</option>
+                </select>
+              </div>
+            </div>
+            <div class="cm-header-group">
+              <label>Tipo</label>
+              <select class="form-input form-select" id="h-tipo" style="width:130px;">
+                <option value="H">Haber</option>
+                <option value="D">Descuento</option>
+              </select>
+            </div>
+            <div class="cm-header-group" style="flex:1;min-width:200px;">
+              <label>Concepto</label>
+              <select class="form-input form-select" id="h-concepto">
+                <option value="">— Seleccionar —</option>
+              </select>
+            </div>
+            <div class="cm-header-group">
+              <label>Valor predeterminado</label>
+              <input class="form-input" id="h-valor" type="number" min="0" step="1"
+                     placeholder="0" style="width:140px;text-align:right;font-family:monospace;">
+            </div>
+            <div class="cm-header-group">
+              <label style="visibility:hidden;">.</label>
+              <button class="btn btn-secondary btn-sm" id="btn-aplicar-valor" style="white-space:nowrap;">
+                Aplicar a seleccionados
+              </button>
+            </div>
+          </div>
+          <div class="progress-bar-wrap" id="progress-wrap">
+            <div class="progress-bar-fill" id="progress-bar"></div>
+          </div>
+        </div>
+
+        <!-- ── Lista de trabajadores ── -->
+        <div class="cm-toolbar">
+          <label class="chk-all-wrap">
+            <input type="checkbox" id="chk-all">
+            Seleccionar todos
+          </label>
+          <input class="form-input cm-search" id="search-worker" type="search"
+                 placeholder="Buscar trabajador…">
+          <select class="form-input form-select" id="filter-cargo" style="width:auto;min-width:160px;">
+            <option value="">Todos los cargos</option>
+          </select>
+          <span class="cm-count" id="sel-count"></span>
+        </div>
+
+        <div class="card">
+          <div class="table-wrapper">
+            <table>
+              <thead>
+                <tr>
+                  <th style="width:36px;padding-left:12px;"></th>
+                  <th>Trabajador</th>
+                  <th style="width:160px;">Cargo</th>
+                  <th style="width:145px;text-align:right;">Valor ($)</th>
+                  <th class="status-cell">Estado</th>
+                </tr>
+              </thead>
+              <tbody id="tbody-workers">
+                <tr><td colspan="5"><div style="padding:40px;text-align:center;"><div class="spinner" style="margin:0 auto;"></div></div></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div id="result-summary" style="margin-top:var(--space-3);font-size:13px;display:none;"></div>
+
+      </div>
+    </main>
+  </div>
+</div>
+
+<div id="toast-container"></div>
+
+<script type="module">
+import api from '/static/js/api.js?v=4';
+import { requireAuth } from '/static/js/auth.js?v=3';
+import { initTheme, setLoading } from '/static/js/ui.js?v=3';
+import { toast } from '/static/js/toast.js?v=3';
+import { initShellUI } from '/static/js/nav.js';
+
+initTheme();
+const user = await requireAuth();
+initShellUI(user);
+
+const now = new Date();
+const fmtCLP = n => n != null ? `$ ${Number(n).toLocaleString('es-CL')}` : '';
+
+// ── Estado ────────────────────────────────────────────────────────────────────
+let trabajadores = [];   // todos los activos
+let conceptos    = [];   // todos los conceptos
+let cargos       = [];   // catálogo de cargos
+let movimientos  = {};   // { trabajador_id → movimiento_id } para el período
+let searchTerm   = '';
+let filterCargo  = '';
+let procesando   = false;
+
+// ── Inicializar filtros de año ─────────────────────────────────────────────────
+const selAnio = document.getElementById('h-anio');
+for (let y = now.getFullYear() + 1; y >= now.getFullYear() - 2; y--) {
+  selAnio.insertAdjacentHTML('beforeend', `<option value="${y}" ${y === now.getFullYear() ? 'selected' : ''}>${y}</option>`);
+}
+document.getElementById('h-mes').value = now.getMonth() + 1;
+
+// ── Cargar catálogos ──────────────────────────────────────────────────────────
+async function loadCatalogs() {
+  const [wRes, cRes, carRes] = await Promise.allSettled([
+    api.get('/rrhh/trabajadores?size=200&solo_activos=true'),
+    api.get('/nomina/conceptos?size=200'),   // máx permitido es 200
+    api.get('/nomina/cargos?size=200'),
+  ]);
+  trabajadores = wRes.status   === 'fulfilled' ? (wRes.value.items   ?? []) : [];
+  conceptos    = cRes.status   === 'fulfilled' ? (cRes.value.items   ?? cRes.value   ?? []) : [];
+  cargos       = carRes.status === 'fulfilled' ? (carRes.value.items ?? carRes.value ?? []) : [];
+
+  // Poblar select de cargos
+  const selCargo = document.getElementById('filter-cargo');
+  cargos.filter(c => c.es_activo !== false).forEach(c => {
+    selCargo.insertAdjacentHTML('beforeend',
+      `<option value="${c.id}">${c.descripcion}</option>`);
+  });
+
+  filterConceptos();
+  renderWorkers();
+}
+
+// ── Filtrar conceptos por tipo ────────────────────────────────────────────────
+function filterConceptos() {
+  const tipo = document.getElementById('h-tipo').value;
+  const sel  = document.getElementById('h-concepto');
+  const prev = sel.value;
+  const filtered = conceptos.filter(c => c.tipo === tipo);
+  sel.innerHTML = `<option value="">— Seleccionar —</option>` +
+    filtered.map(c => `<option value="${c.id}" data-tipo="${c.tipo}">${c.codigo} — ${c.descripcion}</option>`).join('');
+  if (prev && filtered.some(c => c.id === prev)) sel.value = prev;
+  updateProcesarBtn();
+}
+
+// ── Cargar movimientos del período (para saber cuáles ya existen) ─────────────
+async function loadMovimientosPeriodo() {
+  const anio = parseInt(document.getElementById('h-anio').value);
+  const mes  = parseInt(document.getElementById('h-mes').value);
+  movimientos = {};
+  try {
+    let page = 1, done = false;
+    while (!done) {
+      const data = await api.get(`/nomina/movimientos?anio=${anio}&mes=${mes}&page=${page}&size=100`);
+      (data.items ?? []).forEach(m => { movimientos[m.trabajador_id] = m.id; });
+      done = data.items.length < 100 || (page * 100 >= data.total);
+      page++;
+    }
+  } catch { /* período sin movimientos */ }
+}
+
+// ── Renderizar lista de trabajadores ─────────────────────────────────────────
+function cargoNombre(id) {
+  if (!id) return '—';
+  return cargos.find(c => c.id === id)?.descripcion ?? '—';
+}
+
+function renderWorkers() {
+  const tbody = document.getElementById('tbody-workers');
+  const valorDef = document.getElementById('h-valor').value;
+
+  let lista = trabajadores;
+  if (searchTerm)   lista = lista.filter(w => w.nombre_completo.toLowerCase().includes(searchTerm.toLowerCase()));
+  if (filterCargo)  lista = lista.filter(w => w.cargo_id === filterCargo);
+
+  if (!lista.length) {
+    tbody.innerHTML = `<tr><td colspan="5"><div class="empty-state">
+      <div class="empty-state-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
+      <h3>Sin trabajadores</h3><p>No hay trabajadores activos.</p>
+    </div></td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = lista.map(w => {
+    const tieneMovimiento = !!movimientos[w.id];
+    return `<tr class="worker-row" data-id="${w.id}">
+      <td style="padding-left:12px;">
+        <input type="checkbox" class="chk-worker" data-id="${w.id}"
+               style="width:15px;height:15px;cursor:pointer;">
+      </td>
+      <td>
+        <div class="td-primary">${w.nombre_completo}</div>
+        <div style="font-size:11px;color:var(--text-muted);">${w.rut ?? ''}</div>
+      </td>
+      <td style="font-size:12px;color:var(--text-muted);">${cargoNombre(w.cargo_id)}</td>
+      <td style="text-align:right;">
+        <input type="number" class="valor-input" data-id="${w.id}"
+               value="${valorDef || ''}" min="0" step="1" placeholder="0"
+               ${procesando ? 'disabled' : ''}>
+      </td>
+      <td class="status-cell" id="status-${w.id}">
+        ${tieneMovimiento
+          ? '<span class="st-skip" title="Ya tiene movimiento en este período">·</span>'
+          : ''}
+      </td>
+    </tr>`;
+  }).join('');
+
+  // Eventos checkboxes
+  tbody.querySelectorAll('.chk-worker').forEach(chk => {
+    chk.addEventListener('change', () => {
+      const row = chk.closest('tr');
+      row.classList.toggle('checked-row', chk.checked);
+      syncAllCheck();
+      updateProcesarBtn();
+    });
+  });
+
+  syncCount();
+}
+
+function syncAllCheck() {
+  const all  = [...document.querySelectorAll('.chk-worker')];
+  const chkd = all.filter(c => c.checked).length;
+  const allChk = document.getElementById('chk-all');
+  allChk.checked       = chkd === all.length && all.length > 0;
+  allChk.indeterminate = chkd > 0 && chkd < all.length;
+  syncCount();
+}
+
+function syncCount() {
+  const checked = document.querySelectorAll('.chk-worker:checked').length;
+  document.getElementById('sel-count').textContent =
+    checked ? `${checked} seleccionado${checked !== 1 ? 's' : ''}` : '';
+}
+
+function updateProcesarBtn() {
+  const hasConcepto = !!document.getElementById('h-concepto').value;
+  const hasChecked  = document.querySelectorAll('.chk-worker:checked').length > 0;
+  const btn = document.getElementById('btn-procesar');
+  btn.disabled = !hasConcepto || !hasChecked || procesando;
+  if (hasChecked) {
+    const n = document.querySelectorAll('.chk-worker:checked').length;
+    document.getElementById('btn-procesar-label').textContent = `Procesar ${n} seleccionado${n !== 1 ? 's' : ''}`;
+  } else {
+    document.getElementById('btn-procesar-label').textContent = 'Procesar seleccionados';
+  }
+}
+
+// ── Aplicar valor predeterminado a seleccionados ──────────────────────────────
+document.getElementById('btn-aplicar-valor').addEventListener('click', () => {
+  const val = document.getElementById('h-valor').value;
+  document.querySelectorAll('.chk-worker:checked').forEach(chk => {
+    const input = document.querySelector(`.valor-input[data-id="${chk.dataset.id}"]`);
+    if (input) input.value = val;
+  });
+});
+
+// ── Seleccionar todos ─────────────────────────────────────────────────────────
+document.getElementById('chk-all').addEventListener('change', e => {
+  document.querySelectorAll('.chk-worker').forEach(chk => {
+    chk.checked = e.target.checked;
+    chk.closest('tr').classList.toggle('checked-row', e.target.checked);
+  });
+  syncCount();
+  updateProcesarBtn();
+});
+
+// ── Búsqueda y filtro cargo ───────────────────────────────────────────────────
+document.getElementById('search-worker').addEventListener('input', e => {
+  searchTerm = e.target.value.trim();
+  renderWorkers();
+});
+
+document.getElementById('filter-cargo').addEventListener('change', e => {
+  filterCargo = e.target.value;
+  renderWorkers();
+});
+
+// ── Cambio de tipo → filtrar conceptos ───────────────────────────────────────
+document.getElementById('h-tipo').addEventListener('change', filterConceptos);
+document.getElementById('h-concepto').addEventListener('change', updateProcesarBtn);
+
+// ── Cambio de período → recargar movimientos ──────────────────────────────────
+async function onPeriodChange() {
+  clearStatuses();
+  await loadMovimientosPeriodo();
+  renderWorkers();
+}
+document.getElementById('h-anio').addEventListener('change', onPeriodChange);
+document.getElementById('h-mes').addEventListener('change',  onPeriodChange);
+
+function clearStatuses() {
+  document.querySelectorAll('[id^="status-"]').forEach(el => { el.textContent = ''; });
+  document.getElementById('result-summary').style.display = 'none';
+  document.getElementById('progress-wrap').style.display  = 'none';
+  document.getElementById('progress-bar').style.width     = '0%';
+}
+
+// ── PROCESAR ──────────────────────────────────────────────────────────────────
+document.getElementById('btn-procesar').addEventListener('click', async () => {
+  const conceptoId = document.getElementById('h-concepto').value;
+  const tipoConcepto = document.getElementById('h-tipo').value;
+  if (!conceptoId) { toast.error('Selecciona un concepto.'); return; }
+
+  const seleccionados = [...document.querySelectorAll('.chk-worker:checked')].map(chk => {
+    const wid   = chk.dataset.id;
+    const input = document.querySelector(`.valor-input[data-id="${wid}"]`);
+    return { wid, valor: parseFloat(input?.value) || 0 };
+  }).filter(x => x.valor > 0);
+
+  if (!seleccionados.length) {
+    toast.error('Ningún trabajador seleccionado tiene valor > 0.');
+    return;
+  }
+
+  const anio = parseInt(document.getElementById('h-anio').value);
+  const mes  = parseInt(document.getElementById('h-mes').value);
+
+  procesando = true;
+  const btn = document.getElementById('btn-procesar');
+  setLoading(btn, true);
+  clearStatuses();
+  document.getElementById('progress-wrap').style.display = '';
+
+  let ok = 0, err = 0, idx = 0;
+
+  for (const { wid, valor } of seleccionados) {
+    const statusEl = document.getElementById(`status-${wid}`);
+    if (statusEl) statusEl.innerHTML = '<span class="st-proc">…</span>';
+
+    try {
+      // 1. Obtener o crear movimiento
+      let movId = movimientos[wid];
+      if (!movId) {
+        const mov = await api.post('/nomina/movimientos', {
+          trabajador_id: wid,
+          anio, mes,
+        });
+        movId = mov.id;
+        movimientos[wid] = movId;
+      }
+
+      // 2. Agregar concepto
+      await api.post(`/nomina/movimientos/${movId}/conceptos`, {
+        concepto_id: conceptoId,
+        tipo:        tipoConcepto,
+        valor,
+        cantidad:    1,
+      });
+
+      if (statusEl) statusEl.innerHTML = '<span class="st-ok">✓ Aplicado</span>';
+      ok++;
+    } catch (e) {
+      const msg = e.message ?? 'Error';
+      if (statusEl) statusEl.innerHTML = `<span class="st-err" title="${msg}">✗ Error</span>`;
+      err++;
+    }
+
+    idx++;
+    document.getElementById('progress-bar').style.width = `${Math.round(idx / seleccionados.length * 100)}%`;
+  }
+
+  procesando = false;
+  setLoading(btn, false);
+  updateProcesarBtn();
+
+  // Resumen
+  const sumEl = document.getElementById('result-summary');
+  sumEl.style.display = '';
+  sumEl.innerHTML = `
+    <span style="color:var(--success);font-weight:600;">✓ ${ok} aplicado${ok !== 1 ? 's' : ''}</span>
+    ${err ? `&nbsp;·&nbsp;<span style="color:var(--danger);">✗ ${err} con error</span>` : ''}
+    &nbsp;·&nbsp;
+    <a href="/nomina/movimientos.html" style="color:var(--accent);text-decoration:none;font-size:13px;">
+      Ver en Proceso mensual →
+    </a>`;
+
+  if (ok) toast.success(`${ok} concepto${ok !== 1 ? 's' : ''} aplicado${ok !== 1 ? 's' : ''} correctamente.`);
+  if (err) toast.error(`${err} trabajador${err !== 1 ? 'es' : ''} con error. Revisa los estados en la tabla.`);
+});
+
+// ── Init ──────────────────────────────────────────────────────────────────────
+await loadCatalogs();
+await loadMovimientosPeriodo();
+renderWorkers();
+</script>
+</body>
+</html>

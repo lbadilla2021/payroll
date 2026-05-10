@@ -133,12 +133,64 @@ class RegionService:
             raise HTTPException(status_code=404, detail="Región no encontrada.")
         return obj
 
+    @staticmethod
+    def create(db: Session, data: dict):
+        obj = RegionRepository.create(db, data)
+        db.commit()
+        db.refresh(obj)
+        return obj
+
+    @staticmethod
+    def update(db: Session, region_id: int, data: dict):
+        obj = RegionService.get_or_404(db, region_id)
+        obj = RegionRepository.update(db, obj, data)
+        db.commit()
+        db.refresh(obj)
+        return obj
+
+    @staticmethod
+    def delete(db: Session, region_id: int):
+        obj = RegionService.get_or_404(db, region_id)
+        RegionRepository.delete(db, obj)
+        db.commit()
+
 
 class ComunaService:
 
     @staticmethod
     def list(db: Session, region_id: Optional[int] = None):
         return ComunaRepository.get_all(db, region_id)
+
+    @staticmethod
+    def get_or_404(db: Session, codigo: int):
+        obj = ComunaRepository.get_by_codigo(db, codigo)
+        if not obj:
+            raise HTTPException(status_code=404, detail="Comuna no encontrada.")
+        return obj
+
+    @staticmethod
+    def create(db: Session, data: dict):
+        if ComunaRepository.get_by_codigo(db, data["codigo"]):
+            raise HTTPException(status_code=409,
+                                detail=f"Ya existe una comuna con código {data['codigo']}.")
+        obj = ComunaRepository.create(db, data)
+        db.commit()
+        db.refresh(obj)
+        return obj
+
+    @staticmethod
+    def update(db: Session, codigo: int, data: dict):
+        obj = ComunaService.get_or_404(db, codigo)
+        obj = ComunaRepository.update(db, obj, data)
+        db.commit()
+        db.refresh(obj)
+        return obj
+
+    @staticmethod
+    def delete(db: Session, codigo: int):
+        obj = ComunaService.get_or_404(db, codigo)
+        ComunaRepository.delete(db, obj)
+        db.commit()
 
 
 class TipoMonedaService:

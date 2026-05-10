@@ -10,6 +10,7 @@ Reglas de negocio chilenas aplicadas:
   - Anticipo: se valida que el período no esté cerrado.
 """
 
+from datetime import date
 from decimal import Decimal
 from typing import Optional
 from uuid import UUID
@@ -120,6 +121,22 @@ class ContratoService:
 # MOVIMIENTO MENSUAL
 # ─────────────────────────────────────────────────────────────────────────────
 
+def _dias_no_contratado_de_fecha(fecha_inicio_mov: Optional[date],
+                                  anio: int, mes: int) -> Decimal:
+    """
+    Calcula los días no contratados a partir de la fecha de inicio del movimiento.
+    Solo aplica si la fecha cae dentro del período (mismo año/mes).
+    Usa convención de mes de 30 días del CT: tope del día en 30.
+    Ej: contratado el 26 → 25 días no contratados.
+    """
+    if not fecha_inicio_mov:
+        return Decimal("0")
+    if fecha_inicio_mov.year != anio or fecha_inicio_mov.month != mes:
+        return Decimal("0")
+    dia_inicio = min(fecha_inicio_mov.day, 30)
+    return Decimal(str(max(0, dia_inicio - 1)))
+
+
 class MovimientoMensualService:
 
     @staticmethod
@@ -160,7 +177,15 @@ class MovimientoMensualService:
                        f"en {body.anio}/{body.mes:02d}."
             )
 
-        obj = MovimientoMensualRepository.create(db, tenant_id, body.model_dump())
+        data = body.model_dump()
+        # Si el trabajador ingresa a mitad de mes, calcular días no contratados
+        # automáticamente desde fecha_inicio_mov (tiene precedencia sobre el valor enviado).
+        if body.fecha_inicio_mov:
+            data["dias_no_contratado"] = _dias_no_contratado_de_fecha(
+                body.fecha_inicio_mov, body.anio, body.mes
+            )
+
+        obj = MovimientoMensualRepository.create(db, tenant_id, data)
         db.commit()
         db.refresh(obj)
         return obj
@@ -175,7 +200,13 @@ class MovimientoMensualService:
                 detail="No se puede modificar un movimiento cerrado."
             )
         _verificar_periodo_no_bloqueado(db, tenant_id, obj.anio, obj.mes)
-        updated = MovimientoMensualRepository.update(db, obj, body.model_dump(exclude_unset=True))
+        data = body.model_dump(exclude_unset=True)
+        # Si se actualiza fecha_inicio_mov, recalcular días no contratados.
+        if "fecha_inicio_mov" in data:
+            data["dias_no_contratado"] = _dias_no_contratado_de_fecha(
+                data["fecha_inicio_mov"], obj.anio, obj.mes
+            )
+        updated = MovimientoMensualRepository.update(db, obj, data)
         db.commit()
         db.refresh(updated)
         return updated

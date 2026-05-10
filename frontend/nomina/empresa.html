@@ -1,0 +1,769 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Empresa — Nómina</title>
+  <link rel="stylesheet" href="/static/css/main.css?v=4">
+</head>
+<body data-page="empresa">
+
+<div id="app-shell">
+  <nav class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <div class="brand-mark">N</div>
+      <span class="brand-name">Nómina SaaS</span>
+    </div>
+    <div class="sidebar-nav" id="sidebar-nav"></div>
+    <div class="sidebar-footer">
+      <div class="profile-trigger" id="profile-trigger">
+        <div class="avatar" id="sidebar-avatar">?</div>
+        <div class="profile-info">
+          <div class="profile-name" id="sidebar-name">…</div>
+          <div class="profile-role" id="sidebar-role"></div>
+        </div>
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <div class="profile-menu" id="profile-menu">
+        <div class="menu-item" onclick="window.location.href='/settings.html'">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+          Configuración
+        </div>
+        <div class="menu-item" id="theme-toggle-btn">
+          <svg id="theme-icon-sun" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+          <svg id="theme-icon-moon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none;"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+          <span id="theme-label">Modo oscuro</span>
+        </div>
+        <div class="menu-divider"></div>
+        <div class="menu-item" id="help-btn">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          Ayuda
+        </div>
+        <div class="menu-divider"></div>
+        <div class="menu-item danger" id="logout-btn">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+          Cerrar sesión
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <div class="main-content">
+    <header class="topbar">
+      <span class="topbar-title">Empresa</span>
+      <div class="topbar-spacer"></div>
+      <button class="btn btn-primary btn-sm" id="btn-nuevo" style="display:none;">
+        <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        <span id="btn-nuevo-label">Agregar</span>
+      </button>
+    </header>
+
+    <main class="page-area">
+      <div style="max-width:960px;">
+
+        <div class="tab-bar" id="tab-bar">
+          <button class="tab-btn active" data-tab="config">Configuración</button>
+          <button class="tab-btn" data-tab="sucursales">Sucursales</button>
+          <button class="tab-btn" data-tab="cc">Centros de costo</button>
+          <button class="tab-btn" data-tab="cargos">Cargos</button>
+          <button class="tab-btn" data-tab="tipos-contrato">Tipos de contrato</button>
+        </div>
+
+        <!-- ── Tab Configuración ──────────────────────────────── -->
+        <div class="tab-panel active" id="tab-config">
+          <div class="card">
+            <div class="form-section-title">Representante legal</div>
+            <div class="form-section">
+              <div class="field-group">
+                <label>Nombre representante legal</label>
+                <input type="text" id="cfg-nombre_rep_legal" maxlength="200" placeholder="Nombre completo">
+              </div>
+              <div class="field-group">
+                <label>RUT representante legal</label>
+                <input type="text" id="cfg-rut_rep_legal" maxlength="12" placeholder="12.345.678-9">
+              </div>
+              <div class="field-group">
+                <label>Nombre contador</label>
+                <input type="text" id="cfg-nombre_contador" maxlength="200" placeholder="Nombre completo">
+              </div>
+              <div class="field-group">
+                <label>RUT contador</label>
+                <input type="text" id="cfg-rut_contador" maxlength="12" placeholder="12.345.678-9">
+              </div>
+            </div>
+
+            <div class="form-section-title">Datos empresa</div>
+            <div class="form-section">
+              <div class="field-group" style="grid-column:1/-1">
+                <label>Giro</label>
+                <input type="text" id="cfg-giro" maxlength="200" placeholder="Actividad económica">
+              </div>
+              <div class="field-group">
+                <label>CCAF</label>
+                <select id="cfg-ccaf_id">
+                  <option value="">— Sin CCAF —</option>
+                </select>
+              </div>
+              <div class="field-group">
+                <label>Mutualidad</label>
+                <select id="cfg-mutualidad_id">
+                  <option value="">— Sin mutualidad —</option>
+                </select>
+              </div>
+              <div class="field-group">
+                <label>Modalidad gratificación</label>
+                <select id="cfg-modalidad_gratificacion">
+                  <option value="calculada">Calculada (art. 47)</option>
+                  <option value="informada">Informada</option>
+                  <option value="proporcional">Proporcional</option>
+                  <option value="calculada_dict4232">Calculada Dict. 4232</option>
+                  <option value="no_paga">No paga</option>
+                </select>
+              </div>
+              <div class="field-group">
+                <label>Nro. convenio FUN</label>
+                <input type="text" id="cfg-numero_convenio_fun" maxlength="50">
+              </div>
+            </div>
+
+            <div class="form-section-title">Configuración MAPI / correo</div>
+            <div class="form-section">
+              <div class="field-group">
+                <label>Nombre remitente</label>
+                <input type="text" id="cfg-mapi_nombre_remitente" maxlength="100">
+              </div>
+              <div class="field-group">
+                <label>Email remitente</label>
+                <input type="email" id="cfg-mapi_email_remitente" maxlength="254">
+              </div>
+            </div>
+
+            <div style="display:flex;gap:.75rem;justify-content:flex-end;padding-top:.5rem;">
+              <button class="btn btn-primary" id="btn-guardar-config">Guardar cambios</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── Tab Sucursales ─────────────────────────────────── -->
+        <div class="tab-panel" id="tab-sucursales">
+          <div class="card">
+            <div class="table-wrapper">
+              <table>
+                <thead>
+                  <tr><th>Código</th><th>Nombre</th><th>Dirección</th><th>Teléfono</th><th>Estado</th><th></th></tr>
+                </thead>
+                <tbody id="tbody-sucursales"><tr><td colspan="6" class="empty-msg">Cargando…</td></tr></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── Tab Centros de costo ───────────────────────────── -->
+        <div class="tab-panel" id="tab-cc">
+          <div class="card">
+            <div class="table-wrapper">
+              <table>
+                <thead>
+                  <tr><th>Código</th><th>Descripción</th><th>Cód. Previred</th><th>Estado</th><th></th></tr>
+                </thead>
+                <tbody id="tbody-cc"><tr><td colspan="5" class="empty-msg">Cargando…</td></tr></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── Tab Cargos ─────────────────────────────────────── -->
+        <div class="tab-panel" id="tab-cargos">
+          <div class="card">
+            <div class="table-wrapper">
+              <table>
+                <thead>
+                  <tr><th>Código</th><th>Descripción</th><th>Estado</th><th></th></tr>
+                </thead>
+                <tbody id="tbody-cargos"><tr><td colspan="4" class="empty-msg">Cargando…</td></tr></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── Tab Tipos contrato ─────────────────────────────── -->
+        <div class="tab-panel" id="tab-tipos-contrato">
+          <div class="card">
+            <div class="table-wrapper">
+              <table>
+                <thead>
+                  <tr><th>Código</th><th>Descripción</th><th>Estado</th><th></th></tr>
+                </thead>
+                <tbody id="tbody-tipos-contrato"><tr><td colspan="4" class="empty-msg">Cargando…</td></tr></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- ── Modal Sucursal ───────────────────────────────────────────── -->
+<div class="modal" id="modal-suc" style="max-width:540px;">
+    <div class="modal-header">
+      <h3 id="modal-suc-title">Sucursal</h3>
+      <button class="modal-close" id="modal-suc-close">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="suc-id">
+      <div class="form-section">
+        <div class="field-group">
+          <label>Código <span class="required">*</span></label>
+          <input type="text" id="suc-codigo" maxlength="20" placeholder="Ej: STGO-01">
+        </div>
+        <div class="field-group">
+          <label>Nombre <span class="required">*</span></label>
+          <input type="text" id="suc-nombre" maxlength="100" placeholder="Nombre sucursal">
+        </div>
+        <div class="field-group" style="grid-column:1/-1">
+          <label>Dirección</label>
+          <input type="text" id="suc-direccion" maxlength="200">
+        </div>
+        <div class="field-group">
+          <label>Región</label>
+          <select id="suc-region_id"><option value="">— Seleccionar —</option></select>
+        </div>
+        <div class="field-group">
+          <label>Comuna</label>
+          <select id="suc-comuna_id" disabled><option value="">— Primero región —</option></select>
+        </div>
+        <div class="field-group">
+          <label>Teléfono</label>
+          <input type="text" id="suc-telefono" maxlength="30">
+        </div>
+        <div class="field-group">
+          <label>Código Previred</label>
+          <input type="text" id="suc-codigo_previred" maxlength="20">
+        </div>
+        <div class="field-group">
+          <label>¿Activa?</label>
+          <select id="suc-es_activa">
+            <option value="true">Sí</option>
+            <option value="false">No</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" id="modal-suc-cancel">Cancelar</button>
+      <button class="btn btn-primary" id="modal-suc-save">Guardar</button>
+    </div>
+  </div>
+
+<!-- ── Modal genérico (CC, Cargos, Tipos-contrato) ─────────────── -->
+<div class="modal" id="modal-cat" style="max-width:440px;">
+    <div class="modal-header">
+      <h3 id="modal-cat-title">Registro</h3>
+      <button class="modal-close" id="modal-cat-close">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="cat-id">
+      <div class="field-group" style="margin-bottom:.75rem;">
+        <label>Código <span class="required">*</span></label>
+        <input type="text" id="cat-codigo" maxlength="20" placeholder="Código único">
+      </div>
+      <div class="field-group" style="margin-bottom:.75rem;">
+        <label id="cat-desc-label">Descripción <span class="required">*</span></label>
+        <input type="text" id="cat-descripcion" maxlength="100">
+      </div>
+      <div class="field-group" id="cat-previred-row" style="margin-bottom:.75rem;display:none;">
+        <label>Código Previred</label>
+        <input type="text" id="cat-codigo_previred" maxlength="20">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" id="modal-cat-cancel">Cancelar</button>
+      <button class="btn btn-primary" id="modal-cat-save">Guardar</button>
+    </div>
+  </div>
+
+<script type="module">
+import { requireAuth } from '/static/js/auth.js';
+import { initShellUI } from '/static/js/nav.js';
+import { toast } from '/static/js/toast.js';
+import { openModal as uiOpen, closeModal as uiClose } from '/static/js/ui.js';
+import api from '/static/js/api.js';
+
+const user = await requireAuth();
+initShellUI(user);
+
+// ── Estado ──────────────────────────────────────────────────────
+let empresaId = null;
+let regiones   = [];
+let comunas    = [];
+let ccafList   = [];
+let mutualList = [];
+const tabLoaded = {};
+
+// ── Tab routing ─────────────────────────────────────────────────
+document.getElementById('tab-bar').addEventListener('click', e => {
+  const btn = e.target.closest('.tab-btn');
+  if (!btn) return;
+  const tab = btn.dataset.tab;
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b === btn));
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.toggle('active', p.id === `tab-${tab}`));
+
+  const btnNuevo = document.getElementById('btn-nuevo');
+  const labelNuevo = document.getElementById('btn-nuevo-label');
+  if (tab === 'config') {
+    btnNuevo.style.display = 'none';
+  } else {
+    btnNuevo.style.display = '';
+    const labels = { sucursales:'Nueva sucursal', cc:'Nuevo CC', cargos:'Nuevo cargo', 'tipos-contrato':'Nuevo tipo' };
+    labelNuevo.textContent = labels[tab] || 'Agregar';
+  }
+
+  if (!tabLoaded[tab]) { tabLoaded[tab] = true; loadTab(tab); }
+});
+
+async function loadTab(tab) {
+  if (tab === 'sucursales') await loadSucursales();
+  else if (tab === 'cc')    await loadCC();
+  else if (tab === 'cargos') await loadCargos();
+  else if (tab === 'tipos-contrato') await loadTiposContrato();
+}
+
+// ── Botón Nuevo ─────────────────────────────────────────────────
+document.getElementById('btn-nuevo').addEventListener('click', () => {
+  const active = document.querySelector('.tab-btn.active')?.dataset.tab;
+  if (active === 'sucursales')      openSucModal(null);
+  else if (active === 'cc')         openCatModal(null, ctxCC);
+  else if (active === 'cargos')     openCatModal(null, ctxCargo);
+  else if (active === 'tipos-contrato') openCatModal(null, ctxTipoContrato);
+});
+
+// ──────────────────────────────────────────────────────────────────
+// CONFIGURACIÓN
+// ──────────────────────────────────────────────────────────────────
+async function loadConfig() {
+  const [cfgRes, ccafRes, mutRes] = await Promise.allSettled([
+    api.get('/nomina/empresa'),
+    api.get('/nomina/catalogos/ccaf'),
+    api.get('/nomina/catalogos/mutualidades'),
+  ]);
+
+  if (ccafRes.status === 'fulfilled') {
+    ccafList = ccafRes.value || [];
+    const sel = document.getElementById('cfg-ccaf_id');
+    ccafList.forEach(c => sel.insertAdjacentHTML('beforeend', `<option value="${c.id}">${c.nombre}</option>`));
+  }
+  if (mutRes.status === 'fulfilled') {
+    mutualList = mutRes.value || [];
+    const sel = document.getElementById('cfg-mutualidad_id');
+    mutualList.forEach(m => sel.insertAdjacentHTML('beforeend', `<option value="${m.id}">${m.nombre}</option>`));
+  }
+  if (cfgRes.status === 'fulfilled') {
+    fillConfig(cfgRes.value);
+  } else if (cfgRes.reason?.status === 404) {
+    // No existe aún — formulario vacío
+  } else {
+    toast.error('Error cargando configuración de empresa');
+  }
+}
+
+function fillConfig(cfg) {
+  empresaId = cfg.id;
+  const f = ['nombre_rep_legal','rut_rep_legal','nombre_contador','rut_contador','giro',
+              'numero_convenio_fun','mapi_nombre_remitente','mapi_email_remitente'];
+  f.forEach(k => { const el = document.getElementById(`cfg-${k}`); if (el) el.value = cfg[k] || ''; });
+  const setSelect = (id, val) => { const s = document.getElementById(id); if (s && val) s.value = String(val); };
+  setSelect('cfg-ccaf_id', cfg.ccaf_id);
+  setSelect('cfg-mutualidad_id', cfg.mutualidad_id);
+  setSelect('cfg-modalidad_gratificacion', cfg.modalidad_gratificacion);
+}
+
+document.getElementById('btn-guardar-config').addEventListener('click', async () => {
+  const fields = ['nombre_rep_legal','rut_rep_legal','nombre_contador','rut_contador','giro',
+                  'numero_convenio_fun','mapi_nombre_remitente','mapi_email_remitente'];
+  const body = {};
+  fields.forEach(k => {
+    const val = document.getElementById(`cfg-${k}`)?.value.trim() || null;
+    body[k] = val;
+  });
+  const ccaf = document.getElementById('cfg-ccaf_id').value;
+  body.ccaf_id = ccaf ? parseInt(ccaf) : null;
+  const mut = document.getElementById('cfg-mutualidad_id').value;
+  body.mutualidad_id = mut ? parseInt(mut) : null;
+  body.modalidad_gratificacion = document.getElementById('cfg-modalidad_gratificacion').value;
+
+  const btn = document.getElementById('btn-guardar-config');
+  btn.disabled = true;
+  try {
+    if (empresaId) {
+      const updated = await api.patch('/nomina/empresa', body);
+      fillConfig(updated);
+    } else {
+      const created = await api.put('/nomina/empresa', body);
+      fillConfig(created);
+    }
+    toast.success('Configuración guardada');
+  } catch (e) {
+    toast.error(e.message);
+  } finally {
+    btn.disabled = false;
+  }
+});
+
+// ──────────────────────────────────────────────────────────────────
+// SUCURSALES
+// ──────────────────────────────────────────────────────────────────
+let sucursales = [];
+
+async function loadSucursales() {
+  if (!regiones.length) {
+    try { regiones = await api.get('/nomina/catalogos/regiones'); } catch {}
+  }
+  try {
+    const data = await api.get('/nomina/sucursales?size=200');
+    sucursales = data.items || [];
+    renderSucursales();
+  } catch (e) {
+    toast.error(e.message);
+  }
+}
+
+function renderSucursales() {
+  const tbody = document.getElementById('tbody-sucursales');
+  if (!sucursales.length) { tbody.innerHTML = `<tr><td colspan="6" class="empty-msg">Sin sucursales registradas</td></tr>`; return; }
+  tbody.innerHTML = sucursales.map(s => `
+    <tr>
+      <td>${s.codigo}</td>
+      <td>${s.nombre}</td>
+      <td>${s.direccion || '—'}</td>
+      <td>${s.telefono || '—'}</td>
+      <td><span class="badge ${s.es_activa ? 'badge-success' : 'badge-neutral'}">${s.es_activa ? 'Activa' : 'Inactiva'}</span></td>
+      <td class="actions-cell">
+        <button class="btn-icon" data-action="edit-suc" data-id="${s.id}" title="Editar">
+          <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+        </button>
+      </td>
+    </tr>`).join('');
+}
+
+document.getElementById('tbody-sucursales').addEventListener('click', e => {
+  const btn = e.target.closest('[data-action]');
+  if (!btn) return;
+  if (btn.dataset.action === 'edit-suc') {
+    const suc = sucursales.find(s => s.id === btn.dataset.id);
+    if (suc) openSucModal(suc);
+  }
+});
+
+// ── Modal Sucursal ───────────────────────────────────────────────
+function openSucModal(suc) {
+  document.getElementById('suc-id').value = suc?.id || '';
+  document.getElementById('modal-suc-title').textContent = suc ? 'Editar sucursal' : 'Nueva sucursal';
+  document.getElementById('suc-codigo').value = suc?.codigo || '';
+  document.getElementById('suc-codigo').readOnly = !!suc;
+  document.getElementById('suc-nombre').value = suc?.nombre || '';
+  document.getElementById('suc-direccion').value = suc?.direccion || '';
+  document.getElementById('suc-telefono').value = suc?.telefono || '';
+  document.getElementById('suc-codigo_previred').value = suc?.codigo_previred || '';
+  document.getElementById('suc-es_activa').value = suc ? String(suc.es_activa) : 'true';
+
+  // Poblar regiones
+  const selReg = document.getElementById('suc-region_id');
+  selReg.innerHTML = '<option value="">— Seleccionar —</option>';
+  regiones.forEach(r => selReg.insertAdjacentHTML('beforeend', `<option value="${r.id}">${r.nombre}</option>`));
+  if (suc?.region_id) {
+    selReg.value = String(suc.region_id);
+    loadComunasSuc(suc.region_id, suc.comuna_id);
+  } else {
+    document.getElementById('suc-comuna_id').innerHTML = '<option value="">— Primero región —</option>';
+    document.getElementById('suc-comuna_id').disabled = true;
+  }
+
+  uiOpen('modal-suc');
+}
+
+document.getElementById('suc-region_id').addEventListener('change', function() {
+  if (this.value) loadComunasSuc(parseInt(this.value), null);
+  else { document.getElementById('suc-comuna_id').innerHTML='<option value="">— Primero región —</option>'; document.getElementById('suc-comuna_id').disabled=true; }
+});
+
+async function loadComunasSuc(regionId, selectedId) {
+  const sel = document.getElementById('suc-comuna_id');
+  sel.disabled = true;
+  sel.innerHTML = '<option value="">Cargando…</option>';
+  try {
+    const data = await api.get(`/nomina/catalogos/comunas?region_id=${regionId}`);
+    sel.innerHTML = '<option value="">— Seleccionar —</option>';
+    (data || []).forEach(c => sel.insertAdjacentHTML('beforeend', `<option value="${c.id}">${c.nombre}</option>`));
+    if (selectedId) sel.value = String(selectedId);
+    sel.disabled = false;
+  } catch { sel.innerHTML = '<option value="">Error</option>'; }
+}
+
+document.getElementById('modal-suc-close').addEventListener('click', () => uiClose('modal-suc'));
+document.getElementById('modal-suc-cancel').addEventListener('click', () => uiClose('modal-suc'));
+
+document.getElementById('modal-suc-save').addEventListener('click', async () => {
+  const id = document.getElementById('suc-id').value;
+  const body = {
+    nombre:          document.getElementById('suc-nombre').value.trim(),
+    direccion:       document.getElementById('suc-direccion').value.trim() || null,
+    telefono:        document.getElementById('suc-telefono').value.trim() || null,
+    codigo_previred: document.getElementById('suc-codigo_previred').value.trim() || null,
+    es_activa:       document.getElementById('suc-es_activa').value === 'true',
+  };
+  const regVal = document.getElementById('suc-region_id').value;
+  body.region_id = regVal ? parseInt(regVal) : null;
+  const comVal = document.getElementById('suc-comuna_id').value;
+  body.comuna_id = comVal ? parseInt(comVal) : null;
+
+  if (!body.nombre) { toast.error('El nombre es requerido'); return; }
+
+  const btn = document.getElementById('modal-suc-save');
+  btn.disabled = true;
+  try {
+    if (id) {
+      await api.patch(`/nomina/sucursales/${id}`, body);
+      toast.success('Sucursal actualizada');
+    } else {
+      body.codigo = document.getElementById('suc-codigo').value.trim();
+      if (!body.codigo) { toast.error('El código es requerido'); btn.disabled=false; return; }
+      await api.post('/nomina/sucursales', body);
+      toast.success('Sucursal creada');
+    }
+    uiClose('modal-suc');
+    await loadSucursales();
+  } catch (e) {
+    toast.error(e.message);
+  } finally {
+    btn.disabled = false;
+  }
+});
+
+// ──────────────────────────────────────────────────────────────────
+// MODAL GENÉRICO (CC, Cargos, Tipos contrato)
+// ──────────────────────────────────────────────────────────────────
+let currentCtx = null;
+
+const ctxCC = {
+  endpoint: '/nomina/centros-costo',
+  entityName: 'Centro de costo',
+  labelField: 'descripcion',
+  labelText: 'Descripción',
+  hasPrevired: true,
+  reload: loadCC,
+};
+const ctxCargo = {
+  endpoint: '/nomina/cargos',
+  entityName: 'Cargo',
+  labelField: 'descripcion',
+  labelText: 'Descripción',
+  hasPrevired: false,
+  reload: loadCargos,
+};
+const ctxTipoContrato = {
+  endpoint: '/nomina/tipos-contrato',
+  entityName: 'Tipo de contrato',
+  labelField: 'descripcion',
+  labelText: 'Descripción',
+  hasPrevired: false,
+  reload: loadTiposContrato,
+};
+
+function openCatModal(item, ctx) {
+  currentCtx = ctx;
+  document.getElementById('cat-id').value = item?.id || '';
+  document.getElementById('modal-cat-title').textContent = item ? `Editar ${ctx.entityName.toLowerCase()}` : `Nuevo ${ctx.entityName.toLowerCase()}`;
+  document.getElementById('cat-codigo').value = item?.codigo || '';
+  document.getElementById('cat-codigo').readOnly = !!item;
+  document.getElementById('cat-descripcion').value = item?.[ctx.labelField] || '';
+  document.getElementById('cat-desc-label').innerHTML = `${ctx.labelText} <span class="required">*</span>`;
+  document.getElementById('cat-previred-row').style.display = ctx.hasPrevired ? '' : 'none';
+  document.getElementById('cat-codigo_previred').value = item?.codigo_previred || '';
+  uiOpen('modal-cat');
+}
+
+document.getElementById('modal-cat-close').addEventListener('click', () => uiClose('modal-cat'));
+document.getElementById('modal-cat-cancel').addEventListener('click', () => uiClose('modal-cat'));
+
+document.getElementById('modal-cat-save').addEventListener('click', async () => {
+  if (!currentCtx) return;
+  const id  = document.getElementById('cat-id').value;
+  const desc = document.getElementById('cat-descripcion').value.trim();
+  if (!desc) { toast.error('La descripción es requerida'); return; }
+  const body = { [currentCtx.labelField]: desc };
+  if (currentCtx.hasPrevired) body.codigo_previred = document.getElementById('cat-codigo_previred').value.trim() || null;
+
+  const btn = document.getElementById('modal-cat-save');
+  btn.disabled = true;
+  try {
+    if (id) {
+      await api.patch(`${currentCtx.endpoint}/${id}`, body);
+      toast.success(`${currentCtx.entityName} actualizado`);
+    } else {
+      body.codigo = document.getElementById('cat-codigo').value.trim();
+      if (!body.codigo) { toast.error('El código es requerido'); btn.disabled=false; return; }
+      await api.post(currentCtx.endpoint, body);
+      toast.success(`${currentCtx.entityName} creado`);
+    }
+    uiClose('modal-cat');
+    await currentCtx.reload();
+  } catch (e) {
+    toast.error(e.message);
+  } finally {
+    btn.disabled = false;
+  }
+});
+
+// ── Helper tabla toggle activo ───────────────────────────────────
+async function toggleActivo(endpoint, id, campo, currentVal, reload) {
+  try {
+    await api.patch(`${endpoint}/${id}`, { [campo]: !currentVal });
+    toast.success('Estado actualizado');
+    await reload();
+  } catch (e) { toast.error(e.message); }
+}
+
+// ──────────────────────────────────────────────────────────────────
+// CENTROS DE COSTO
+// ──────────────────────────────────────────────────────────────────
+let ccList = [];
+
+async function loadCC() {
+  try {
+    const data = await api.get('/nomina/centros-costo?size=200');
+    ccList = data.items || [];
+    renderCC();
+  } catch (e) { toast.error(e.message); }
+}
+
+function renderCC() {
+  const tbody = document.getElementById('tbody-cc');
+  if (!ccList.length) { tbody.innerHTML = `<tr><td colspan="5" class="empty-msg">Sin centros de costo</td></tr>`; return; }
+  tbody.innerHTML = ccList.map(c => `
+    <tr>
+      <td>${c.codigo}</td>
+      <td>${c.descripcion}</td>
+      <td>${c.codigo_previred || '—'}</td>
+      <td><span class="badge ${c.es_activo ? 'badge-success' : 'badge-neutral'}">${c.es_activo ? 'Activo' : 'Inactivo'}</span></td>
+      <td class="actions-cell">
+        <button class="btn-icon" data-action="edit-cc" data-id="${c.id}" title="Editar">
+          <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+        </button>
+        <button class="btn-icon" data-action="toggle-cc" data-id="${c.id}" data-val="${c.es_activo}" title="${c.es_activo ? 'Desactivar' : 'Activar'}">
+          <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+        </button>
+      </td>
+    </tr>`).join('');
+}
+
+document.getElementById('tbody-cc').addEventListener('click', e => {
+  const btn = e.target.closest('[data-action]');
+  if (!btn) return;
+  if (btn.dataset.action === 'edit-cc') {
+    const item = ccList.find(c => c.id === btn.dataset.id);
+    if (item) openCatModal(item, ctxCC);
+  } else if (btn.dataset.action === 'toggle-cc') {
+    const item = ccList.find(c => c.id === btn.dataset.id);
+    if (item) toggleActivo('/nomina/centros-costo', item.id, 'es_activo', item.es_activo, loadCC);
+  }
+});
+
+// ──────────────────────────────────────────────────────────────────
+// CARGOS
+// ──────────────────────────────────────────────────────────────────
+let cargosList = [];
+
+async function loadCargos() {
+  try {
+    const data = await api.get('/nomina/cargos?size=200');
+    cargosList = data.items || [];
+    renderCargos();
+  } catch (e) { toast.error(e.message); }
+}
+
+function renderCargos() {
+  const tbody = document.getElementById('tbody-cargos');
+  if (!cargosList.length) { tbody.innerHTML = `<tr><td colspan="4" class="empty-msg">Sin cargos registrados</td></tr>`; return; }
+  tbody.innerHTML = cargosList.map(c => `
+    <tr>
+      <td>${c.codigo}</td>
+      <td>${c.descripcion}</td>
+      <td><span class="badge ${c.es_activo ? 'badge-success' : 'badge-neutral'}">${c.es_activo ? 'Activo' : 'Inactivo'}</span></td>
+      <td class="actions-cell">
+        <button class="btn-icon" data-action="edit-cargo" data-id="${c.id}" title="Editar">
+          <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+        </button>
+        <button class="btn-icon" data-action="toggle-cargo" data-id="${c.id}" data-val="${c.es_activo}" title="${c.es_activo ? 'Desactivar' : 'Activar'}">
+          <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+        </button>
+      </td>
+    </tr>`).join('');
+}
+
+document.getElementById('tbody-cargos').addEventListener('click', e => {
+  const btn = e.target.closest('[data-action]');
+  if (!btn) return;
+  if (btn.dataset.action === 'edit-cargo') {
+    const item = cargosList.find(c => c.id === btn.dataset.id);
+    if (item) openCatModal(item, ctxCargo);
+  } else if (btn.dataset.action === 'toggle-cargo') {
+    const item = cargosList.find(c => c.id === btn.dataset.id);
+    if (item) toggleActivo('/nomina/cargos', item.id, 'es_activo', item.es_activo, loadCargos);
+  }
+});
+
+// ──────────────────────────────────────────────────────────────────
+// TIPOS DE CONTRATO
+// ──────────────────────────────────────────────────────────────────
+let tiposContratoList = [];
+
+async function loadTiposContrato() {
+  try {
+    const data = await api.get('/nomina/tipos-contrato?size=200');
+    tiposContratoList = data.items || [];
+    renderTiposContrato();
+  } catch (e) { toast.error(e.message); }
+}
+
+function renderTiposContrato() {
+  const tbody = document.getElementById('tbody-tipos-contrato');
+  if (!tiposContratoList.length) { tbody.innerHTML = `<tr><td colspan="4" class="empty-msg">Sin tipos de contrato</td></tr>`; return; }
+  tbody.innerHTML = tiposContratoList.map(c => `
+    <tr>
+      <td>${c.codigo}</td>
+      <td>${c.descripcion}</td>
+      <td><span class="badge ${c.es_activo ? 'badge-success' : 'badge-neutral'}">${c.es_activo ? 'Activo' : 'Inactivo'}</span></td>
+      <td class="actions-cell">
+        <button class="btn-icon" data-action="edit-tc" data-id="${c.id}" title="Editar">
+          <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+        </button>
+        <button class="btn-icon" data-action="toggle-tc" data-id="${c.id}" data-val="${c.es_activo}" title="${c.es_activo ? 'Desactivar' : 'Activar'}">
+          <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+        </button>
+      </td>
+    </tr>`).join('');
+}
+
+document.getElementById('tbody-tipos-contrato').addEventListener('click', e => {
+  const btn = e.target.closest('[data-action]');
+  if (!btn) return;
+  if (btn.dataset.action === 'edit-tc') {
+    const item = tiposContratoList.find(c => c.id === btn.dataset.id);
+    if (item) openCatModal(item, ctxTipoContrato);
+  } else if (btn.dataset.action === 'toggle-tc') {
+    const item = tiposContratoList.find(c => c.id === btn.dataset.id);
+    if (item) toggleActivo('/nomina/tipos-contrato', item.id, 'es_activo', item.es_activo, loadTiposContrato);
+  }
+});
+
+// ── Init ─────────────────────────────────────────────────────────
+await loadConfig();
+</script>
+</body>
+</html>

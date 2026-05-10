@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Préstamos — Nómina</title>
+  <link rel="stylesheet" href="/static/css/main.css?v=4">
+</head>
+<body data-page="prestamos">
+
+<div id="app-shell">
+  <nav class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <div class="brand-mark">N</div>
+      <span class="brand-name">Nómina SaaS</span>
+    </div>
+    <div class="sidebar-nav" id="sidebar-nav"></div>
+    <div class="sidebar-footer">
+      <div class="profile-trigger" id="profile-trigger">
+        <div class="avatar" id="sidebar-avatar">?</div>
+        <div class="profile-info">
+          <div class="profile-name" id="sidebar-name">…</div>
+          <div class="profile-role" id="sidebar-role"></div>
+        </div>
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <div class="profile-menu" id="profile-menu">
+        <div class="menu-item" onclick="window.location.href='/settings.html'">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+          Configuración
+        </div>
+        <div class="menu-item" id="theme-toggle-btn">
+          <svg id="theme-icon-sun" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+          <svg id="theme-icon-moon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none;"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+          <span id="theme-label">Modo oscuro</span>
+        </div>
+        <div class="menu-divider"></div>
+        <div class="menu-item" id="help-btn">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          Ayuda
+        </div>
+        <div class="menu-divider"></div>
+        <div class="menu-item danger" id="logout-btn">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+          Cerrar sesión
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <div class="main-content">
+    <header class="topbar">
+      <span class="topbar-title">Préstamos</span>
+      <div class="topbar-spacer"></div>
+      <button class="btn btn-primary btn-sm" id="btn-nuevo">
+        <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Nuevo préstamo
+      </button>
+    </header>
+
+    <main class="page-area">
+      <div style="max-width:1200px;">
+
+        <div class="toolbar" style="margin-bottom:var(--space-4);">
+          <select class="form-input form-select" id="filter-trabajador" style="width:auto;min-width:200px;">
+            <option value="">Todos los trabajadores</option>
+          </select>
+          <select class="form-input form-select" id="filter-estado" style="width:auto;min-width:150px;">
+            <option value="">Todos los estados</option>
+            <option value="activo">Activo</option>
+            <option value="pagado">Pagado</option>
+            <option value="cancelado">Cancelado</option>
+          </select>
+          <span id="total-count" style="font-size:13px;color:var(--text-muted);white-space:nowrap;margin-left:auto;"></span>
+        </div>
+
+        <div class="card">
+          <div class="table-wrapper">
+            <table>
+              <thead>
+                <tr>
+                  <th>Trabajador</th>
+                  <th>Concepto</th>
+                  <th style="text-align:right;">Monto total</th>
+                  <th style="text-align:center;">Cuotas</th>
+                  <th style="text-align:right;">Valor cuota</th>
+                  <th style="text-align:right;">Saldo</th>
+                  <th>Estado</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody id="tbody">
+                <tr><td colspan="8"><div style="padding:40px;text-align:center;"><div class="spinner" style="margin:0 auto;"></div></div></td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="pagination" id="pagination"></div>
+        </div>
+
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- Panel derecho: cuotas del préstamo -->
+<div class="panel" id="panel-prest" style="width:600px;overflow-y:auto;">
+  <div class="panel-header" style="display:flex;align-items:center;justify-content:space-between;padding:var(--space-4);border-bottom:1px solid var(--border);position:sticky;top:0;background:var(--surface);z-index:1;">
+    <div>
+      <div id="pp-title" style="font-size:15px;font-weight:600;"></div>
+      <div id="pp-subtitle" style="font-size:12px;color:var(--text-muted);margin-top:2px;"></div>
+    </div>
+    <div style="display:flex;gap:var(--space-2);">
+      <button class="btn btn-secondary btn-sm" id="pp-pago-anticipado" title="Pago anticipado de cuotas">Pago anticipado</button>
+      <button class="btn btn-danger btn-sm" id="pp-cancelar" title="Cancelar préstamo">Cancelar préstamo</button>
+      <button class="btn btn-ghost btn-sm" id="panel-prest-close">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+  </div>
+  <div style="padding:var(--space-4);">
+    <!-- Info del préstamo -->
+    <div id="pp-info" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:var(--space-3);margin-bottom:var(--space-4);"></div>
+
+    <!-- Tabla de cuotas -->
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:var(--space-3);">
+      <div class="form-section-title" style="margin-bottom:0;">Plan de cuotas</div>
+      <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer;">
+        <input type="checkbox" id="pp-solo-pendientes">
+        Solo pendientes
+      </label>
+    </div>
+    <div id="pp-cuotas">
+      <div style="text-align:center;padding:24px;color:var(--text-muted);font-size:13px;">Cargando cuotas…</div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal nuevo préstamo -->
+<div class="modal" id="modal-prest">
+  <div class="modal-header">
+    <span class="modal-title">Nuevo préstamo</span>
+    <button class="btn btn-ghost btn-sm" id="modal-prest-close">
+      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+  </div>
+  <div class="modal-body">
+    <div class="form-row cols-2">
+      <div class="form-group">
+        <label class="form-label">Trabajador *</label>
+        <select class="form-input form-select" id="prest-trabajador"></select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Concepto de descuento *</label>
+        <select class="form-input form-select" id="prest-concepto"></select>
+      </div>
+    </div>
+    <div class="form-row cols-2">
+      <div class="form-group">
+        <label class="form-label">Monto total *</label>
+        <input class="form-input" id="prest-monto" type="number" min="1" step="1" placeholder="0">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Número de cuotas *</label>
+        <input class="form-input" id="prest-cuotas" type="number" min="1" max="120" step="1" value="12">
+      </div>
+    </div>
+    <div class="form-row cols-2">
+      <div class="form-group">
+        <label class="form-label">Fecha de inicio *</label>
+        <input class="form-input" id="prest-inicio" type="date">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Valor de cuota</label>
+        <input class="form-input" id="prest-valor-cuota" type="number" min="1" step="1" placeholder="Se calcula automáticamente">
+      </div>
+    </div>
+    <div id="prest-preview" style="font-size:13px;color:var(--text-muted);text-align:right;"></div>
+  </div>
+  <div class="modal-footer">
+    <button class="btn btn-secondary" id="modal-prest-cancel">Cancelar</button>
+    <button class="btn btn-primary" id="modal-prest-save">Crear préstamo</button>
+  </div>
+</div>
+
+<!-- Modal pago anticipado -->
+<div class="modal" id="modal-pago-ant">
+  <div class="modal-header">
+    <span class="modal-title">Pago anticipado de cuotas</span>
+    <button class="btn btn-ghost btn-sm" id="modal-pago-ant-close">
+      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+  </div>
+  <div class="modal-body">
+    <p style="font-size:13px;color:var(--text-muted);margin-bottom:var(--space-3);">Selecciona las cuotas a marcar como pagadas de inmediato. Esta acción no se puede deshacer.</p>
+    <div id="pago-ant-cuotas" style="max-height:260px;overflow-y:auto;border:1px solid var(--border);border-radius:6px;"></div>
+    <div class="form-group" style="margin-top:var(--space-3);">
+      <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer;color:var(--text-secondary);">
+        <input type="checkbox" id="pago-ant-mov" checked style="width:15px;height:15px;">
+        Agregar movimiento contable
+      </label>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button class="btn btn-secondary" id="modal-pago-ant-cancel">Cancelar</button>
+    <button class="btn btn-primary" id="modal-pago-ant-save">Confirmar pago</button>
+  </div>
+</div>
+
+<div id="toast-container"></div>
+
+<script type="module">
+import api from '/static/js/api.js?v=4';
+import { requireAuth } from '/static/js/auth.js?v=3';
+import { initTheme, openModal, closeModal, openPanel, closePanel, setLoading, renderPagination, confirm } from '/static/js/ui.js?v=3';
+import { toast } from '/static/js/toast.js?v=3';
+import { initShellUI } from '/static/js/nav.js';
+
+initTheme();
+const user = await requireAuth();
+initShellUI(user);
+
+const MESES = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+const fmtDate = d => d ? new Date(d + 'T00:00:00').toLocaleDateString('es-CL') : '—';
+const fmtCLP  = n => n != null ? `$\u00A0${Number(n).toLocaleString('es-CL')}` : '—';
+const ESTADO_CLASS = { activo:'badge-success', pagado:'badge-neutral', cancelado:'badge-danger' };
+
+let state  = { page: 1, size: 25, trabajador_id: '', estado: '' };
+let cats   = { trabajadores: [], conceptos: [] };
+let currentPrestId = null;
+
+// ── Catálogos ─────────────────────────────────────────────────────────────────
+async function loadCatalogs() {
+  const [t, c] = await Promise.allSettled([
+    api.get('/rrhh/trabajadores?size=200&solo_activos=true'),
+    api.get('/nomina/conceptos?size=200'),
+  ]);
+  cats.trabajadores = t.status === 'fulfilled' ? (t.value.items ?? []) : [];
+  cats.conceptos    = c.status === 'fulfilled' ? (c.value.items ?? c.value ?? []) : [];
+
+  const selW = document.getElementById('filter-trabajador');
+  cats.trabajadores.forEach(w =>
+    selW.insertAdjacentHTML('beforeend', `<option value="${w.id}">${w.nombre_completo}</option>`));
+}
+
+function optHtml(arr, sel, empty='— Seleccionar —') {
+  return `<option value="">${empty}</option>` +
+    arr.map(x => `<option value="${x.id}" ${x.id === sel ? 'selected':''}>${x.nombre ?? x.nombre_completo}</option>`).join('');
+}
+function lookupW(id) {
+  return cats.trabajadores.find(w => w.id === id)?.nombre_completo ?? '—';
+}
+function lookupC(id) {
+  return cats.conceptos.find(c => c.id === id)?.nombre ?? '—';
+}
+
+// ── Lista ─────────────────────────────────────────────────────────────────────
+async function loadList() {
+  const tbody = document.getElementById('tbody');
+  tbody.innerHTML = `<tr><td colspan="8"><div style="padding:32px;text-align:center;"><div class="spinner" style="margin:0 auto;"></div></div></td></tr>`;
+  const p = new URLSearchParams({ page: state.page, size: state.size });
+  if (state.trabajador_id) p.set('trabajador_id', state.trabajador_id);
+  if (state.estado)        p.set('estado', state.estado);
+  try {
+    const data = await api.get(`/nomina/prestamos?${p}`);
+    const items = data.items ?? [];
+    document.getElementById('total-count').textContent =
+      `${data.total} préstamo${data.total !== 1 ? 's' : ''}`;
+    if (!items.length) {
+      tbody.innerHTML = `<tr><td colspan="8"><div class="empty-state">
+        <div class="empty-state-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div>
+        <h3>Sin préstamos</h3><p>No hay préstamos registrados.</p>
+      </div></td></tr>`;
+      renderPagination(document.getElementById('pagination'), { page:1, total:0, size:state.size }, ()=>{});
+      return;
+    }
+    tbody.innerHTML = items.map(p => `
+      <tr style="cursor:pointer;" data-id="${p.id}">
+        <td class="td-primary">${lookupW(p.trabajador_id)}</td>
+        <td style="font-size:13px;color:var(--text-muted);">${lookupC(p.concepto_id)}</td>
+        <td style="text-align:right;font-family:monospace;font-size:13px;">${fmtCLP(p.monto_total)}</td>
+        <td style="text-align:center;font-size:13px;">${p.nro_cuotas}</td>
+        <td style="text-align:right;font-family:monospace;font-size:13px;">${fmtCLP(p.valor_cuota)}</td>
+        <td style="text-align:right;font-family:monospace;font-size:13px;font-weight:600;">${fmtCLP(p.saldo_pendiente)}</td>
+        <td><span class="badge ${ESTADO_CLASS[p.estado] ?? 'badge-neutral'}">${p.estado}</span></td>
+        <td>
+          <button class="btn btn-ghost btn-sm btn-cuotas" data-id="${p.id}" title="Ver cuotas">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+          </button>
+        </td>
+      </tr>`).join('');
+
+    tbody.querySelectorAll('tr[data-id]').forEach(row =>
+      row.addEventListener('click', e => {
+        if (e.target.closest('.btn-cuotas')) return;
+        openPrestPanel(row.dataset.id);
+      }));
+    tbody.querySelectorAll('.btn-cuotas').forEach(btn =>
+      btn.addEventListener('click', e => { e.stopPropagation(); openPrestPanel(btn.dataset.id); }));
+
+    renderPagination(document.getElementById('pagination'),
+      { page: data.page, total: data.total, size: data.size },
+      pg => { state.page = pg; loadList(); });
+  } catch (err) {
+    tbody.innerHTML = `<tr><td colspan="8"><div class="empty-state"><div class="empty-state-icon">⚠</div><h3>Error</h3><p>${err.message}</p></div></td></tr>`;
+  }
+}
+
+// ── Panel cuotas ──────────────────────────────────────────────────────────────
+async function openPrestPanel(id) {
+  currentPrestId = id;
+  document.getElementById('pp-title').textContent    = 'Cargando…';
+  document.getElementById('pp-subtitle').textContent = '';
+  document.getElementById('pp-info').innerHTML       = '';
+  document.getElementById('pp-cuotas').innerHTML     =
+    '<div style="text-align:center;padding:24px;color:var(--text-muted);font-size:13px;">Cargando cuotas…</div>';
+  openPanel('panel-prest');
+  await refreshPanel(id);
+}
+
+async function refreshPanel(id) {
+  const soloPend = document.getElementById('pp-solo-pendientes')?.checked ?? false;
+  try {
+    const [prest, cuotas] = await Promise.all([
+      api.get(`/nomina/prestamos/${id}`),
+      api.get(`/nomina/prestamos/${id}/cuotas?solo_pendientes=${soloPend}`),
+    ]);
+    document.getElementById('pp-title').textContent = lookupW(prest.trabajador_id);
+    document.getElementById('pp-subtitle').textContent =
+      `${lookupC(prest.concepto_id)} · Inicio: ${fmtDate(prest.fecha_inicio)} · ${prest.estado}`;
+
+    const statBox = (label, val, color='') => `
+      <div style="text-align:center;padding:var(--space-2);background:var(--surface-2,var(--border));border-radius:6px;">
+        <div style="font-size:11px;color:var(--text-muted);margin-bottom:2px;">${label}</div>
+        <div style="font-size:14px;font-weight:700;${color?'color:'+color:''}">${val}</div>
+      </div>`;
+    document.getElementById('pp-info').innerHTML =
+      statBox('Monto total', fmtCLP(prest.monto_total)) +
+      statBox('Cuota mensual', fmtCLP(prest.valor_cuota)) +
+      statBox('Saldo pendiente', fmtCLP(prest.saldo_pendiente), prest.saldo_pendiente > 0 ? 'var(--warning)' : 'var(--success)');
+
+    document.getElementById('pp-cancelar').style.display =
+      prest.estado === 'activo' ? 'inline-flex' : 'none';
+
+    renderCuotas(cuotas);
+  } catch (err) { toast.error(err.message); }
+}
+
+function renderCuotas(cuotas) {
+  const sec = document.getElementById('pp-cuotas');
+  if (!cuotas.length) {
+    sec.innerHTML = '<div style="text-align:center;padding:16px;color:var(--text-muted);font-size:13px;">Sin cuotas para mostrar.</div>';
+    return;
+  }
+  sec.innerHTML = `
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th style="text-align:center;">Nro.</th>
+            <th>Período</th>
+            <th style="text-align:right;">Monto</th>
+            <th style="text-align:center;">Procesar</th>
+            <th>Estado</th>
+            <th>Fecha pago</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${cuotas.map(c => `
+          <tr>
+            <td style="text-align:center;font-size:13px;color:var(--text-muted);">${c.nro_cuota}</td>
+            <td style="font-size:13px;">${MESES[c.mes-1]} ${c.anio}</td>
+            <td style="text-align:right;font-family:monospace;font-size:13px;">${fmtCLP(c.monto)}</td>
+            <td style="text-align:center;">
+              <input type="checkbox" data-cuota-id="${c.id}" class="chk-procesar"
+                ${c.procesar ? 'checked' : ''} ${c.pagada ? 'disabled' : ''}
+                style="width:15px;height:15px;cursor:${c.pagada?'not-allowed':'pointer'};">
+            </td>
+            <td>
+              <span class="badge ${c.pagada ? 'badge-success' : c.procesar ? 'badge-warning' : 'badge-neutral'}">
+                ${c.pagada ? 'Pagada' : c.procesar ? 'A procesar' : 'Pendiente'}
+              </span>
+            </td>
+            <td style="font-size:12px;color:var(--text-muted);">${fmtDate(c.fecha_pago)}</td>
+          </tr>`).join('')}
+        </tbody>
+      </table>
+    </div>`;
+
+  sec.querySelectorAll('.chk-procesar').forEach(chk =>
+    chk.addEventListener('change', async () => {
+      try {
+        await api.patch(`/nomina/prestamos/${currentPrestId}/cuotas/${chk.dataset.cuotaId}`,
+          { procesar: chk.checked });
+        toast.success(chk.checked ? 'Cuota marcada para procesar.' : 'Cuota desmarcada.');
+      } catch (err) {
+        toast.error(err.message);
+        chk.checked = !chk.checked; // revert
+      }
+    }));
+}
+
+// Cancelar préstamo
+document.getElementById('pp-cancelar').addEventListener('click', async () => {
+  if (!await confirm('¿Cancelar este préstamo? Las cuotas pendientes se marcarán como no procesadas.', 'Cancelar préstamo')) return;
+  const btn = document.getElementById('pp-cancelar');
+  setLoading(btn, true);
+  try {
+    await api.patch(`/nomina/prestamos/${currentPrestId}/cancelar`, {});
+    toast.success('Préstamo cancelado.');
+    loadList();
+    refreshPanel(currentPrestId);
+  } catch (err) { toast.error(err.message); }
+  finally { setLoading(btn, false); }
+});
+
+// Pago anticipado
+document.getElementById('pp-pago-anticipado').addEventListener('click', async () => {
+  try {
+    const cuotas = await api.get(`/nomina/prestamos/${currentPrestId}/cuotas?solo_pendientes=true`);
+    const pendientes = cuotas.filter(c => !c.pagada);
+    if (!pendientes.length) { toast.info('No hay cuotas pendientes.'); return; }
+    document.getElementById('pago-ant-cuotas').innerHTML = `
+      <table style="width:100%;border-collapse:collapse;">
+        <thead style="position:sticky;top:0;background:var(--surface);">
+          <tr>
+            <th style="padding:8px 12px;text-align:left;font-size:12px;font-weight:600;border-bottom:1px solid var(--border);">
+              <label style="display:flex;align-items:center;gap:6px;cursor:pointer;">
+                <input type="checkbox" id="pago-ant-all" style="width:14px;height:14px;">
+                Nro.
+              </label>
+            </th>
+            <th style="padding:8px 12px;font-size:12px;font-weight:600;border-bottom:1px solid var(--border);">Período</th>
+            <th style="padding:8px 12px;text-align:right;font-size:12px;font-weight:600;border-bottom:1px solid var(--border);">Monto</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${pendientes.map(c => `
+          <tr>
+            <td style="padding:8px 12px;border-bottom:1px solid var(--border);">
+              <label style="display:flex;align-items:center;gap:6px;cursor:pointer;">
+                <input type="checkbox" class="chk-cuota-ant" data-nro="${c.nro_cuota}" style="width:14px;height:14px;">
+                ${c.nro_cuota}
+              </label>
+            </td>
+            <td style="padding:8px 12px;font-size:13px;border-bottom:1px solid var(--border);">${MESES[c.mes-1]} ${c.anio}</td>
+            <td style="padding:8px 12px;text-align:right;font-family:monospace;font-size:13px;border-bottom:1px solid var(--border);">${fmtCLP(c.monto)}</td>
+          </tr>`).join('')}
+        </tbody>
+      </table>`;
+    document.getElementById('pago-ant-all').addEventListener('change', e => {
+      document.querySelectorAll('.chk-cuota-ant').forEach(c => c.checked = e.target.checked);
+    });
+    openModal('modal-pago-ant');
+  } catch (err) { toast.error(err.message); }
+});
+
+document.getElementById('modal-pago-ant-save').addEventListener('click', async () => {
+  const btn = document.getElementById('modal-pago-ant-save');
+  const checked = [...document.querySelectorAll('.chk-cuota-ant:checked')].map(c => parseInt(c.dataset.nro));
+  if (!checked.length) { toast.error('Selecciona al menos una cuota.'); return; }
+  setLoading(btn, true);
+  try {
+    await api.post(`/nomina/prestamos/${currentPrestId}/pago-anticipado`, {
+      nro_cuotas: checked,
+      agregar_movimiento: document.getElementById('pago-ant-mov').checked,
+    });
+    toast.success(`${checked.length} cuota${checked.length !== 1 ? 's' : ''} marcada${checked.length !== 1 ? 's' : ''} como pagada${checked.length !== 1 ? 's' : ''}.`);
+    closeModal('modal-pago-ant');
+    loadList();
+    refreshPanel(currentPrestId);
+  } catch (err) { toast.error(err.message); }
+  finally { setLoading(btn, false); }
+});
+document.getElementById('modal-pago-ant-close').addEventListener('click',  () => closeModal('modal-pago-ant'));
+document.getElementById('modal-pago-ant-cancel').addEventListener('click', () => closeModal('modal-pago-ant'));
+
+document.getElementById('pp-solo-pendientes').addEventListener('change', () => refreshPanel(currentPrestId));
+document.getElementById('panel-prest-close').addEventListener('click', () => closePanel('panel-prest'));
+
+// ── Modal nuevo préstamo ──────────────────────────────────────────────────────
+function updatePreview() {
+  const monto  = parseFloat(document.getElementById('prest-monto').value) || 0;
+  const cuotas = parseInt(document.getElementById('prest-cuotas').value) || 0;
+  const valCuota = parseFloat(document.getElementById('prest-valor-cuota').value);
+  if (monto && cuotas) {
+    const calculado = valCuota || Math.round(monto / cuotas);
+    document.getElementById('prest-preview').textContent =
+      `Cuota calculada: ${fmtCLP(calculado)} × ${cuotas} cuotas`;
+  } else {
+    document.getElementById('prest-preview').textContent = '';
+  }
+}
+
+document.getElementById('btn-nuevo').addEventListener('click', () => {
+  document.getElementById('prest-trabajador').innerHTML = optHtml(cats.trabajadores, null);
+  document.getElementById('prest-concepto').innerHTML   = optHtml(cats.conceptos, null);
+  document.getElementById('prest-monto').value       = '';
+  document.getElementById('prest-cuotas').value      = '12';
+  document.getElementById('prest-inicio').value      = new Date().toISOString().slice(0,10);
+  document.getElementById('prest-valor-cuota').value = '';
+  document.getElementById('prest-preview').textContent = '';
+  openModal('modal-prest');
+});
+['prest-monto','prest-cuotas','prest-valor-cuota'].forEach(id =>
+  document.getElementById(id).addEventListener('input', updatePreview));
+document.getElementById('modal-prest-close').addEventListener('click', () => closeModal('modal-prest'));
+document.getElementById('modal-prest-cancel').addEventListener('click', () => closeModal('modal-prest'));
+document.getElementById('modal-prest-save').addEventListener('click', async () => {
+  const btn = document.getElementById('modal-prest-save');
+  const trabajador_id = document.getElementById('prest-trabajador').value;
+  const concepto_id   = document.getElementById('prest-concepto').value;
+  const monto_total   = parseFloat(document.getElementById('prest-monto').value);
+  const nro_cuotas    = parseInt(document.getElementById('prest-cuotas').value);
+  const fecha_inicio  = document.getElementById('prest-inicio').value;
+  if (!trabajador_id)       { toast.error('Selecciona un trabajador.'); return; }
+  if (!concepto_id)         { toast.error('Selecciona un concepto de descuento.'); return; }
+  if (!monto_total || monto_total <= 0) { toast.error('Ingresa un monto válido.'); return; }
+  if (!nro_cuotas  || nro_cuotas <= 0) { toast.error('Ingresa el número de cuotas.'); return; }
+  if (!fecha_inicio)        { toast.error('Ingresa la fecha de inicio.'); return; }
+  const vc = parseFloat(document.getElementById('prest-valor-cuota').value);
+  setLoading(btn, true);
+  try {
+    const nuevo = await api.post('/nomina/prestamos', {
+      trabajador_id, concepto_id, monto_total, nro_cuotas, fecha_inicio,
+      valor_cuota: vc > 0 ? vc : undefined,
+    });
+    toast.success('Préstamo creado con plan de cuotas.');
+    closeModal('modal-prest');
+    loadList();
+    openPrestPanel(nuevo.id);
+  } catch (err) { toast.error(err.message); }
+  finally { setLoading(btn, false); }
+});
+
+// ── Filtros ───────────────────────────────────────────────────────────────────
+document.getElementById('filter-trabajador').addEventListener('change', e => {
+  state.trabajador_id = e.target.value; state.page = 1; loadList();
+});
+document.getElementById('filter-estado').addEventListener('change', e => {
+  state.estado = e.target.value; state.page = 1; loadList();
+});
+
+// ── Init ──────────────────────────────────────────────────────────────────────
+await loadCatalogs();
+loadList();
+</script>
+</body>
+</html>

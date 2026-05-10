@@ -136,6 +136,27 @@ class RegionRepository:
     def get_by_id(db: Session, region_id: int) -> Optional[Region]:
         return db.query(Region).filter(Region.id == region_id).first()
 
+    @staticmethod
+    def create(db: Session, data: dict) -> Region:
+        obj = Region(**data)
+        db.add(obj)
+        db.flush()
+        db.refresh(obj)
+        return obj
+
+    @staticmethod
+    def update(db: Session, obj: Region, data: dict) -> Region:
+        for k, v in data.items():
+            setattr(obj, k, v)
+        db.flush()
+        db.refresh(obj)
+        return obj
+
+    @staticmethod
+    def delete(db: Session, obj: Region) -> None:
+        db.delete(obj)
+        db.flush()
+
 
 class ComunaRepository:
 
@@ -149,6 +170,27 @@ class ComunaRepository:
     @staticmethod
     def get_by_codigo(db: Session, codigo: int) -> Optional[Comuna]:
         return db.query(Comuna).filter(Comuna.codigo == codigo).first()
+
+    @staticmethod
+    def create(db: Session, data: dict) -> Comuna:
+        obj = Comuna(**data)
+        db.add(obj)
+        db.flush()
+        db.refresh(obj)
+        return obj
+
+    @staticmethod
+    def update(db: Session, obj: Comuna, data: dict) -> Comuna:
+        for k, v in data.items():
+            setattr(obj, k, v)
+        db.flush()
+        db.refresh(obj)
+        return obj
+
+    @staticmethod
+    def delete(db: Session, obj: Comuna) -> None:
+        db.delete(obj)
+        db.flush()
 
 
 class TipoMonedaRepository:

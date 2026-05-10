@@ -29,7 +29,7 @@ from modulos.nomina.schemas import (
     CargoCreate, CargoList, CargoRead, CargoUpdate,
     CentroCostoCreate, CentroCostoList, CentroCostoRead, CentroCostoUpdate,
     ClausulaAdicionalCreate, ClausulaAdicionalList, ClausulaAdicionalRead, ClausulaAdicionalUpdate,
-    ComunaRead,
+    ComunaCreate, ComunaRead, ComunaUpdate,
     ConceptoRemuneracionCreate, ConceptoRemuneracionList,
     ConceptoRemuneracionRead, ConceptoRemuneracionUpdate,
     EmpresaConfigCreate, EmpresaConfigRead, EmpresaConfigUpdate,
@@ -37,7 +37,7 @@ from modulos.nomina.schemas import (
     IsapreRead, IsapreUpdate,
     MutualidadRead,
     ParametroMensualCreate, ParametroMensualList, ParametroMensualRead, ParametroMensualUpdate,
-    RegionRead,
+    RegionCreate, RegionRead, RegionUpdate,
     ServMedCchcCreate, ServMedCchcRead, ServMedCchcUpdate,
     SucursalCreate, SucursalList, SucursalRead, SucursalUpdate,
     TipoContratoCreate, TipoContratoList, TipoContratoRead, TipoContratoUpdate,
@@ -234,6 +234,36 @@ def list_regiones(
             for i in RegionService.list(db, solo_zona_extrema)]
 
 
+@router_geo.post("/regiones", response_model=RegionRead, status_code=status.HTTP_201_CREATED)
+def create_region(
+    body: RegionCreate,
+    db: Session = Depends(get_db),
+    _: User = Depends(require_superadmin),
+):
+    return RegionRead.model_validate(RegionService.create(db, body.model_dump()))
+
+
+@router_geo.patch("/regiones/{region_id}", response_model=RegionRead)
+def update_region(
+    region_id: int,
+    body: RegionUpdate,
+    db: Session = Depends(get_db),
+    _: User = Depends(require_superadmin),
+):
+    return RegionRead.model_validate(
+        RegionService.update(db, region_id, body.model_dump(exclude_unset=True))
+    )
+
+
+@router_geo.delete("/regiones/{region_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_region(
+    region_id: int,
+    db: Session = Depends(get_db),
+    _: User = Depends(require_superadmin),
+):
+    RegionService.delete(db, region_id)
+
+
 @router_geo.get("/regiones/{region_id}/comunas", response_model=list[ComunaRead])
 def list_comunas_por_region(
     region_id: int,
@@ -251,6 +281,36 @@ def list_comunas(
     _: User = Depends(get_current_user),
 ):
     return [ComunaRead.model_validate(i) for i in ComunaService.list(db, region_id)]
+
+
+@router_geo.post("/comunas", response_model=ComunaRead, status_code=status.HTTP_201_CREATED)
+def create_comuna(
+    body: ComunaCreate,
+    db: Session = Depends(get_db),
+    _: User = Depends(require_superadmin),
+):
+    return ComunaRead.model_validate(ComunaService.create(db, body.model_dump()))
+
+
+@router_geo.patch("/comunas/{codigo}", response_model=ComunaRead)
+def update_comuna(
+    codigo: int,
+    body: ComunaUpdate,
+    db: Session = Depends(get_db),
+    _: User = Depends(require_superadmin),
+):
+    return ComunaRead.model_validate(
+        ComunaService.update(db, codigo, body.model_dump(exclude_unset=True))
+    )
+
+
+@router_geo.delete("/comunas/{codigo}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_comuna(
+    codigo: int,
+    db: Session = Depends(get_db),
+    _: User = Depends(require_superadmin),
+):
+    ComunaService.delete(db, codigo)
 
 
 # ─────────────────────────────────────────────────────────────────────────────

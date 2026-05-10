@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Contratos — Nómina</title>
+  <link rel="stylesheet" href="/static/css/main.css?v=4">
+</head>
+<body data-page="contratos">
+
+<div id="app-shell">
+  <nav class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <div class="brand-mark">N</div>
+      <span class="brand-name">Nómina SaaS</span>
+    </div>
+    <div class="sidebar-nav" id="sidebar-nav"></div>
+    <div class="sidebar-footer">
+      <div class="profile-trigger" id="profile-trigger">
+        <div class="avatar" id="sidebar-avatar">?</div>
+        <div class="profile-info">
+          <div class="profile-name" id="sidebar-name">…</div>
+          <div class="profile-role" id="sidebar-role"></div>
+        </div>
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <div class="profile-menu" id="profile-menu">
+        <div class="menu-item" onclick="window.location.href='/settings.html'">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+          Configuración
+        </div>
+        <div class="menu-item" id="theme-toggle-btn">
+          <svg id="theme-icon-sun" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+          <svg id="theme-icon-moon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none;"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+          <span id="theme-label">Modo oscuro</span>
+        </div>
+        <div class="menu-divider"></div>
+        <div class="menu-item" id="help-btn">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          Ayuda
+        </div>
+        <div class="menu-divider"></div>
+        <div class="menu-item danger" id="logout-btn">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+          Cerrar sesión
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <div class="main-content">
+    <header class="topbar">
+      <span class="topbar-title">Contratos</span>
+      <div class="topbar-spacer"></div>
+      <button class="btn btn-primary btn-sm" id="btn-nuevo">
+        <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Nuevo contrato
+      </button>
+    </header>
+
+    <main class="page-area">
+      <div style="max-width:1200px;">
+
+        <div class="toolbar" style="margin-bottom:var(--space-4);">
+          <select class="form-input form-select" id="filter-trabajador" style="width:auto;min-width:200px;">
+            <option value="">Todos los trabajadores</option>
+          </select>
+          <select class="form-input form-select" id="filter-estado" style="width:auto;min-width:150px;">
+            <option value="">Todos los estados</option>
+            <option value="vigente">Vigente</option>
+            <option value="finiquitado">Finiquitado</option>
+            <option value="vencido">Vencido</option>
+          </select>
+          <span id="total-count" style="font-size:13px;color:var(--text-muted);white-space:nowrap;"></span>
+        </div>
+
+        <div class="card">
+          <div class="table-wrapper">
+            <table>
+              <thead>
+                <tr>
+                  <th>Nro. Contrato</th>
+                  <th>Trabajador</th>
+                  <th>Tipo</th>
+                  <th>Inicio</th>
+                  <th>Término</th>
+                  <th>Estado</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody id="tbody">
+                <tr><td colspan="7"><div style="padding:40px;text-align:center;"><div class="spinner" style="margin:0 auto;"></div></div></td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="pagination" id="pagination"></div>
+        </div>
+
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- Modal crear / editar contrato -->
+<div class="modal" id="modal-contrato">
+  <div class="modal-header">
+    <span class="modal-title" id="modal-title">Nuevo contrato</span>
+    <button class="btn btn-ghost btn-sm" id="modal-close">
+      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+  </div>
+  <div class="modal-body">
+    <div class="form-row cols-2">
+      <div class="form-group">
+        <label class="form-label">Trabajador *</label>
+        <select class="form-input form-select" id="f-trabajador"></select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Nro. de contrato</label>
+        <input class="form-input" id="f-nro" type="text" maxlength="20" placeholder="Ej: C-2026-001">
+      </div>
+    </div>
+    <div class="form-row cols-2">
+      <div class="form-group">
+        <label class="form-label">Tipo de contrato</label>
+        <select class="form-input form-select" id="f-tipo"></select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Cargo</label>
+        <select class="form-input form-select" id="f-cargo"></select>
+      </div>
+    </div>
+    <div class="form-row cols-2">
+      <div class="form-group">
+        <label class="form-label">Sucursal</label>
+        <select class="form-input form-select" id="f-sucursal"></select>
+      </div>
+      <div class="form-group">
+        <!-- reserved -->
+      </div>
+    </div>
+    <div class="form-row cols-2">
+      <div class="form-group">
+        <label class="form-label">Fecha de inicio *</label>
+        <input class="form-input" id="f-inicio" type="date">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Fecha de término</label>
+        <input class="form-input" id="f-termino" type="date">
+      </div>
+    </div>
+    <div class="form-row cols-2">
+      <div class="form-group">
+        <label class="form-label">Labor</label>
+        <input class="form-input" id="f-labor" type="text" maxlength="200" placeholder="Descripción de la labor">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Fecha de emisión</label>
+        <input class="form-input" id="f-emision" type="date">
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Observaciones</label>
+      <textarea class="form-input" id="f-obs" rows="2" placeholder="Notas adicionales…" style="resize:vertical;"></textarea>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button class="btn btn-secondary" id="modal-cancel">Cancelar</button>
+    <button class="btn btn-primary" id="modal-save">Crear contrato</button>
+  </div>
+</div>
+
+<div id="toast-container"></div>
+
+<script type="module">
+import api from '/static/js/api.js?v=4';
+import { requireAuth } from '/static/js/auth.js?v=3';
+import { initTheme, openModal, closeModal, setLoading, renderPagination, confirm } from '/static/js/ui.js?v=3';
+import { toast } from '/static/js/toast.js?v=3';
+import { initShellUI } from '/static/js/nav.js';
+
+initTheme();
+const user = await requireAuth();
+initShellUI(user);
+
+const fmtDate = d => d ? new Date(d + 'T00:00:00').toLocaleDateString('es-CL') : '—';
+const ESTADO_CLASS = { vigente: 'badge-success', finiquitado: 'badge-neutral', vencido: 'badge-warning' };
+
+let state = { page: 1, size: 25, trabajador_id: '', estado: '' };
+let cats  = { trabajadores: [], cargos: [], sucursales: [], tipos: [] };
+let editId = null;
+
+// ── Catálogos ─────────────────────────────────────────────────────────────────
+async function loadCatalogs() {
+  const [t, c, s, tc] = await Promise.allSettled([
+    api.get('/rrhh/trabajadores?size=500&solo_activos=true'),
+    api.get('/nomina/cargos?size=200'),
+    api.get('/nomina/sucursales?size=200'),
+    api.get('/nomina/tipos-contrato?size=200'),
+  ]);
+  cats.trabajadores = t.status === 'fulfilled' ? (t.value.items ?? []) : [];
+  cats.cargos       = c.status === 'fulfilled' ? (c.value.items ?? c.value ?? []) : [];
+  cats.sucursales   = s.status === 'fulfilled' ? (s.value.items ?? s.value ?? []) : [];
+  cats.tipos        = tc.status === 'fulfilled' ? (tc.value.items ?? tc.value ?? []) : [];
+
+  const selW = document.getElementById('filter-trabajador');
+  cats.trabajadores.forEach(w =>
+    selW.insertAdjacentHTML('beforeend', `<option value="${w.id}">${w.nombre_completo}</option>`));
+}
+
+function optHtml(arr, sel, empty = '— Seleccionar —') {
+  return `<option value="">${empty}</option>` +
+    arr.map(x => `<option value="${x.id}" ${x.id === sel ? 'selected' : ''}>${x.nombre ?? x.nombre_completo ?? x.descripcion}</option>`).join('');
+}
+function lookup(arr, id) {
+  if (!id) return '—';
+  const x = arr.find(a => a.id === id);
+  return x ? (x.nombre ?? x.nombre_completo) : '—';
+}
+
+// ── Lista ─────────────────────────────────────────────────────────────────────
+async function loadList() {
+  const tbody = document.getElementById('tbody');
+  tbody.innerHTML = `<tr><td colspan="7"><div style="padding:32px;text-align:center;"><div class="spinner" style="margin:0 auto;"></div></div></td></tr>`;
+  const p = new URLSearchParams({ page: state.page, size: state.size });
+  if (state.trabajador_id) p.set('trabajador_id', state.trabajador_id);
+  if (state.estado)        p.set('estado', state.estado);
+  try {
+    const data = await api.get(`/nomina/contratos?${p}`);
+    const items = data.items ?? [];
+    document.getElementById('total-count').textContent =
+      `${data.total} contrato${data.total !== 1 ? 's' : ''}`;
+    if (!items.length) {
+      tbody.innerHTML = `<tr><td colspan="7"><div class="empty-state">
+        <div class="empty-state-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></div>
+        <h3>Sin contratos</h3><p>Crea el primer contrato para comenzar.</p>
+      </div></td></tr>`;
+      renderPagination(document.getElementById('pagination'), { page:1, total:0, size:state.size }, ()=>{});
+      return;
+    }
+    tbody.innerHTML = items.map(c => `
+      <tr style="cursor:pointer;" data-id="${c.id}">
+        <td><span style="font-family:monospace;font-size:12px;">${c.nro_contrato ?? '—'}</span></td>
+        <td class="td-primary">${lookup(cats.trabajadores, c.trabajador_id)}</td>
+        <td style="font-size:13px;color:var(--text-muted);">—</td>
+        <td>${fmtDate(c.fecha_inicio)}</td>
+        <td>${fmtDate(c.fecha_termino)}</td>
+        <td><span class="badge ${ESTADO_CLASS[c.estado] ?? 'badge-neutral'}">${c.estado}</span></td>
+        <td style="white-space:nowrap;">
+          <button class="btn btn-ghost btn-sm btn-edit" data-id="${c.id}" title="Editar">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+          </button>
+          ${c.estado === 'vigente' ? `
+          <button class="btn btn-ghost btn-sm btn-finalizar" data-id="${c.id}" title="Finalizar contrato">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+          </button>` : ''}
+        </td>
+      </tr>`).join('');
+
+    tbody.querySelectorAll('tr[data-id]').forEach(row =>
+      row.addEventListener('click', () => openEdit(row.dataset.id)));
+    tbody.querySelectorAll('.btn-edit').forEach(btn =>
+      btn.addEventListener('click', e => { e.stopPropagation(); openEdit(btn.dataset.id); }));
+    tbody.querySelectorAll('.btn-finalizar').forEach(btn =>
+      btn.addEventListener('click', async e => {
+        e.stopPropagation();
+        if (!await confirm('¿Marcar este contrato como finiquitado? Esta acción no se puede deshacer.', 'Finalizar contrato')) return;
+        try {
+          await api.patch(`/nomina/contratos/${btn.dataset.id}/finalizar`, {});
+          toast.success('Contrato finalizado.');
+          loadList();
+        } catch (err) { toast.error(err.message); }
+      }));
+
+    renderPagination(document.getElementById('pagination'),
+      { page: data.page, total: data.total, size: data.size },
+      pg => { state.page = pg; loadList(); });
+  } catch (err) {
+    tbody.innerHTML = `<tr><td colspan="7"><div class="empty-state"><div class="empty-state-icon">⚠</div><h3>Error al cargar</h3><p>${err.message}</p></div></td></tr>`;
+  }
+}
+
+// ── Modal ─────────────────────────────────────────────────────────────────────
+function fillModalSelects(c = {}) {
+  document.getElementById('f-trabajador').innerHTML = optHtml(cats.trabajadores, c.trabajador_id);
+  document.getElementById('f-tipo').innerHTML       = optHtml(cats.tipos, c.tipo_contrato_id, '— Sin tipo —');
+  document.getElementById('f-cargo').innerHTML      = optHtml(cats.cargos, c.cargo_id, '— Sin cargo —');
+  document.getElementById('f-sucursal').innerHTML   = optHtml(cats.sucursales, c.sucursal_id, '— Sin sucursal —');
+}
+
+function openCreate() {
+  editId = null;
+  document.getElementById('modal-title').textContent = 'Nuevo contrato';
+  document.getElementById('modal-save').textContent  = 'Crear contrato';
+  fillModalSelects();
+  ['f-nro','f-labor','f-obs'].forEach(id => { document.getElementById(id).value = ''; });
+  document.getElementById('f-inicio').value  = new Date().toISOString().slice(0, 10);
+  document.getElementById('f-termino').value = '';
+  document.getElementById('f-emision').value = '';
+  openModal('modal-contrato');
+}
+
+async function openEdit(id) {
+  try {
+    const c = await api.get(`/nomina/contratos/${id}`);
+    editId = id;
+    document.getElementById('modal-title').textContent = 'Editar contrato';
+    document.getElementById('modal-save').textContent  = 'Guardar cambios';
+    fillModalSelects(c);
+    document.getElementById('f-nro').value     = c.nro_contrato ?? '';
+    document.getElementById('f-inicio').value  = c.fecha_inicio ?? '';
+    document.getElementById('f-termino').value = c.fecha_termino ?? '';
+    document.getElementById('f-emision').value = c.fecha_emision ?? '';
+    document.getElementById('f-labor').value   = c.labor ?? '';
+    document.getElementById('f-obs').value     = c.observaciones ?? '';
+    openModal('modal-contrato');
+  } catch (err) { toast.error(err.message); }
+}
+
+document.getElementById('btn-nuevo').addEventListener('click', openCreate);
+document.getElementById('modal-close').addEventListener('click', () => closeModal('modal-contrato'));
+document.getElementById('modal-cancel').addEventListener('click', () => closeModal('modal-contrato'));
+
+document.getElementById('modal-save').addEventListener('click', async () => {
+  const btn = document.getElementById('modal-save');
+  const trabajador_id = document.getElementById('f-trabajador').value;
+  const fecha_inicio  = document.getElementById('f-inicio').value;
+  if (!trabajador_id) { toast.error('Selecciona un trabajador.'); return; }
+  if (!fecha_inicio)  { toast.error('La fecha de inicio es obligatoria.'); return; }
+  const body = {
+    trabajador_id,
+    nro_contrato:     document.getElementById('f-nro').value.trim() || null,
+    tipo_contrato_id: document.getElementById('f-tipo').value || null,
+    fecha_inicio,
+    fecha_termino:    document.getElementById('f-termino').value || null,
+    cargo_id:         document.getElementById('f-cargo').value || null,
+    sucursal_id:      document.getElementById('f-sucursal').value || null,
+    labor:            document.getElementById('f-labor').value.trim() || null,
+    fecha_emision:    document.getElementById('f-emision').value || null,
+    observaciones:    document.getElementById('f-obs').value.trim() || null,
+  };
+  setLoading(btn, true);
+  try {
+    if (editId) {
+      await api.patch(`/nomina/contratos/${editId}`, body);
+      toast.success('Contrato actualizado.');
+    } else {
+      await api.post('/nomina/contratos', body);
+      toast.success('Contrato creado.');
+    }
+    closeModal('modal-contrato');
+    loadList();
+  } catch (err) { toast.error(err.message); }
+  finally { setLoading(btn, false); }
+});
+
+// ── Filtros ───────────────────────────────────────────────────────────────────
+document.getElementById('filter-trabajador').addEventListener('change', e => {
+  state.trabajador_id = e.target.value; state.page = 1; loadList();
+});
+document.getElementById('filter-estado').addEventListener('change', e => {
+  state.estado = e.target.value; state.page = 1; loadList();
+});
+
+// ── Init ──────────────────────────────────────────────────────────────────────
+await loadCatalogs();
+loadList();
+</script>
+</body>
+</html>

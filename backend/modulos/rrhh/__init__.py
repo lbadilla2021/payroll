@@ -2,6 +2,7 @@
 from modulos.rrhh.models import (
     # Catálogos globales
     TipoPermisoGlobal, TipoCargoRrhhGlobal,
+    EstadoCivilGlobal, TipoTrabajadorGlobal, RegimenPrevisionalGlobal,
     # Operacionales
     Supervisor, TipoPermiso,
     AtributoEvalCuantitativa, EvaluacionCuantitativa,
@@ -17,6 +18,7 @@ from modulos.rrhh.models import (
 
 __all__ = [
     "TipoPermisoGlobal", "TipoCargoRrhhGlobal",
+    "EstadoCivilGlobal", "TipoTrabajadorGlobal", "RegimenPrevisionalGlobal",
     "Supervisor", "TipoPermiso",
     "AtributoEvalCuantitativa", "EvaluacionCuantitativa",
     "AtributoEvalCualitativa", "EvaluacionCualitativa",

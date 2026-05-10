@@ -214,9 +214,12 @@ class MovimientoMensualRepository:
     def add_concepto(db: Session, tenant_id: UUID,
                      movimiento_id: UUID, data: dict) -> MovimientoConcepto:
         _set_tenant(db, tenant_id)
+        from decimal import Decimal
+        monto = Decimal(str(data.get("valor", 0))) * Decimal(str(data.get("cantidad", 1)))
         obj = MovimientoConcepto(
             tenant_id=tenant_id,
             movimiento_id=movimiento_id,
+            monto_calculado=monto,
             **data
         )
         db.add(obj)

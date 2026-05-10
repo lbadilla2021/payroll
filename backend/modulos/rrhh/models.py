@@ -52,6 +52,42 @@ class TipoCargoRrhhGlobal(Base):
     es_activo   = Column(Boolean, nullable=False, default=True)
 
 
+class EstadoCivilGlobal(Base):
+    """Catálogo global de estados civiles."""
+    __tablename__ = "estado_civil_global"
+    __table_args__ = {"schema": "rrhh"}
+
+    id          = Column(SmallInteger, primary_key=True, autoincrement=True)
+    codigo      = Column(SmallInteger, nullable=False, unique=True)
+    descripcion = Column(String(100), nullable=False)
+    referencia  = Column(String(200))
+    es_activo   = Column(Boolean, nullable=False, default=True)
+
+
+class TipoTrabajadorGlobal(Base):
+    """Catálogo global de tipos de trabajador."""
+    __tablename__ = "tipo_trabajador_global"
+    __table_args__ = {"schema": "rrhh"}
+
+    id          = Column(SmallInteger, primary_key=True, autoincrement=True)
+    codigo      = Column(SmallInteger, nullable=False, unique=True)
+    descripcion = Column(String(100), nullable=False)
+    referencia  = Column(String(200))
+    es_activo   = Column(Boolean, nullable=False, default=True)
+
+
+class RegimenPrevisionalGlobal(Base):
+    """Catálogo global de regímenes previsionales."""
+    __tablename__ = "regimen_previsional_global"
+    __table_args__ = {"schema": "rrhh"}
+
+    id          = Column(SmallInteger, primary_key=True, autoincrement=True)
+    codigo      = Column(SmallInteger, nullable=False, unique=True)
+    descripcion = Column(String(100), nullable=False)
+    referencia  = Column(String(200))
+    es_activo   = Column(Boolean, nullable=False, default=True)
+
+
 # ─────────────────────────────────────────────────────────────────────────────
 # TABLAS OPERACIONALES (con tenant_id + RLS)
 # ─────────────────────────────────────────────────────────────────────────────
@@ -76,6 +112,24 @@ class Supervisor(Base):
 class TipoPermiso(Base):
     """Tipos de permiso por empresa (cap. 8.2)."""
     __tablename__ = "tipo_permiso"
+    __table_args__ = (
+        UniqueConstraint("tenant_id", "codigo"),
+        {"schema": "rrhh"},
+    )
+
+    id          = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    tenant_id   = Column(UUID(as_uuid=True), ForeignKey("tenants.id", ondelete="CASCADE"), nullable=False)
+    codigo      = Column(String(20), nullable=False)
+    descripcion = Column(String(100), nullable=False)
+    unidad      = Column(String(10), nullable=False, default='dias')   # 'dias' | 'horas'
+    con_goce    = Column(Boolean, nullable=False, default=True)
+    es_activo   = Column(Boolean, nullable=False, default=True)
+    created_at  = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+
+
+class Funcion(Base):
+    """Funciones/cargos funcionales por empresa."""
+    __tablename__ = "funcion"
     __table_args__ = (
         UniqueConstraint("tenant_id", "codigo"),
         {"schema": "rrhh"},
@@ -279,6 +333,7 @@ class Trabajador(Base):
     eval_cuantitativas  = relationship("TrabajadorEvalCuantitativa", back_populates="trabajador", cascade="all, delete-orphan")
     eval_cualitativas   = relationship("TrabajadorEvalCualitativa", back_populates="trabajador", cascade="all, delete-orphan")
     contratos_rrhh      = relationship("ContratoRrhh", back_populates="trabajador", cascade="all, delete-orphan")
+    licencias_medicas   = relationship("LicenciaMedica", back_populates="trabajador", cascade="all, delete-orphan")
 
     @property
     def nombre_completo(self) -> str:
@@ -431,6 +486,26 @@ class FichaPermiso(Base):
 
     trabajador   = relationship("Trabajador", back_populates="permisos")
     tipo_permiso = relationship("TipoPermiso")
+
+
+class LicenciaMedica(Base):
+    """Licencias médicas del trabajador (días corridos)."""
+    __tablename__ = "licencia_medica"
+    __table_args__ = (
+        Index("ix_licencia_medica_trabajador", "trabajador_id"),
+        {"schema": "rrhh"},
+    )
+
+    id              = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    tenant_id       = Column(UUID(as_uuid=True), ForeignKey("tenants.id", ondelete="CASCADE"), nullable=False)
+    trabajador_id   = Column(UUID(as_uuid=True), ForeignKey("rrhh.trabajador.id", ondelete="CASCADE"), nullable=False)
+    fecha_inicio    = Column(Date, nullable=False)
+    dias            = Column(Integer, nullable=False)
+    fecha_termino   = Column(Date, nullable=False)
+    observaciones   = Column(Text)
+    created_at      = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+
+    trabajador = relationship("Trabajador", back_populates="licencias_medicas")
 
 
 class FichaPrestamo(Base):

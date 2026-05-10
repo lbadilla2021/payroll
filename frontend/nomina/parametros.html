@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Parámetros — Nómina</title>
+  <link rel="stylesheet" href="/static/css/main.css?v=4">
+</head>
+<body data-page="nomina-parametros">
+
+<div id="app-shell">
+  <nav class="sidebar" id="sidebar">
+    <div class="sidebar-brand"><div class="brand-mark">N</div><span class="brand-name">Nómina SaaS</span></div>
+    <div class="sidebar-nav" id="sidebar-nav"></div>
+    <div class="sidebar-footer">
+      <div class="profile-trigger" id="profile-trigger">
+        <div class="avatar" id="sidebar-avatar">?</div>
+        <div class="profile-info"><div class="profile-name" id="sidebar-name">…</div><div class="profile-role" id="sidebar-role"></div></div>
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <div class="profile-menu" id="profile-menu">
+        <div class="menu-item" onclick="window.location.href='/settings.html'"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>Configuración</div>
+        <div class="menu-item" id="theme-toggle-btn"><svg id="theme-icon-sun" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg><svg id="theme-icon-moon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none;"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg><span id="theme-label">Modo oscuro</span></div>
+        <div class="menu-divider"></div>
+        <div class="menu-item danger" id="logout-btn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Cerrar sesión</div>
+      </div>
+    </div>
+  </nav>
+
+  <div class="main-content">
+    <header class="topbar">
+      <span class="topbar-title">Parámetros</span>
+      <div class="topbar-spacer"></div>
+      <select class="form-input form-select" id="filter-anio" style="width:100px;"></select>
+      <select class="form-input form-select" id="filter-mes" style="width:120px;">
+        <option value="">Todos los meses</option>
+        <option value="1">Enero</option><option value="2">Febrero</option><option value="3">Marzo</option>
+        <option value="4">Abril</option><option value="5">Mayo</option><option value="6">Junio</option>
+        <option value="7">Julio</option><option value="8">Agosto</option><option value="9">Septiembre</option>
+        <option value="10">Octubre</option><option value="11">Noviembre</option><option value="12">Diciembre</option>
+      </select>
+      <button class="btn btn-primary btn-sm" id="btn-nuevo">
+        <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        <span id="btn-nuevo-label">Nuevo período</span>
+      </button>
+    </header>
+
+    <main class="page-area">
+      <div style="max-width:1200px;">
+        <div class="tab-bar" id="tab-bar">
+          <button class="tab-btn active" data-tab="mensuales">Parámetros mensuales</button>
+          <button class="tab-btn" data-tab="af">Asignación familiar</button>
+          <button class="tab-btn" data-tab="iu">Impuesto único</button>
+          <button class="tab-btn" data-tab="factores">Factores UTM/UF/IMM</button>
+          <button class="tab-btn" data-tab="cchc">Serv. Médico CCHC</button>
+        </div>
+
+        <!-- TAB: PARÁMETROS MENSUALES -->
+        <div id="tab-mensuales">
+          <div class="card" style="padding:0;overflow:hidden;">
+            <table class="data-table">
+              <thead><tr>
+                <th>Período</th><th style="text-align:right;">UTM</th><th style="text-align:right;">UF</th>
+                <th style="text-align:right;">IMM</th><th style="text-align:right;">Tope AFP</th>
+                <th style="text-align:right;">Tope Salud</th><th style="text-align:right;">Tope Seg.Ces.</th>
+                <th style="text-align:right;">Acc.Trabajo</th><th style="text-align:right;">APV Col.</th>
+                <th>Estado</th><th></th>
+              </tr></thead>
+              <tbody id="tbody-mensuales"><tr><td colspan="11" style="text-align:center;padding:24px;color:var(--text-muted);">Cargando…</td></tr></tbody>
+            </table>
+          </div>
+          <div id="pag-mensuales" style="margin-top:12px;"></div>
+        </div>
+
+        <!-- TAB: ASIGNACIÓN FAMILIAR -->
+        <div id="tab-af" style="display:none;">
+          <div style="display:flex;gap:8px;align-items:center;margin-bottom:12px;">
+            <span style="font-size:13px;color:var(--text-muted);">Tramos vigentes para el período seleccionado. El PUT reemplaza todos los tramos del período.</span>
+          </div>
+          <div class="card" style="padding:0;overflow:hidden;">
+            <table class="data-table">
+              <thead><tr>
+                <th>Tramo</th><th>Descripción</th><th style="text-align:right;">Renta desde ($)</th>
+                <th style="text-align:right;">Renta hasta ($)</th><th style="text-align:right;">Valor carga ($)</th>
+              </tr></thead>
+              <tbody id="tbody-af"><tr><td colspan="5" style="text-align:center;padding:24px;color:var(--text-muted);">Selecciona un período.</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- TAB: IMPUESTO ÚNICO -->
+        <div id="tab-iu" style="display:none;">
+          <div style="margin-bottom:12px;font-size:13px;color:var(--text-muted);">Tabla de impuesto único 2ª categoría. El PUT reemplaza todos los tramos del período.</div>
+          <div class="card" style="padding:0;overflow:hidden;">
+            <table class="data-table">
+              <thead><tr>
+                <th>Orden</th><th style="text-align:right;">UTM desde</th><th style="text-align:right;">UTM hasta</th>
+                <th style="text-align:right;">Tasa (%)</th><th style="text-align:right;">Rebaja (UTM)</th>
+              </tr></thead>
+              <tbody id="tbody-iu"><tr><td colspan="5" style="text-align:center;padding:24px;color:var(--text-muted);">Selecciona un período.</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- TAB: FACTORES -->
+        <div id="tab-factores" style="display:none;">
+          <div class="card" style="padding:0;overflow:hidden;">
+            <table class="data-table">
+              <thead><tr>
+                <th>Período</th><th style="text-align:right;">UTM ($)</th><th style="text-align:right;">UF ($)</th>
+                <th style="text-align:right;">IMM ($)</th><th style="text-align:right;">Factor</th><th></th>
+              </tr></thead>
+              <tbody id="tbody-factores"><tr><td colspan="6" style="text-align:center;padding:24px;color:var(--text-muted);">Cargando…</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- TAB: CCHC -->
+        <div id="tab-cchc" style="display:none;">
+          <div class="card" style="padding:0;overflow:hidden;">
+            <table class="data-table">
+              <thead><tr>
+                <th>Período</th><th style="text-align:right;">Porcentaje (%)</th>
+                <th style="text-align:right;">Tope (UF)</th><th style="text-align:right;">Valor carga ($)</th><th></th>
+              </tr></thead>
+              <tbody id="tbody-cchc"><tr><td colspan="5" style="text-align:center;padding:24px;color:var(--text-muted);">Cargando…</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- Modal parámetro mensual -->
+<div class="modal" id="modal-param">
+  <div class="modal-header">
+    <span class="modal-title" id="modal-param-title">Nuevo período</span>
+    <button class="btn btn-ghost btn-sm" id="modal-param-close"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+  </div>
+  <div class="modal-body" style="overflow-y:auto;max-height:calc(90vh - 140px);">
+    <div class="form-row cols-2" id="row-periodo">
+      <div class="form-group"><label class="form-label">Año *</label><input class="form-input" id="p-anio" type="number" min="2020" max="2100"></div>
+      <div class="form-group"><label class="form-label">Mes *</label>
+        <select class="form-input form-select" id="p-mes">
+          <option value="1">Enero</option><option value="2">Febrero</option><option value="3">Marzo</option>
+          <option value="4">Abril</option><option value="5">Mayo</option><option value="6">Junio</option>
+          <option value="7">Julio</option><option value="8">Agosto</option><option value="9">Septiembre</option>
+          <option value="10">Octubre</option><option value="11">Noviembre</option><option value="12">Diciembre</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-row cols-3">
+      <div class="form-group"><label class="form-label">UTM ($) *</label><input class="form-input" id="p-utm" type="number" min="0" step="1"></div>
+      <div class="form-group"><label class="form-label">UF ($) *</label><input class="form-input" id="p-uf" type="number" min="0" step="0.01"></div>
+      <div class="form-group"><label class="form-label">IMM ($) *</label><input class="form-input" id="p-imm" type="number" min="0" step="1"></div>
+    </div>
+    <div class="form-row cols-3">
+      <div class="form-group"><label class="form-label">Tope AFP ($) *</label><input class="form-input" id="p-tope-afp" type="number" min="0" step="1"></div>
+      <div class="form-group"><label class="form-label">Tope Salud ($) *</label><input class="form-input" id="p-tope-salud" type="number" min="0" step="1"></div>
+      <div class="form-group"><label class="form-label">Tope Seg.Ces. ($) *</label><input class="form-input" id="p-tope-ces" type="number" min="0" step="1"></div>
+    </div>
+    <div class="form-row cols-3">
+      <div class="form-group"><label class="form-label">Acc.trabajo (%) *</label><input class="form-input" id="p-tasa-acc" type="number" min="0" step="0.0001" placeholder="0.93"><span class="form-hint">Ej: 0.93 → 0.93%</span></div>
+      <div class="form-group"><label class="form-label">APV Colectivo (%)</label><input class="form-input" id="p-tasa-apv" type="number" min="0" step="0.0001" placeholder="0"></div>
+      <div class="form-group"><label class="form-label">Factor actualización</label><input class="form-input" id="p-factor" type="number" min="0" step="0.000001" placeholder="1"></div>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button class="btn btn-secondary" id="modal-param-cancel">Cancelar</button>
+    <button class="btn btn-primary" id="modal-param-save">Guardar</button>
+  </div>
+</div>
+
+<!-- Modal editar tramos AF -->
+<div class="modal" id="modal-af" style="max-width:700px;">
+  <div class="modal-header">
+    <span class="modal-title" id="modal-af-title">Tramos Asignación Familiar</span>
+    <button class="btn btn-ghost btn-sm" id="modal-af-close"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+  </div>
+  <div class="modal-body" style="overflow-y:auto;max-height:calc(90vh - 140px);">
+    <div style="font-size:12px;color:var(--text-muted);margin-bottom:12px;">Define los 4 tramos. Renta hasta vacío = sin tope.</div>
+    <div id="af-tramos-editor"></div>
+  </div>
+  <div class="modal-footer">
+    <button class="btn btn-secondary" id="modal-af-cancel">Cancelar</button>
+    <button class="btn btn-primary" id="modal-af-save">Guardar tramos</button>
+  </div>
+</div>
+
+<!-- Modal editar tramos IU -->
+<div class="modal" id="modal-iu" style="max-width:700px;">
+  <div class="modal-header">
+    <span class="modal-title" id="modal-iu-title">Tramos Impuesto Único</span>
+    <button class="btn btn-ghost btn-sm" id="modal-iu-close"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+  </div>
+  <div class="modal-body" style="overflow-y:auto;max-height:calc(90vh - 160px);">
+    <div style="font-size:12px;color:var(--text-muted);margin-bottom:12px;">Define los tramos. UTM hasta vacío = sin tope. Tasa en % (ej: 4 = 4%).</div>
+    <div id="iu-tramos-editor"></div>
+    <button class="btn btn-ghost btn-sm" id="iu-add-tramo" style="margin-top:8px;">+ Agregar tramo</button>
+  </div>
+  <div class="modal-footer">
+    <button class="btn btn-secondary" id="modal-iu-cancel">Cancelar</button>
+    <button class="btn btn-primary" id="modal-iu-save">Guardar tramos</button>
+  </div>
+</div>
+
+<!-- Modal factor -->
+<div class="modal" id="modal-factor" style="max-width:480px;">
+  <div class="modal-header">
+    <span class="modal-title" id="modal-factor-title">Factor UTM/UF/IMM</span>
+    <button class="btn btn-ghost btn-sm" id="modal-factor-close"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+  </div>
+  <div class="modal-body">
+    <div class="form-row cols-2">
+      <div class="form-group"><label class="form-label">Año *</label><input class="form-input" id="f-anio" type="number" min="2020" max="2100"></div>
+      <div class="form-group"><label class="form-label">Mes *</label>
+        <select class="form-input form-select" id="f-mes">
+          <option value="1">Enero</option><option value="2">Febrero</option><option value="3">Marzo</option>
+          <option value="4">Abril</option><option value="5">Mayo</option><option value="6">Junio</option>
+          <option value="7">Julio</option><option value="8">Agosto</option><option value="9">Septiembre</option>
+          <option value="10">Octubre</option><option value="11">Noviembre</option><option value="12">Diciembre</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-row cols-2">
+      <div class="form-group"><label class="form-label">UTM ($) *</label><input class="form-input" id="f-utm" type="number" min="0" step="1"></div>
+      <div class="form-group"><label class="form-label">UF ($) *</label><input class="form-input" id="f-uf" type="number" min="0" step="0.01"></div>
+    </div>
+    <div class="form-row cols-2">
+      <div class="form-group"><label class="form-label">IMM ($) *</label><input class="form-input" id="f-imm" type="number" min="0" step="1"></div>
+      <div class="form-group"><label class="form-label">Factor</label><input class="form-input" id="f-factor" type="number" min="0" step="0.000001" value="1"></div>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button class="btn btn-secondary" id="modal-factor-cancel">Cancelar</button>
+    <button class="btn btn-primary" id="modal-factor-save">Guardar</button>
+  </div>
+</div>
+
+<!-- Modal CCHC -->
+<div class="modal" id="modal-cchc" style="max-width:480px;">
+  <div class="modal-header">
+    <span class="modal-title" id="modal-cchc-title">Serv. Médico CCHC</span>
+    <button class="btn btn-ghost btn-sm" id="modal-cchc-close"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+  </div>
+  <div class="modal-body">
+    <div class="form-row cols-2" id="cchc-periodo-row">
+      <div class="form-group"><label class="form-label">Año *</label><input class="form-input" id="cc-anio" type="number" min="2020" max="2100"></div>
+      <div class="form-group"><label class="form-label">Mes *</label>
+        <select class="form-input form-select" id="cc-mes">
+          <option value="1">Enero</option><option value="2">Febrero</option><option value="3">Marzo</option>
+          <option value="4">Abril</option><option value="5">Mayo</option><option value="6">Junio</option>
+          <option value="7">Julio</option><option value="8">Agosto</option><option value="9">Septiembre</option>
+          <option value="10">Octubre</option><option value="11">Noviembre</option><option value="12">Diciembre</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-row cols-3">
+      <div class="form-group"><label class="form-label">Porcentaje (%) *</label><input class="form-input" id="cc-pct" type="number" min="0" max="100" step="0.01" placeholder="1.00"><span class="form-hint">Ej: 1 = 1%</span></div>
+      <div class="form-group"><label class="form-label">Tope (UF) *</label><input class="form-input" id="cc-tope" type="number" min="0" step="0.01"></div>
+      <div class="form-group"><label class="form-label">Valor carga ($)</label><input class="form-input" id="cc-carga" type="number" min="0" step="1" value="0"></div>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button class="btn btn-secondary" id="modal-cchc-cancel">Cancelar</button>
+    <button class="btn btn-primary" id="modal-cchc-save">Guardar</button>
+  </div>
+</div>
+
+<div id="toast-container"></div>
+
+<script type="module">
+import api from '/static/js/api.js?v=4';
+import { requireAuth } from '/static/js/auth.js?v=3';
+import { initTheme, openModal, closeModal, setLoading, renderPagination } from '/static/js/ui.js?v=3';
+import { toast } from '/static/js/toast.js?v=3';
+import { initShellUI } from '/static/js/nav.js';
+
+initTheme();
+const user = await requireAuth();
+initShellUI(user);
+
+const MESES = ['','Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+const fmtCLP = n => n != null ? `$ ${Number(n).toLocaleString('es-CL')}` : '—';
+const fmtPct = n => n != null ? `${(Number(n)*100).toFixed(4).replace(/\.?0+$/,'')}%` : '—';
+const now = new Date();
+
+let activeTab = 'mensuales';
+let state = { page: 1, size: 15, anio: now.getFullYear() };
+let editModeParam = null;
+let editModeFactor = null;
+let editModeCchc = null;
+let afPeriodo = null, iuPeriodo = null;
+
+// ── Filtros ───────────────────────────────────────────────────────────────────
+const selAnio = document.getElementById('filter-anio');
+selAnio.innerHTML = `<option value="">Todos</option>` +
+  Array.from({length:6},(_,i)=>now.getFullYear()+1-i)
+    .map(y=>`<option value="${y}"${y===now.getFullYear()?' selected':''}>${y}</option>`).join('');
+state.anio = now.getFullYear();
+
+selAnio.addEventListener('change', () => { state.anio = selAnio.value ? parseInt(selAnio.value) : null; state.page=1; onFilterChange(); });
+document.getElementById('filter-mes').addEventListener('change', onFilterChange);
+
+function onFilterChange() {
+  if (activeTab==='mensuales') loadMensuales();
+  else if (activeTab==='af') loadAF();
+  else if (activeTab==='iu') loadIU();
+  else if (activeTab==='factores') loadFactores();
+  else if (activeTab==='cchc') loadCCHC();
+}
+
+function getPeriodo() {
+  const anio = selAnio.value ? parseInt(selAnio.value) : now.getFullYear();
+  const mes  = parseInt(document.getElementById('filter-mes').value) || now.getMonth()+1;
+  return { anio, mes };
+}
+
+// ── Tabs ──────────────────────────────────────────────────────────────────────
+const TAB_BTN_CFG = {
+  mensuales: { label: 'Nuevo período', filtersVisible: 'anio' },
+  af:        { label: 'Editar tramos', filtersVisible: 'anio-mes' },
+  iu:        { label: 'Editar tramos', filtersVisible: 'anio-mes' },
+  factores:  { label: 'Nuevo factor',  filtersVisible: 'anio' },
+  cchc:      { label: 'Nueva CCHC',    filtersVisible: 'anio' },
+};
+
+document.getElementById('tab-bar').addEventListener('click', e => {
+  const btn = e.target.closest('.tab-btn');
+  if (!btn) return;
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  activeTab = btn.dataset.tab;
+  document.querySelectorAll('[id^="tab-"]:not(#tab-bar)').forEach(el=>el.style.display='none');
+  document.getElementById(`tab-${activeTab}`).style.display='';
+  const cfg = TAB_BTN_CFG[activeTab];
+  document.getElementById('btn-nuevo-label').textContent = cfg.label;
+  document.getElementById('filter-mes').style.display = cfg.filtersVisible==='anio-mes' ? '' : 'none';
+  onFilterChange();
+});
+
+document.getElementById('filter-mes').style.display = 'none';
+
+document.getElementById('btn-nuevo').addEventListener('click', () => {
+  if (activeTab==='mensuales') openCreateParam();
+  else if (activeTab==='af')   openEditAF();
+  else if (activeTab==='iu')   openEditIU();
+  else if (activeTab==='factores') openCreateFactor();
+  else if (activeTab==='cchc') openCreateCCHC();
+});
+
+// ── TAB MENSUALES ─────────────────────────────────────────────────────────────
+async function loadMensuales() {
+  const tbody = document.getElementById('tbody-mensuales');
+  tbody.innerHTML = `<tr><td colspan="11" style="text-align:center;padding:24px;color:var(--text-muted);">Cargando…</td></tr>`;
+  try {
+    const params = new URLSearchParams({page:state.page, size:state.size});
+    if (state.anio) params.set('anio', state.anio);
+    const data = await api.get(`/nomina/parametros-mensuales?${params}`);
+    if (!data.items.length) { tbody.innerHTML=`<tr><td colspan="11" style="text-align:center;padding:24px;color:var(--text-muted);">Sin registros.</td></tr>`; return; }
+    tbody.innerHTML = data.items.map(p => {
+      const est = p.cerrado ? '<span class="badge badge-neutral">Cerrado</span>' : p.bloqueado ? '<span class="badge badge-warning">Bloqueado</span>' : '<span class="badge badge-success">Activo</span>';
+      return `<tr>
+        <td><strong>${MESES[p.mes]} ${p.anio}</strong></td>
+        <td style="text-align:right;">${fmtCLP(p.utm)}</td><td style="text-align:right;">${fmtCLP(p.uf)}</td>
+        <td style="text-align:right;">${fmtCLP(p.imm)}</td><td style="text-align:right;">${fmtCLP(p.tope_imponible_afp)}</td>
+        <td style="text-align:right;">${fmtCLP(p.tope_imponible_salud)}</td><td style="text-align:right;">${fmtCLP(p.tope_seg_cesantia)}</td>
+        <td style="text-align:right;">${fmtPct(p.tasa_acc_trabajo)}</td><td style="text-align:right;">${fmtPct(p.tasa_apv_colectivo)}</td>
+        <td>${est}</td>
+        <td style="text-align:right;">${!p.cerrado?`<button class="btn btn-ghost btn-sm btn-edit-param" data-anio="${p.anio}" data-mes="${p.mes}" title="Editar"><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>`:''}</td>
+      </tr>`;
+    }).join('');
+    document.querySelectorAll('.btn-edit-param').forEach(b=>b.addEventListener('click',()=>openEditParam(parseInt(b.dataset.anio),parseInt(b.dataset.mes))));
+    renderPagination(document.getElementById('pag-mensuales'),{page:data.page,total:data.total,size:data.size},p=>{state.page=p;loadMensuales();});
+  } catch(err){ tbody.innerHTML=`<tr><td colspan="11" style="text-align:center;color:var(--danger);padding:24px;">${err.message}</td></tr>`; }
+}
+
+function openCreateParam() {
+  editModeParam=null;
+  document.getElementById('modal-param-title').textContent='Nuevo período';
+  document.getElementById('p-anio').value=now.getFullYear();
+  document.getElementById('p-mes').value=now.getMonth()+1;
+  ['p-utm','p-uf','p-imm','p-tope-afp','p-tope-salud','p-tope-ces'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('p-tasa-acc').value='0.93';
+  document.getElementById('p-tasa-apv').value='0';
+  document.getElementById('p-factor').value='1';
+  document.getElementById('row-periodo').style.opacity='1';
+  ['p-anio','p-mes'].forEach(id=>document.getElementById(id).disabled=false);
+  openModal('modal-param');
+}
+async function openEditParam(anio,mes) {
+  editModeParam={anio,mes};
+  document.getElementById('modal-param-title').textContent=`Editar ${MESES[mes]} ${anio}`;
+  ['p-anio','p-mes'].forEach(id=>document.getElementById(id).disabled=true);
+  try {
+    const p = await api.get(`/nomina/parametros-mensuales/${anio}/${mes}`);
+    document.getElementById('p-anio').value=p.anio; document.getElementById('p-mes').value=p.mes;
+    document.getElementById('p-utm').value=p.utm; document.getElementById('p-uf').value=p.uf;
+    document.getElementById('p-imm').value=p.imm; document.getElementById('p-tope-afp').value=p.tope_imponible_afp;
+    document.getElementById('p-tope-salud').value=p.tope_imponible_salud; document.getElementById('p-tope-ces').value=p.tope_seg_cesantia;
+    document.getElementById('p-tasa-acc').value=(Number(p.tasa_acc_trabajo)*100).toFixed(4).replace(/\.?0+$/,'');
+    document.getElementById('p-tasa-apv').value=(Number(p.tasa_apv_colectivo)*100).toFixed(4).replace(/\.?0+$/,'');
+    document.getElementById('p-factor').value=p.factor_actualizacion;
+    openModal('modal-param');
+  } catch(err){ toast.error(err.message); }
+}
+document.getElementById('modal-param-close').addEventListener('click',()=>closeModal('modal-param'));
+document.getElementById('modal-param-cancel').addEventListener('click',()=>closeModal('modal-param'));
+document.getElementById('modal-param-save').addEventListener('click', async()=>{
+  const btn=document.getElementById('modal-param-save');
+  const utm=parseFloat(document.getElementById('p-utm').value), uf=parseFloat(document.getElementById('p-uf').value);
+  const imm=parseFloat(document.getElementById('p-imm').value), topeAfp=parseFloat(document.getElementById('p-tope-afp').value);
+  const topeSalud=parseFloat(document.getElementById('p-tope-salud').value), topeCes=parseFloat(document.getElementById('p-tope-ces').value);
+  const tasaAcc=parseFloat(document.getElementById('p-tasa-acc').value)/100;
+  const tasaApv=parseFloat(document.getElementById('p-tasa-apv').value)/100;
+  const factor=parseFloat(document.getElementById('p-factor').value);
+  if([utm,uf,imm,topeAfp,topeSalud,topeCes].some(v=>isNaN(v)||v<=0)){toast.error('Completa todos los campos requeridos.');return;}
+  setLoading(btn,true);
+  try {
+    const body={utm,uf,imm,tope_imponible_afp:topeAfp,tope_imponible_salud:topeSalud,tope_seg_cesantia:topeCes,tasa_acc_trabajo:tasaAcc,tasa_apv_colectivo:tasaApv,factor_actualizacion:factor};
+    if(editModeParam) await api.patch(`/nomina/parametros-mensuales/${editModeParam.anio}/${editModeParam.mes}`,body);
+    else { const anio=parseInt(document.getElementById('p-anio').value),mes=parseInt(document.getElementById('p-mes').value); await api.post('/nomina/parametros-mensuales',{anio,mes,...body}); }
+    toast.success('Guardado.');closeModal('modal-param');loadMensuales();
+  } catch(err){toast.error(err.message);}
+  finally{setLoading(btn,false);}
+});
+
+// ── TAB ASIGNACIÓN FAMILIAR ───────────────────────────────────────────────────
+async function loadAF() {
+  const {anio,mes}=getPeriodo();
+  const tbody=document.getElementById('tbody-af');
+  tbody.innerHTML=`<tr><td colspan="5" style="text-align:center;padding:16px;color:var(--text-muted);">Cargando…</td></tr>`;
+  try {
+    const tramos=await api.get(`/nomina/parametros/asignacion-familiar/${anio}/${mes}`);
+    afPeriodo={anio,mes,tramos};
+    if(!tramos.length){tbody.innerHTML=`<tr><td colspan="5" style="text-align:center;padding:16px;color:var(--text-muted);">Sin tramos para ${MESES[mes]} ${anio}.</td></tr>`;return;}
+    tbody.innerHTML=tramos.map(t=>`<tr>
+      <td>${t.tramo}</td><td>${t.descripcion}</td>
+      <td style="text-align:right;">${fmtCLP(t.renta_desde)}</td>
+      <td style="text-align:right;">${t.renta_hasta?fmtCLP(t.renta_hasta):'Sin tope'}</td>
+      <td style="text-align:right;">${fmtCLP(t.valor_carga)}</td>
+    </tr>`).join('');
+  } catch(err){tbody.innerHTML=`<tr><td colspan="5" style="text-align:center;color:var(--danger);padding:16px;">Sin datos para este período.</td></tr>`;}
+}
+
+function openEditAF() {
+  const {anio,mes}=getPeriodo();
+  document.getElementById('modal-af-title').textContent=`Tramos AF — ${MESES[mes]} ${anio}`;
+  const tramos=(afPeriodo?.anio===anio&&afPeriodo?.mes===mes&&afPeriodo.tramos)||
+    [{tramo:1,descripcion:'Tramo A',renta_desde:0,renta_hasta:'',valor_carga:0},
+     {tramo:2,descripcion:'Tramo B',renta_desde:0,renta_hasta:'',valor_carga:0},
+     {tramo:3,descripcion:'Tramo C',renta_desde:0,renta_hasta:'',valor_carga:0},
+     {tramo:4,descripcion:'Tramo D (sin asignación)',renta_desde:0,renta_hasta:'',valor_carga:0}];
+  document.getElementById('af-tramos-editor').innerHTML=tramos.map((t,i)=>`
+    <div style="border:1px solid var(--border);border-radius:6px;padding:12px;margin-bottom:8px;">
+      <div style="font-weight:600;font-size:12px;margin-bottom:8px;">TRAMO ${t.tramo}</div>
+      <div class="form-row cols-2">
+        <div class="form-group"><label class="form-label">Descripción</label><input class="form-input af-desc" data-i="${i}" value="${t.descripcion}"></div>
+        <div class="form-group"><label class="form-label">Valor carga ($)</label><input class="form-input af-carga" data-i="${i}" type="number" min="0" value="${t.valor_carga}"></div>
+      </div>
+      <div class="form-row cols-2">
+        <div class="form-group"><label class="form-label">Renta desde ($)</label><input class="form-input af-desde" data-i="${i}" type="number" min="0" value="${t.renta_desde}"></div>
+        <div class="form-group"><label class="form-label">Renta hasta ($)</label><input class="form-input af-hasta" data-i="${i}" type="number" min="0" value="${t.renta_hasta||''}" placeholder="Sin tope"></div>
+      </div>
+    </div>`).join('');
+  openModal('modal-af');
+}
+document.getElementById('modal-af-close').addEventListener('click',()=>closeModal('modal-af'));
+document.getElementById('modal-af-cancel').addEventListener('click',()=>closeModal('modal-af'));
+document.getElementById('modal-af-save').addEventListener('click', async()=>{
+  const btn=document.getElementById('modal-af-save');
+  const {anio,mes}=getPeriodo();
+  const descs=[...document.querySelectorAll('.af-desc')].map(e=>e.value);
+  const cargas=[...document.querySelectorAll('.af-carga')].map(e=>parseFloat(e.value)||0);
+  const desdes=[...document.querySelectorAll('.af-desde')].map(e=>parseFloat(e.value)||0);
+  const hastas=[...document.querySelectorAll('.af-hasta')].map(e=>e.value?parseFloat(e.value):null);
+  const body=descs.map((_,i)=>({anio,mes,tramo:i+1,descripcion:descs[i],renta_desde:desdes[i],renta_hasta:hastas[i],valor_carga:cargas[i]}));
+  setLoading(btn,true);
+  try { await api.put(`/nomina/parametros/asignacion-familiar/${anio}/${mes}`,body); toast.success('Tramos AF guardados.');closeModal('modal-af');loadAF(); }
+  catch(err){toast.error(err.message);}
+  finally{setLoading(btn,false);}
+});
+
+// ── TAB IMPUESTO ÚNICO ────────────────────────────────────────────────────────
+let iuTramos=[];
+async function loadIU() {
+  const {anio,mes}=getPeriodo();
+  const tbody=document.getElementById('tbody-iu');
+  tbody.innerHTML=`<tr><td colspan="5" style="text-align:center;padding:16px;color:var(--text-muted);">Cargando…</td></tr>`;
+  try {
+    const tramos=await api.get(`/nomina/parametros/impuesto-unico/${anio}/${mes}`);
+    iuPeriodo={anio,mes,tramos}; iuTramos=[...tramos];
+    if(!tramos.length){tbody.innerHTML=`<tr><td colspan="5" style="text-align:center;padding:16px;color:var(--text-muted);">Sin tramos para ${MESES[mes]} ${anio}.</td></tr>`;return;}
+    tbody.innerHTML=tramos.map(t=>`<tr>
+      <td>${t.orden}</td>
+      <td style="text-align:right;">${Number(t.utm_desde).toFixed(2)}</td>
+      <td style="text-align:right;">${t.utm_hasta?Number(t.utm_hasta).toFixed(2):'Sin tope'}</td>
+      <td style="text-align:right;">${(Number(t.tasa)*100).toFixed(2)}%</td>
+      <td style="text-align:right;">${Number(t.rebaja_utm).toFixed(4)}</td>
+    </tr>`).join('');
+  } catch(err){tbody.innerHTML=`<tr><td colspan="5" style="text-align:center;color:var(--danger);padding:16px;">Sin datos para este período.</td></tr>`;}
+}
+
+function renderIUEditor() {
+  document.getElementById('iu-tramos-editor').innerHTML=iuTramos.map((t,i)=>`
+    <div style="display:flex;gap:8px;align-items:center;margin-bottom:6px;">
+      <span style="font-size:12px;color:var(--text-muted);width:20px;">${i+1}</span>
+      <input class="form-input iu-desde" data-i="${i}" type="number" min="0" step="0.01" value="${t.utm_desde}" placeholder="UTM desde" style="width:90px;">
+      <input class="form-input iu-hasta" data-i="${i}" type="number" min="0" step="0.01" value="${t.utm_hasta||''}" placeholder="UTM hasta" style="width:90px;">
+      <input class="form-input iu-tasa"  data-i="${i}" type="number" min="0" max="100" step="0.01" value="${(Number(t.tasa)*100).toFixed(2)}" placeholder="Tasa%" style="width:80px;">
+      <input class="form-input iu-rebaja" data-i="${i}" type="number" min="0" step="0.0001" value="${Number(t.rebaja_utm).toFixed(4)}" placeholder="Rebaja" style="width:90px;">
+      <button class="btn btn-ghost btn-sm iu-del" data-i="${i}"><svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/></svg></button>
+    </div>`).join('');
+  document.querySelectorAll('.iu-del').forEach(b=>b.addEventListener('click',()=>{iuTramos.splice(parseInt(b.dataset.i),1);renderIUEditor();}));
+}
+function openEditIU() {
+  const {anio,mes}=getPeriodo();
+  document.getElementById('modal-iu-title').textContent=`Tramos IU — ${MESES[mes]} ${anio}`;
+  iuTramos=(iuPeriodo?.anio===anio&&iuPeriodo?.mes===mes&&iuPeriodo.tramos)?[...iuPeriodo.tramos]:[];
+  renderIUEditor(); openModal('modal-iu');
+}
+document.getElementById('iu-add-tramo').addEventListener('click',()=>{
+  iuTramos.push({orden:iuTramos.length+1,utm_desde:0,utm_hasta:null,tasa:0,rebaja_utm:0});renderIUEditor();
+});
+document.getElementById('modal-iu-close').addEventListener('click',()=>closeModal('modal-iu'));
+document.getElementById('modal-iu-cancel').addEventListener('click',()=>closeModal('modal-iu'));
+document.getElementById('modal-iu-save').addEventListener('click', async()=>{
+  const btn=document.getElementById('modal-iu-save');
+  const {anio,mes}=getPeriodo();
+  const desdes=[...document.querySelectorAll('.iu-desde')].map(e=>parseFloat(e.value)||0);
+  const hastas=[...document.querySelectorAll('.iu-hasta')].map(e=>e.value?parseFloat(e.value):null);
+  const tasas=[...document.querySelectorAll('.iu-tasa')].map(e=>parseFloat(e.value)/100||0);
+  const rebajas=[...document.querySelectorAll('.iu-rebaja')].map(e=>parseFloat(e.value)||0);
+  const body=desdes.map((_,i)=>({anio,mes,orden:i+1,utm_desde:desdes[i],utm_hasta:hastas[i],tasa:tasas[i],rebaja_utm:rebajas[i]}));
+  setLoading(btn,true);
+  try { await api.put(`/nomina/parametros/impuesto-unico/${anio}/${mes}`,body); toast.success('Tramos IU guardados.');closeModal('modal-iu');loadIU(); }
+  catch(err){toast.error(err.message);}
+  finally{setLoading(btn,false);}
+});
+
+// ── TAB FACTORES ──────────────────────────────────────────────────────────────
+async function loadFactores() {
+  const tbody=document.getElementById('tbody-factores');
+  tbody.innerHTML=`<tr><td colspan="6" style="text-align:center;padding:24px;color:var(--text-muted);">Cargando…</td></tr>`;
+  try {
+    const items=await api.get('/nomina/parametros/factores');
+    const filtered=state.anio?items.filter(f=>f.anio===state.anio):items;
+    if(!filtered.length){tbody.innerHTML=`<tr><td colspan="6" style="text-align:center;padding:24px;color:var(--text-muted);">Sin factores registrados.</td></tr>`;return;}
+    tbody.innerHTML=filtered.map(f=>`<tr>
+      <td><strong>${MESES[f.mes]} ${f.anio}</strong></td>
+      <td style="text-align:right;">${fmtCLP(f.utm)}</td><td style="text-align:right;">${fmtCLP(f.uf)}</td>
+      <td style="text-align:right;">${fmtCLP(f.imm)}</td>
+      <td style="text-align:right;">${Number(f.factor).toFixed(6)}</td>
+      <td style="text-align:right;"><button class="btn btn-ghost btn-sm btn-edit-factor" data-anio="${f.anio}" data-mes="${f.mes}" title="Editar"><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button></td>
+    </tr>`).join('');
+    document.querySelectorAll('.btn-edit-factor').forEach(b=>b.addEventListener('click',()=>openEditFactor(parseInt(b.dataset.anio),parseInt(b.dataset.mes),filtered)));
+  } catch(err){tbody.innerHTML=`<tr><td colspan="6" style="text-align:center;color:var(--danger);padding:24px;">${err.message}</td></tr>`;}
+}
+function openCreateFactor() {
+  editModeFactor=null;
+  document.getElementById('modal-factor-title').textContent='Nuevo factor';
+  document.getElementById('f-anio').value=now.getFullYear(); document.getElementById('f-mes').value=now.getMonth()+1;
+  ['f-utm','f-uf','f-imm'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('f-factor').value='1';
+  ['f-anio','f-mes'].forEach(id=>document.getElementById(id).disabled=false);
+  openModal('modal-factor');
+}
+function openEditFactor(anio,mes,items) {
+  editModeFactor={anio,mes};
+  const f=items.find(x=>x.anio===anio&&x.mes===mes);
+  document.getElementById('modal-factor-title').textContent=`Factor — ${MESES[mes]} ${anio}`;
+  document.getElementById('f-anio').value=anio; document.getElementById('f-mes').value=mes;
+  document.getElementById('f-utm').value=f.utm; document.getElementById('f-uf').value=f.uf;
+  document.getElementById('f-imm').value=f.imm; document.getElementById('f-factor').value=f.factor;
+  ['f-anio','f-mes'].forEach(id=>document.getElementById(id).disabled=true);
+  openModal('modal-factor');
+}
+document.getElementById('modal-factor-close').addEventListener('click',()=>closeModal('modal-factor'));
+document.getElementById('modal-factor-cancel').addEventListener('click',()=>closeModal('modal-factor'));
+document.getElementById('modal-factor-save').addEventListener('click', async()=>{
+  const btn=document.getElementById('modal-factor-save');
+  const utm=parseFloat(document.getElementById('f-utm').value),uf=parseFloat(document.getElementById('f-uf').value);
+  const imm=parseFloat(document.getElementById('f-imm').value),factor=parseFloat(document.getElementById('f-factor').value)||1;
+  if([utm,uf,imm].some(v=>isNaN(v)||v<=0)){toast.error('Completa todos los campos.');return;}
+  setLoading(btn,true);
+  try {
+    if(editModeFactor) await api.patch(`/nomina/parametros/factores/${editModeFactor.anio}/${editModeFactor.mes}`,{utm,uf,imm,factor});
+    else { const anio=parseInt(document.getElementById('f-anio').value),mes=parseInt(document.getElementById('f-mes').value); await api.post('/nomina/parametros/factores',{anio,mes,utm,uf,imm,factor}); }
+    toast.success('Factor guardado.');closeModal('modal-factor');loadFactores();
+  } catch(err){toast.error(err.message);}
+  finally{setLoading(btn,false);}
+});
+
+// ── TAB CCHC ─────────────────────────────────────────────────────────────────
+async function loadCCHC() {
+  const tbody=document.getElementById('tbody-cchc');
+  tbody.innerHTML=`<tr><td colspan="5" style="text-align:center;padding:24px;color:var(--text-muted);">Cargando…</td></tr>`;
+  try {
+    const item=await api.get('/nomina/parametros/serv-med-cchc/vigente');
+    const items=item?[item]:[];
+    if(!items.length){tbody.innerHTML=`<tr><td colspan="5" style="text-align:center;padding:24px;color:var(--text-muted);">Sin datos CCHC.</td></tr>`;return;}
+    tbody.innerHTML=items.map(c=>`<tr>
+      <td><strong>${MESES[c.mes]} ${c.anio}</strong></td>
+      <td style="text-align:right;">${(Number(c.porcentaje)*100).toFixed(2)}%</td>
+      <td style="text-align:right;">${Number(c.tope_uf).toFixed(2)} UF</td>
+      <td style="text-align:right;">${fmtCLP(c.valor_carga)}</td>
+      <td style="text-align:right;"><button class="btn btn-ghost btn-sm btn-edit-cchc" data-anio="${c.anio}" data-mes="${c.mes}" title="Editar"><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button></td>
+    </tr>`).join('');
+    document.querySelectorAll('.btn-edit-cchc').forEach(b=>b.addEventListener('click',()=>openEditCCHC(parseInt(b.dataset.anio),parseInt(b.dataset.mes),item)));
+  } catch(err){tbody.innerHTML=`<tr><td colspan="5" style="text-align:center;color:var(--danger);padding:24px;">${err.message}</td></tr>`;}
+}
+function openCreateCCHC() {
+  editModeCchc=null;
+  document.getElementById('modal-cchc-title').textContent='Nueva CCHC';
+  document.getElementById('cc-anio').value=now.getFullYear(); document.getElementById('cc-mes').value=now.getMonth()+1;
+  document.getElementById('cc-pct').value=''; document.getElementById('cc-tope').value=''; document.getElementById('cc-carga').value='0';
+  document.getElementById('cchc-periodo-row').style.display='';
+  openModal('modal-cchc');
+}
+function openEditCCHC(anio,mes,item) {
+  editModeCchc={anio,mes};
+  document.getElementById('modal-cchc-title').textContent=`CCHC — ${MESES[mes]} ${anio}`;
+  document.getElementById('cc-anio').value=anio; document.getElementById('cc-mes').value=mes;
+  document.getElementById('cc-pct').value=(Number(item.porcentaje)*100).toFixed(2);
+  document.getElementById('cc-tope').value=item.tope_uf;
+  document.getElementById('cc-carga').value=item.valor_carga;
+  document.getElementById('cchc-periodo-row').style.display='none';
+  openModal('modal-cchc');
+}
+document.getElementById('modal-cchc-close').addEventListener('click',()=>closeModal('modal-cchc'));
+document.getElementById('modal-cchc-cancel').addEventListener('click',()=>closeModal('modal-cchc'));
+document.getElementById('modal-cchc-save').addEventListener('click', async()=>{
+  const btn=document.getElementById('modal-cchc-save');
+  const pct=parseFloat(document.getElementById('cc-pct').value)/100;
+  const tope=parseFloat(document.getElementById('cc-tope').value);
+  const carga=parseFloat(document.getElementById('cc-carga').value)||0;
+  if(isNaN(pct)||isNaN(tope)){toast.error('Completa todos los campos.');return;}
+  setLoading(btn,true);
+  try {
+    if(editModeCchc) await api.patch(`/nomina/parametros/serv-med-cchc/${editModeCchc.anio}/${editModeCchc.mes}`,{porcentaje:pct,tope_uf:tope,valor_carga:carga});
+    else { const anio=parseInt(document.getElementById('cc-anio').value),mes=parseInt(document.getElementById('cc-mes').value); await api.post('/nomina/parametros/serv-med-cchc',{anio,mes,porcentaje:pct,tope_uf:tope,valor_carga:carga}); }
+    toast.success('CCHC guardado.');closeModal('modal-cchc');loadCCHC();
+  } catch(err){toast.error(err.message);}
+  finally{setLoading(btn,false);}
+});
+
+// ── Inicializar ───────────────────────────────────────────────────────────────
+loadMensuales();
+</script>
+</body>
+</html>

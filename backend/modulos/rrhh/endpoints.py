@@ -25,6 +25,8 @@ from modulos.rrhh.schemas import (
     EvaluacionCuantitativaCreate, EvaluacionCuantitativaRead, EvaluacionCuantitativaUpdate,
     FichaPermisoCreate, FichaPermisoList, FichaPermisoRead, FichaPermisoUpdate,
     FichaVacacionCreate, FichaVacacionList, FichaVacacionRead, FichaVacacionUpdate,
+    LicenciaMedicaCreate, LicenciaMedicaList, LicenciaMedicaRead, LicenciaMedicaUpdate,
+    MantenedorGlobalCreate, MantenedorGlobalRead, MantenedorGlobalUpdate,
     ObservacionCreate, ObservacionList, ObservacionRead, ObservacionUpdate,
     SupervisorCreate, SupervisorList, SupervisorRead, SupervisorUpdate,
     TipoPermisoCreate, TipoPermisoList, TipoPermisoRead, TipoPermisoUpdate,
@@ -38,7 +40,8 @@ from modulos.rrhh.services import (
     CargaFamiliarService, CargoDesempenadoService,
     ConyugeAfiliadoService, EvaluacionCualitativaService,
     EvaluacionCuantitativaService, FichaPermisoService,
-    FichaVacacionService, ObservacionService,
+    FichaVacacionService, LicenciaMedicaService, ObservacionService,
+    EstadoCivilService, TipoTrabajadorService, RegimenPrevisionalService,
     SupervisorService, TipoPermisoService,
     TrabajadorApvService, TrabajadorEvalService, TrabajadorService,
 )
@@ -263,7 +266,7 @@ router_trabajadores = APIRouter(prefix="/rrhh/trabajadores", tags=["RRHH - Traba
 @router_trabajadores.get("", response_model=TrabajadorList)
 def list_trabajadores(
     page: int = Query(1, ge=1),
-    size: int = Query(20, ge=1, le=100),
+    size: int = Query(20, ge=1, le=500),
     search: str = Query(""),
     solo_activos: bool = Query(True),
     sucursal_id: Optional[UUID] = Query(None),
@@ -636,6 +639,64 @@ def update_cargo_desempenado(
     )
 
 
+@router_trabajadores.delete("/{trabajador_id}/cargos-desempenados/{cargo_id}",
+                             status_code=status.HTTP_204_NO_CONTENT)
+def delete_cargo_desempenado(
+    trabajador_id: UUID, cargo_id: UUID,
+    db: Session = Depends(get_db),
+    actor: User = Depends(require_permission("rrhh.trabajadores.update")),
+):
+    CargoDesempenadoService.delete(db, _tenant_id(actor), cargo_id)
+
+
+# ── LICENCIAS MÉDICAS ─────────────────────────────────────────────────────────
+
+@router_trabajadores.get("/{trabajador_id}/licencias", response_model=LicenciaMedicaList)
+def list_licencias(
+    trabajador_id: UUID,
+    page: int = Query(1, ge=1), size: int = Query(50, ge=1, le=200),
+    db: Session = Depends(get_db),
+    actor: User = Depends(require_permission("rrhh.trabajadores.read")),
+):
+    items, total = LicenciaMedicaService.list(db, _tenant_id(actor), trabajador_id, page, size)
+    return LicenciaMedicaList(items=[LicenciaMedicaRead.model_validate(i) for i in items], total=total)
+
+
+@router_trabajadores.post("/{trabajador_id}/licencias", response_model=LicenciaMedicaRead,
+                           status_code=status.HTTP_201_CREATED)
+def create_licencia(
+    trabajador_id: UUID,
+    body: LicenciaMedicaCreate,
+    db: Session = Depends(get_db),
+    actor: User = Depends(require_permission("rrhh.trabajadores.update")),
+):
+    return LicenciaMedicaRead.model_validate(
+        LicenciaMedicaService.create(db, _tenant_id(actor), trabajador_id, body)
+    )
+
+
+@router_trabajadores.patch("/{trabajador_id}/licencias/{lic_id}", response_model=LicenciaMedicaRead)
+def update_licencia(
+    trabajador_id: UUID, lic_id: UUID,
+    body: LicenciaMedicaUpdate,
+    db: Session = Depends(get_db),
+    actor: User = Depends(require_permission("rrhh.trabajadores.update")),
+):
+    return LicenciaMedicaRead.model_validate(
+        LicenciaMedicaService.update(db, _tenant_id(actor), lic_id, body)
+    )
+
+
+@router_trabajadores.delete("/{trabajador_id}/licencias/{lic_id}",
+                             status_code=status.HTTP_204_NO_CONTENT)
+def delete_licencia(
+    trabajador_id: UUID, lic_id: UUID,
+    db: Session = Depends(get_db),
+    actor: User = Depends(require_permission("rrhh.trabajadores.update")),
+):
+    LicenciaMedicaService.delete(db, _tenant_id(actor), lic_id)
+
+
 # ── EVALUACIONES DEL TRABAJADOR ───────────────────────────────────────────────
 
 @router_trabajadores.get("/{trabajador_id}/evaluaciones/cuantitativas",
@@ -693,6 +754,52 @@ def create_eval_cualitativa_trabajador(
 
 
 # ─────────────────────────────────────────────────────────────────────────────
+# ─────────────────────────────────────────────────────────────────────────────
+# MANTENEDORES GLOBALES (estado civil, tipo trabajador, régimen previsional)
+# ─────────────────────────────────────────────────────────────────────────────
+
+router_mantenedores = APIRouter(prefix="/rrhh/mantenedores", tags=["RRHH - Mantenedores"])
+
+
+def _mant_router(path: str, service):
+    """Registra los 4 endpoints CRUD en router_mantenedores para un catálogo global."""
+
+    @router_mantenedores.get(path, response_model=list[MantenedorGlobalRead])
+    def _list(db: Session = Depends(get_db),
+              _: User = Depends(get_current_user)):
+        return [MantenedorGlobalRead.model_validate(i) for i in service.list(db)]
+
+    @router_mantenedores.post(path, response_model=MantenedorGlobalRead,
+                              status_code=status.HTTP_201_CREATED)
+    def _create(body: MantenedorGlobalCreate,
+                db: Session = Depends(get_db),
+                _: User = Depends(require_admin_or_superadmin)):
+        return MantenedorGlobalRead.model_validate(service.create(db, body.model_dump()))
+
+    @router_mantenedores.patch(f"{path}/{{item_id}}", response_model=MantenedorGlobalRead)
+    def _update(item_id: int, body: MantenedorGlobalUpdate,
+                db: Session = Depends(get_db),
+                _: User = Depends(require_admin_or_superadmin)):
+        return MantenedorGlobalRead.model_validate(
+            service.update(db, item_id, body.model_dump(exclude_unset=True))
+        )
+
+    @router_mantenedores.delete(f"{path}/{{item_id}}",
+                                status_code=status.HTTP_204_NO_CONTENT)
+    def _delete(item_id: int,
+                db: Session = Depends(get_db),
+                _: User = Depends(require_admin_or_superadmin)):
+        service.delete(db, item_id)
+
+
+from app.auth.dependencies import require_admin_or_superadmin  # noqa: E402
+
+_mant_router("/estado-civil",        EstadoCivilService)
+_mant_router("/tipo-trabajador",     TipoTrabajadorService)
+_mant_router("/regimen-previsional", RegimenPrevisionalService)
+
+
+# ─────────────────────────────────────────────────────────────────────────────
 # Router principal del módulo (agrupa todos los sub-routers)
 # ─────────────────────────────────────────────────────────────────────────────
 
@@ -701,3 +808,4 @@ router.include_router(router_supervisores)
 router.include_router(router_tipos_permiso)
 router.include_router(router_eval)
 router.include_router(router_trabajadores)
+router.include_router(router_mantenedores)

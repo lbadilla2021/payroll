@@ -1,0 +1,2258 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ficha trabajador — Nómina</title>
+  <link rel="stylesheet" href="/static/css/main.css?v=4">
+</head>
+<body data-page="trabajadores">
+
+<div id="app-shell">
+  <nav class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <div class="brand-mark">N</div>
+      <span class="brand-name">Nómina SaaS</span>
+    </div>
+    <div class="sidebar-nav" id="sidebar-nav"></div>
+    <div class="sidebar-footer">
+      <div class="profile-trigger" id="profile-trigger">
+        <div class="avatar" id="sidebar-avatar">?</div>
+        <div class="profile-info">
+          <div class="profile-name" id="sidebar-name">…</div>
+          <div class="profile-role" id="sidebar-role"></div>
+        </div>
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <div class="profile-menu" id="profile-menu">
+        <div class="menu-item" onclick="window.location.href='/settings.html'">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+          Configuración
+        </div>
+        <div class="menu-item" id="theme-toggle-btn">
+          <svg id="theme-icon-sun" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+          <svg id="theme-icon-moon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none;"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+          <span id="theme-label">Modo oscuro</span>
+        </div>
+        <div class="menu-divider"></div>
+        <div class="menu-item" id="help-btn">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          Ayuda
+        </div>
+        <div class="menu-divider"></div>
+        <div class="menu-item danger" id="logout-btn">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+          Cerrar sesión
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <div class="main-content">
+    <!-- Topbar con breadcrumb -->
+    <div class="detail-topbar">
+      <div class="breadcrumb">
+        <a href="/rrhh/trabajadores.html">
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+        </a>
+        <a href="/rrhh/trabajadores.html">Trabajadores</a>
+        <span class="breadcrumb-sep">/</span>
+        <span class="breadcrumb-current" id="bc-nombre">Cargando…</span>
+      </div>
+      <div class="detail-topbar-row">
+        <span class="detail-title" id="page-title">…</span>
+        <span id="badge-estado"></span>
+        <div class="topbar-spacer"></div>
+        <span style="font-size:12px;color:var(--text-muted);font-family:monospace;" id="topbar-rut"></span>
+        <button class="btn btn-danger btn-sm" id="btn-desactivar" style="display:none;">Desactivar</button>
+      </div>
+    </div>
+
+    <!-- Tab bar -->
+    <div style="background:var(--bg-surface);border-bottom:1px solid var(--border);padding:0 var(--space-6);">
+      <div class="tab-bar" id="tab-bar" style="border-bottom:none;margin-bottom:0;">
+        <button class="tab-btn active" data-tab="personal">Personal</button>
+        <button class="tab-btn" data-tab="laboral">Laboral</button>
+        <button class="tab-btn" data-tab="previsional">Previsional</button>
+        <button class="tab-btn" data-tab="cargas">Cargas familiares</button>
+        <button class="tab-btn" data-tab="apv">APV</button>
+        <button class="tab-btn" data-tab="vacaciones">Vacaciones</button>
+        <button class="tab-btn" data-tab="permisos">Permisos</button>
+        <button class="tab-btn" data-tab="licencias">Lic. Médicas</button>
+        <button class="tab-btn" data-tab="historial">Historial</button>
+        <button class="tab-btn" data-tab="evaluaciones">Evaluaciones</button>
+      </div>
+    </div>
+
+    <main class="page-area">
+      <div style="max-width:900px;">
+
+        <!-- ─── TAB: Personal ─────────────────────────────────────── -->
+        <div class="tab-panel active" id="tab-personal">
+          <div class="card">
+            <div class="card-header">
+              <span class="card-title">Datos personales</span>
+            </div>
+            <div class="card-body">
+              <div class="form-section">
+                <div class="form-section-title">Identificación</div>
+                <div class="form-row cols-3">
+                  <div class="form-group">
+                    <label class="form-label">RUT</label>
+                    <input class="form-input" id="p-rut" type="text" readonly style="background:var(--bg-hover);">
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Código</label>
+                    <input class="form-input" id="p-codigo" type="text" readonly style="background:var(--bg-hover);">
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Fecha nacimiento</label>
+                    <input class="form-input" id="p-fnac" type="date">
+                  </div>
+                </div>
+                <div class="form-row cols-3">
+                  <div class="form-group">
+                    <label class="form-label">Nombres *</label>
+                    <input class="form-input" id="p-nombres" type="text">
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Apellido paterno *</label>
+                    <input class="form-input" id="p-ap" type="text">
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Apellido materno</label>
+                    <input class="form-input" id="p-am" type="text">
+                  </div>
+                </div>
+                <div class="form-row cols-3">
+                  <div class="form-group">
+                    <label class="form-label">Sexo</label>
+                    <select class="form-input form-select" id="p-sexo">
+                      <option value="">Sin especificar</option>
+                      <option value="M">Masculino</option>
+                      <option value="F">Femenino</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Estado civil</label>
+                    <select class="form-input form-select" id="p-ecivil">
+                      <option value="">Sin especificar</option>
+                      <option value="1">Soltero/a</option>
+                      <option value="2">Casado/a</option>
+                      <option value="3">Divorciado/a</option>
+                      <option value="4">Viudo/a</option>
+                    </select>
+                  </div>
+                  <div class="form-group" style="justify-content:flex-end;padding-top:24px;">
+                    <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;color:var(--text-secondary);">
+                      <input type="checkbox" id="p-extranjero" style="width:16px;height:16px;">
+                      Es extranjero
+                    </label>
+                  </div>
+                </div>
+                <div class="form-row cols-2" id="row-nacionalidad" style="display:none;">
+                  <div class="form-group">
+                    <label class="form-label">Nacionalidad</label>
+                    <input class="form-input" id="p-nacionalidad" type="text" placeholder="Ej: Peruana">
+                  </div>
+                </div>
+              </div>
+
+              <div class="form-section">
+                <div class="form-section-title">Contacto</div>
+                <div class="form-row cols-2">
+                  <div class="form-group">
+                    <label class="form-label">Email</label>
+                    <input class="form-input" id="p-email" type="email">
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Teléfono</label>
+                    <input class="form-input" id="p-telefono" type="tel" placeholder="+56 9 1234 5678">
+                  </div>
+                </div>
+              </div>
+
+              <div class="form-section">
+                <div class="form-section-title">Dirección</div>
+                <div class="form-row cols-2">
+                  <div class="form-group">
+                    <label class="form-label">Calle</label>
+                    <input class="form-input" id="p-calle" type="text">
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Número</label>
+                    <input class="form-input" id="p-numero" type="text">
+                  </div>
+                </div>
+                <div class="form-row cols-2">
+                  <div class="form-group">
+                    <label class="form-label">Región</label>
+                    <select class="form-input form-select" id="p-region">
+                      <option value="">Seleccionar…</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Comuna</label>
+                    <select class="form-input form-select" id="p-comuna">
+                      <option value="">Seleccionar región primero</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              <div style="display:flex;justify-content:flex-end;gap:var(--space-3);padding-top:var(--space-4);border-top:1px solid var(--border);">
+                <button class="btn btn-primary" id="btn-save-personal">Guardar cambios</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ─── TAB: Laboral ──────────────────────────────────────── -->
+        <div class="tab-panel" id="tab-laboral">
+          <div class="card">
+            <div class="card-header"><span class="card-title">Datos laborales</span></div>
+            <div class="card-body">
+              <div class="form-section">
+                <div class="form-section-title">Remuneración</div>
+                <div class="form-row cols-3">
+                  <div class="form-group">
+                    <label class="form-label">Tipo sueldo</label>
+                    <select class="form-input form-select" id="l-tiposueldo">
+                      <option value="M">Mensual</option>
+                      <option value="D">Diario</option>
+                      <option value="H">Por hora</option>
+                      <option value="E">Especial</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Monto sueldo base</label>
+                    <input class="form-input" id="l-monto" type="number" min="0" step="1">
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Horas semana</label>
+                    <input class="form-input" id="l-horas" type="number" min="0" max="60" step="0.5">
+                  </div>
+                </div>
+                <div class="form-row cols-3">
+                  <div class="form-group">
+                    <label class="form-label">Tipo gratificación</label>
+                    <select class="form-input form-select" id="l-gratif">
+                      <option value="calculada">Art. 50 (25% IMM)</option>
+                      <option value="informada">Monto informado</option>
+                      <option value="proporcional">Proporcional</option>
+                      <option value="calculada_dict4232">Dict. 4232</option>
+                      <option value="no_paga">No paga</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Monto gratificación</label>
+                    <input class="form-input" id="l-monto-gratif" type="number" min="0" step="1" placeholder="Solo si es informada">
+                  </div>
+                  <div class="form-group"></div>
+                </div>
+                <div class="form-row cols-2">
+                  <div class="form-group">
+                    <label class="form-label">Monto movilización</label>
+                    <input class="form-input" id="l-movil" type="number" min="0" step="1">
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Monto colación</label>
+                    <input class="form-input" id="l-colac" type="number" min="0" step="1">
+                  </div>
+                </div>
+              </div>
+
+              <div class="form-section">
+                <div class="form-section-title">Forma de pago</div>
+                <div class="form-row cols-3">
+                  <div class="form-group">
+                    <label class="form-label">Forma de pago</label>
+                    <select class="form-input form-select" id="l-formapago">
+                      <option value="E">Efectivo</option>
+                      <option value="C">Cheque</option>
+                      <option value="D">Depósito bancario</option>
+                      <option value="P">Transferencia</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Banco</label>
+                    <select class="form-input form-select" id="l-banco">
+                      <option value="">Sin banco</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">N° cuenta</label>
+                    <input class="form-input" id="l-cuenta" type="text" maxlength="30">
+                  </div>
+                </div>
+              </div>
+
+              <div class="form-section">
+                <div class="form-section-title">Cargo y ubicación</div>
+                <div class="form-row cols-2">
+                  <div class="form-group">
+                    <label class="form-label">Cargo</label>
+                    <select class="form-input form-select" id="l-cargo">
+                      <option value="">Sin cargo</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Sucursal</label>
+                    <select class="form-input form-select" id="l-sucursal">
+                      <option value="">Sin sucursal</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="form-row cols-2">
+                  <div class="form-group">
+                    <label class="form-label">Centro de costo</label>
+                    <select class="form-input form-select" id="l-cc">
+                      <option value="">Sin centro de costo</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Supervisor</label>
+                    <select class="form-input form-select" id="l-supervisor">
+                      <option value="">Sin supervisor</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              <div class="form-section">
+                <div class="form-section-title">Contrato</div>
+                <div class="form-row cols-2">
+                  <div class="form-group">
+                    <label class="form-label">Tipo de contrato</label>
+                    <select class="form-input form-select" id="l-tipocontrato">
+                      <option value="">Sin tipo</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Fecha de contrato</label>
+                    <input class="form-input" id="l-fcontrato" type="date">
+                  </div>
+                </div>
+                <div class="form-row cols-2">
+                  <div class="form-group">
+                    <label class="form-label">Profesión</label>
+                    <input class="form-input" id="l-profesion" type="text" maxlength="100">
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Labor / Función</label>
+                    <input class="form-input" id="l-labor" type="text" maxlength="200">
+                  </div>
+                </div>
+              </div>
+
+              <div style="display:flex;justify-content:flex-end;gap:var(--space-3);padding-top:var(--space-4);border-top:1px solid var(--border);">
+                <button class="btn btn-primary" id="btn-save-laboral">Guardar cambios</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ─── TAB: Previsional ──────────────────────────────────── -->
+        <div class="tab-panel" id="tab-previsional">
+          <div class="card">
+            <div class="card-header"><span class="card-title">Datos previsionales</span></div>
+            <div class="card-body">
+              <div class="form-section">
+                <div class="form-section-title">AFP</div>
+                <div class="form-row cols-3">
+                  <div class="form-group">
+                    <label class="form-label">Régimen previsional</label>
+                    <select class="form-input form-select" id="v-regprev">
+                      <option value="1">AFP (activo)</option>
+                      <option value="2">IPS (ex INP)</option>
+                      <option value="3">FF.AA.</option>
+                      <option value="4">Sin previsión</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">AFP</label>
+                    <select class="form-input form-select" id="v-afp">
+                      <option value="">Sin AFP</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Cotización voluntaria AFP</label>
+                    <input class="form-input" id="v-cotvol" type="number" min="0" step="1">
+                  </div>
+                </div>
+                <div class="form-row cols-2">
+                  <div class="form-group" style="padding-top:24px;">
+                    <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;color:var(--text-secondary);">
+                      <input type="checkbox" id="v-rebaja42" style="width:16px;height:16px;">
+                      Rebaja impuesto Art. 42 bis (cotiz. voluntaria)
+                    </label>
+                  </div>
+                  <div class="form-group" style="padding-top:24px;">
+                    <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;color:var(--text-secondary);">
+                      <input type="checkbox" id="v-nosis" style="width:16px;height:16px;">
+                      No cotiza SIS
+                    </label>
+                  </div>
+                </div>
+              </div>
+
+              <div class="form-section">
+                <div class="form-section-title">Salud</div>
+                <div class="form-row cols-3">
+                  <div class="form-group">
+                    <label class="form-label">Régimen de salud</label>
+                    <select class="form-input form-select" id="v-regsalud">
+                      <option value="FONASA">FONASA</option>
+                      <option value="ISAPRE">ISAPRE</option>
+                    </select>
+                  </div>
+                  <div class="form-group" id="row-isapre-sel">
+                    <label class="form-label">Isapre</label>
+                    <select class="form-input form-select" id="v-isapre">
+                      <option value="">Sin Isapre</option>
+                    </select>
+                  </div>
+                  <div class="form-group" id="row-modalidad">
+                    <label class="form-label">Modalidad Isapre</label>
+                    <select class="form-input form-select" id="v-modalidad">
+                      <option value="">Sin modalidad</option>
+                      <option value="1">1 — Monto fijo pesos</option>
+                      <option value="2">2 — Monto fijo UF</option>
+                      <option value="3">3 — Solo 7% legal</option>
+                      <option value="4">4 — 7% + adicional UF</option>
+                      <option value="5">5 — 7% + adicional UF + pesos</option>
+                      <option value="6">6 — Pesos + UF</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="form-row cols-2" id="row-isapre-montos">
+                  <div class="form-group">
+                    <label class="form-label">Monto Isapre (pesos)</label>
+                    <input class="form-input" id="v-isapre-pesos" type="number" min="0" step="1">
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Monto Isapre (UF)</label>
+                    <input class="form-input" id="v-isapre-uf" type="number" min="0" step="0.01">
+                  </div>
+                </div>
+              </div>
+
+              <div class="form-section">
+                <div class="form-section-title">Seguro de Cesantía</div>
+                <div class="form-row cols-2">
+                  <div class="form-group" style="padding-top:24px;">
+                    <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;color:var(--text-secondary);">
+                      <input type="checkbox" id="v-sc" style="width:16px;height:16px;">
+                      Tiene Seguro de Cesantía
+                    </label>
+                  </div>
+                  <div class="form-group" style="padding-top:24px;">
+                    <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;color:var(--text-secondary);">
+                      <input type="checkbox" id="v-plazo-fijo" style="width:16px;height:16px;">
+                      Contrato a plazo fijo (SC empleador 3%)
+                    </label>
+                  </div>
+                </div>
+                <div class="form-row cols-2" id="row-sc-fechas">
+                  <div class="form-group">
+                    <label class="form-label">AFP Seg. Cesantía</label>
+                    <select class="form-input form-select" id="v-afp-sc">
+                      <option value="">Misma AFP</option>
+                    </select>
+                  </div>
+                  <div class="form-group"></div>
+                </div>
+                <div class="form-row cols-2">
+                  <div class="form-group">
+                    <label class="form-label">Fecha ingreso SC</label>
+                    <input class="form-input" id="v-fesc" type="date">
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Fecha último mes SC</label>
+                    <input class="form-input" id="v-fesc-ult" type="date">
+                  </div>
+                </div>
+              </div>
+
+              <div class="form-section">
+                <div class="form-section-title">Otros</div>
+                <div class="form-row cols-3">
+                  <div class="form-group">
+                    <label class="form-label">Tipo trabajador</label>
+                    <select class="form-input form-select" id="v-tipotrab">
+                      <option value="1">1 — Dependiente</option>
+                      <option value="2">2 — Pensionado</option>
+                      <option value="3">3 — Menor de edad</option>
+                      <option value="4">4 — Extranjero</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">% Asignación zona (DL 889)</label>
+                    <input class="form-input" id="v-zona" type="number" min="0" max="100" step="0.1">
+                  </div>
+                  <div class="form-group" style="padding-top:24px;">
+                    <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;color:var(--text-secondary);">
+                      <input type="checkbox" id="v-cchc" style="width:16px;height:16px;">
+                      Serv. Médico CCHC
+                    </label>
+                  </div>
+                </div>
+              </div>
+
+              <div style="display:flex;justify-content:flex-end;gap:var(--space-3);padding-top:var(--space-4);border-top:1px solid var(--border);">
+                <button class="btn btn-primary" id="btn-save-prev">Guardar cambios</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ─── TAB: Cargas familiares ─────────────────────────────── -->
+        <div class="tab-panel" id="tab-cargas">
+          <div class="card">
+            <div class="card-header">
+              <span class="card-title">Cargas familiares</span>
+              <button class="btn btn-primary btn-sm" id="btn-add-carga">+ Agregar carga</button>
+            </div>
+            <div class="table-wrapper">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Nombre</th>
+                    <th>RUT</th>
+                    <th>Parentesco</th>
+                    <th>Tipo</th>
+                    <th>Vencimiento</th>
+                    <th>Estado</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody id="tbody-cargas">
+                  <tr><td colspan="7"><div style="padding:24px;text-align:center;"><div class="spinner" style="margin:0 auto;"></div></div></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- ─── TAB: APV ──────────────────────────────────────────── -->
+        <div class="tab-panel" id="tab-apv">
+          <div class="card">
+            <div class="card-header">
+              <span class="card-title">APV del trabajador</span>
+              <button class="btn btn-primary btn-sm" id="btn-add-apv">+ Agregar APV</button>
+            </div>
+            <div class="table-wrapper">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Tipo</th>
+                    <th>Moneda trab.</th>
+                    <th>Monto trab.</th>
+                    <th>Monto empl.</th>
+                    <th>Rebaja 42 bis</th>
+                    <th>Vigencia</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody id="tbody-apv">
+                  <tr><td colspan="7"><div style="padding:24px;text-align:center;"><div class="spinner" style="margin:0 auto;"></div></div></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- ─── TAB: Vacaciones ───────────────────────────────────── -->
+        <div class="tab-panel" id="tab-vacaciones">
+          <!-- Resumen -->
+          <div class="card" style="margin-bottom:var(--space-4);" id="card-resumen-vac">
+            <div class="card-body">
+              <div class="stats-grid" style="margin-bottom:0;">
+                <div class="stat-card"><span class="stat-label">Días ganados</span><span class="stat-value" id="vac-ganados">—</span></div>
+                <div class="stat-card"><span class="stat-label">Días usados</span><span class="stat-value" id="vac-usados">—</span></div>
+                <div class="stat-card"><span class="stat-label">Días pendientes</span><span class="stat-value" id="vac-pendientes">—</span></div>
+                <div class="stat-card"><span class="stat-label">Días progresivos</span><span class="stat-value" id="vac-progresivos">—</span></div>
+              </div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header">
+              <span class="card-title">Registros de vacaciones</span>
+              <button class="btn btn-primary btn-sm" id="btn-add-vac">+ Registrar</button>
+            </div>
+            <div class="table-wrapper">
+              <table>
+                <thead>
+                  <tr><th>Tipo</th><th>Desde</th><th>Hasta</th><th>Días háb.</th><th>Observación</th><th></th></tr>
+                </thead>
+                <tbody id="tbody-vac">
+                  <tr><td colspan="6"><div style="padding:24px;text-align:center;"><div class="spinner" style="margin:0 auto;"></div></div></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- ─── TAB: Permisos ─────────────────────────────────────── -->
+        <div class="tab-panel" id="tab-permisos">
+          <div class="card">
+            <div class="card-header">
+              <span class="card-title">Permisos laborales</span>
+              <button class="btn btn-primary btn-sm" id="btn-add-permiso">+ Agregar permiso</button>
+            </div>
+            <div class="table-wrapper">
+              <table>
+                <thead>
+                  <tr><th>Tipo</th><th>Desde</th><th>Hasta</th><th>Días</th><th>Observación</th><th></th></tr>
+                </thead>
+                <tbody id="tbody-permisos">
+                  <tr><td colspan="7"><div style="padding:24px;text-align:center;"><div class="spinner" style="margin:0 auto;"></div></div></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- ─── TAB: Licencias Médicas ───────────────────────────── -->
+        <div class="tab-panel" id="tab-licencias">
+          <div class="card">
+            <div class="card-header">
+              <span class="card-title">Licencias médicas</span>
+              <button class="btn btn-primary btn-sm" id="btn-add-licencia">+ Agregar licencia</button>
+            </div>
+            <div class="table-wrapper">
+              <table>
+                <thead>
+                  <tr><th>Fecha inicio</th><th>Días</th><th>Fecha término</th><th>Observación</th><th></th></tr>
+                </thead>
+                <tbody id="tbody-licencias">
+                  <tr><td colspan="5"><div style="padding:24px;text-align:center;"><div class="spinner" style="margin:0 auto;"></div></div></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- ─── TAB: Historial ────────────────────────────────────── -->
+        <div class="tab-panel" id="tab-historial">
+          <!-- Cargos desempeñados -->
+          <div class="card" style="margin-bottom:var(--space-4);">
+            <div class="card-header">
+              <span class="card-title">Cargos desempeñados</span>
+              <button class="btn btn-primary btn-sm" id="btn-add-cargo-hist">+ Agregar</button>
+            </div>
+            <div class="table-wrapper">
+              <table>
+                <thead>
+                  <tr><th>Cargo</th><th>Desde</th><th>Hasta</th><th>Observación</th><th></th></tr>
+                </thead>
+                <tbody id="tbody-cargos-hist">
+                  <tr><td colspan="5"><div style="padding:24px;text-align:center;"><div class="spinner" style="margin:0 auto;"></div></div></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Observaciones -->
+          <div class="card">
+            <div class="card-header">
+              <span class="card-title">Observaciones</span>
+              <button class="btn btn-primary btn-sm" id="btn-add-obs">+ Agregar</button>
+            </div>
+            <div class="table-wrapper">
+              <table>
+                <thead>
+                  <tr><th>Fecha</th><th>Observación</th><th></th></tr>
+                </thead>
+                <tbody id="tbody-obs">
+                  <tr><td colspan="3"><div style="padding:24px;text-align:center;"><div class="spinner" style="margin:0 auto;"></div></div></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- ─── TAB: Evaluaciones ────────────────────────────────── -->
+        <div class="tab-panel" id="tab-evaluaciones">
+
+          <!-- Evaluaciones cuantitativas -->
+          <div class="card" style="margin-bottom:var(--space-4);">
+            <div class="card-header">
+              <span class="card-title">Evaluaciones cuantitativas</span>
+              <button class="btn btn-primary btn-sm" id="btn-add-eval-c">+ Agregar</button>
+            </div>
+            <div class="table-wrapper">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Fecha</th>
+                    <th>Evaluación</th>
+                    <th>Atributo</th>
+                    <th style="text-align:right;">Valor</th>
+                    <th>Observaciones</th>
+                  </tr>
+                </thead>
+                <tbody id="tbody-eval-c">
+                  <tr><td colspan="5"><div style="padding:24px;text-align:center;"><div class="spinner" style="margin:0 auto;"></div></div></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Evaluaciones cualitativas -->
+          <div class="card">
+            <div class="card-header">
+              <span class="card-title">Evaluaciones cualitativas</span>
+              <button class="btn btn-primary btn-sm" id="btn-add-eval-q">+ Agregar</button>
+            </div>
+            <div class="table-wrapper">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Fecha</th>
+                    <th>Evaluación</th>
+                    <th>Atributo</th>
+                    <th>Descripción</th>
+                  </tr>
+                </thead>
+                <tbody id="tbody-eval-q">
+                  <tr><td colspan="4"><div style="padding:24px;text-align:center;"><div class="spinner" style="margin:0 auto;"></div></div></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- Modal: carga familiar -->
+<div class="modal" id="modal-carga">
+  <div class="modal-header">
+    <span class="modal-title" id="modal-carga-title">Agregar carga familiar</span>
+    <button class="btn btn-ghost btn-sm" onclick="closeMod('modal-carga')">
+      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+  </div>
+  <div class="modal-body">
+    <input type="hidden" id="carga-id">
+    <div class="form-row cols-2">
+      <div class="form-group">
+        <label class="form-label">Nombres *</label>
+        <input class="form-input" id="carga-nombre" type="text" placeholder="Nombre completo">
+      </div>
+      <div class="form-group">
+        <label class="form-label">RUT *</label>
+        <input class="form-input" id="carga-rut" type="text" placeholder="12.345.678-9">
+      </div>
+    </div>
+    <div class="form-row cols-2">
+      <div class="form-group">
+        <label class="form-label">Parentesco *</label>
+        <select class="form-input form-select" id="carga-parentesco">
+          <option value="hijo">Hijo/a</option>
+          <option value="conyuge">Cónyuge / Conviviente civil</option>
+          <option value="progenitor">Padre / Madre</option>
+          <option value="hermano">Hermano/a</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Tipo *</label>
+        <select class="form-input form-select" id="carga-tipo">
+          <option value="simple">Simple</option>
+          <option value="invalidez">Invalidez</option>
+          <option value="maternal">Maternal</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-row cols-2">
+      <div class="form-group">
+        <label class="form-label">Fecha nacimiento *</label>
+        <input class="form-input" id="carga-fnacimiento" type="date">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Fecha vencimiento *</label>
+        <input class="form-input" id="carga-fvenc" type="date">
+      </div>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button class="btn btn-secondary" onclick="closeMod('modal-carga')">Cancelar</button>
+    <button class="btn btn-primary" id="btn-save-carga">Guardar</button>
+  </div>
+</div>
+
+<!-- Modal: APV -->
+<div class="modal" id="modal-apv">
+  <div class="modal-header">
+    <span class="modal-title" id="modal-apv-title">Agregar APV</span>
+    <button class="btn btn-ghost btn-sm" onclick="closeMod('modal-apv')">
+      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+  </div>
+  <div class="modal-body">
+    <input type="hidden" id="apv-id">
+    <div class="form-row cols-2">
+      <div class="form-group">
+        <label class="form-label">Tipo APV</label>
+        <select class="form-input form-select" id="apv-tipo">
+          <option value="normal">Normal</option>
+          <option value="colectivo">Colectivo</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Administra AFP</label>
+        <select class="form-input form-select" id="apv-afp">
+          <option value="">Misma AFP del trabajador</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-row cols-2">
+      <div class="form-group">
+        <label class="form-label">Moneda trabajador</label>
+        <select class="form-input form-select" id="apv-moneda-trab">
+          <option value="CLP">CLP (pesos)</option>
+          <option value="UF">UF</option>
+          <option value="PCT">% sueldo</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Monto trabajador</label>
+        <input class="form-input" id="apv-monto-trab" type="number" min="0" step="0.01">
+      </div>
+    </div>
+    <div class="form-row cols-2">
+      <div class="form-group">
+        <label class="form-label">Monto empleador</label>
+        <input class="form-input" id="apv-monto-empl" type="number" min="0" step="0.01">
+      </div>
+      <div class="form-group" style="padding-top:24px;">
+        <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;color:var(--text-secondary);">
+          <input type="checkbox" id="apv-rebaja" style="width:16px;height:16px;">
+          Rebaja base tributaria (Art. 42 bis)
+        </label>
+      </div>
+    </div>
+    <div class="form-row cols-2">
+      <div class="form-group">
+        <label class="form-label">Fecha inicio *</label>
+        <input class="form-input" id="apv-finicio" type="date">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Fecha término</label>
+        <input class="form-input" id="apv-ftermino" type="date">
+      </div>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button class="btn btn-secondary" onclick="closeMod('modal-apv')">Cancelar</button>
+    <button class="btn btn-primary" id="btn-save-apv">Guardar</button>
+  </div>
+</div>
+
+<!-- Modal: observación -->
+<div class="modal" id="modal-obs">
+  <div class="modal-header">
+    <span class="modal-title">Observación</span>
+    <button class="btn btn-ghost btn-sm" onclick="closeMod('modal-obs')">
+      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+  </div>
+  <div class="modal-body">
+    <input type="hidden" id="obs-id">
+    <div class="form-group">
+      <label class="form-label">Observación *</label>
+      <textarea class="form-input" id="obs-texto" rows="4" style="resize:vertical;" placeholder="Ingrese la observación…"></textarea>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Fecha</label>
+      <input class="form-input" id="obs-fecha" type="date">
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button class="btn btn-secondary" onclick="closeMod('modal-obs')">Cancelar</button>
+    <button class="btn btn-primary" id="btn-save-obs">Guardar</button>
+  </div>
+</div>
+
+<!-- Modal: evaluación cuantitativa -->
+<div class="modal" id="modal-eval-c">
+  <div class="modal-header">
+    <span class="modal-title">Nueva evaluación cuantitativa</span>
+    <button class="btn btn-ghost btn-sm" onclick="closeMod('modal-eval-c')">
+      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+  </div>
+  <div class="modal-body">
+    <div class="form-row cols-2">
+      <div class="form-group">
+        <label class="form-label">Tipo evaluación *</label>
+        <select class="form-input form-select" id="eval-c-tipo"></select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Atributo *</label>
+        <select class="form-input form-select" id="eval-c-atrib"></select>
+      </div>
+    </div>
+    <div class="form-row cols-2">
+      <div class="form-group">
+        <label class="form-label">Fecha evaluación *</label>
+        <input class="form-input" id="eval-c-fecha" type="date">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Valor *</label>
+        <input class="form-input" id="eval-c-valor" type="number" min="0" step="0.01" placeholder="0.00">
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Observaciones</label>
+      <input class="form-input" id="eval-c-obs" type="text" maxlength="500" placeholder="Opcional">
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button class="btn btn-secondary" onclick="closeMod('modal-eval-c')">Cancelar</button>
+    <button class="btn btn-primary" id="btn-save-eval-c">Guardar</button>
+  </div>
+</div>
+
+<!-- Modal: evaluación cualitativa -->
+<div class="modal" id="modal-eval-q">
+  <div class="modal-header">
+    <span class="modal-title">Nueva evaluación cualitativa</span>
+    <button class="btn btn-ghost btn-sm" onclick="closeMod('modal-eval-q')">
+      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+  </div>
+  <div class="modal-body">
+    <div class="form-row cols-2">
+      <div class="form-group">
+        <label class="form-label">Tipo evaluación *</label>
+        <select class="form-input form-select" id="eval-q-tipo"></select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Atributo *</label>
+        <select class="form-input form-select" id="eval-q-atrib"></select>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Fecha evaluación *</label>
+      <input class="form-input" id="eval-q-fecha" type="date" style="max-width:200px;">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Descripción / Comentarios</label>
+      <textarea class="form-input" id="eval-q-desc" rows="3" style="resize:vertical;" placeholder="Opcional"></textarea>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button class="btn btn-secondary" onclick="closeMod('modal-eval-q')">Cancelar</button>
+    <button class="btn btn-primary" id="btn-save-eval-q">Guardar</button>
+  </div>
+</div>
+
+<!-- Modal: permiso laboral -->
+<div class="modal" id="modal-permiso">
+  <div class="modal-header">
+    <span class="modal-title" id="modal-permiso-title">Agregar permiso</span>
+    <button class="btn btn-ghost btn-sm" onclick="closeMod('modal-permiso')">
+      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+  </div>
+  <div class="modal-body">
+    <input type="hidden" id="pm-id">
+    <div class="form-row cols-2">
+      <div class="form-group">
+        <label class="form-label">Fecha registro *</label>
+        <input class="form-input" id="pm-fevento" type="date">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Tipo de permiso *</label>
+        <select class="form-input form-select" id="pm-tipo">
+          <option value="">— Seleccione —</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-row cols-2">
+      <div class="form-group">
+        <label class="form-label">Desde *</label>
+        <input class="form-input" id="pm-fdesde" type="date">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Hasta *</label>
+        <input class="form-input" id="pm-fhasta" type="date">
+      </div>
+    </div>
+    <div class="form-row cols-2">
+      <div class="form-group">
+        <label class="form-label">Días otorgados</label>
+        <input class="form-input" id="pm-dias" type="number" min="0" step="0.5" placeholder="0">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Observaciones</label>
+        <input class="form-input" id="pm-obs" type="text" maxlength="200" placeholder="Opcional">
+      </div>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button class="btn btn-secondary" onclick="closeMod('modal-permiso')">Cancelar</button>
+    <button class="btn btn-primary" id="btn-save-permiso">Guardar</button>
+  </div>
+</div>
+
+<!-- Modal: cargo desempeñado -->
+<div class="modal" id="modal-cargo-hist">
+  <div class="modal-header">
+    <span class="modal-title" id="modal-cargo-hist-title">Agregar cargo desempeñado</span>
+    <button class="btn btn-ghost btn-sm" onclick="closeMod('modal-cargo-hist')">
+      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+  </div>
+  <div class="modal-body">
+    <input type="hidden" id="ch-id">
+    <div class="form-group">
+      <label class="form-label">Cargo del catálogo</label>
+      <select class="form-input form-select" id="ch-cargo">
+        <option value="">— Sin asignar —</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Descripción libre <span style="color:var(--text-muted);font-weight:400;">(si el cargo no está en el catálogo)</span></label>
+      <input class="form-input" id="ch-desc" type="text" maxlength="100" placeholder="Ej: Analista de datos senior">
+    </div>
+    <div class="form-row cols-2">
+      <div class="form-group">
+        <label class="form-label">Desde *</label>
+        <input class="form-input" id="ch-fdesde" type="date">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Hasta <span style="color:var(--text-muted);font-weight:400;">(vacío = vigente)</span></label>
+        <input class="form-input" id="ch-fhasta" type="date">
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Observaciones</label>
+      <input class="form-input" id="ch-obs" type="text" maxlength="200" placeholder="Opcional">
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button class="btn btn-secondary" onclick="closeMod('modal-cargo-hist')">Cancelar</button>
+    <button class="btn btn-primary" id="btn-save-cargo-hist">Guardar</button>
+  </div>
+</div>
+
+<!-- Modal: licencia médica -->
+<div class="modal" id="modal-licencia">
+  <div class="modal-header">
+    <span class="modal-title" id="modal-licencia-title">Agregar licencia médica</span>
+    <button class="btn btn-ghost btn-sm" onclick="closeMod('modal-licencia')">
+      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+  </div>
+  <div class="modal-body">
+    <input type="hidden" id="lic-id">
+    <div class="form-row cols-2">
+      <div class="form-group">
+        <label class="form-label">Fecha inicio *</label>
+        <input class="form-input" id="lic-finicio" type="date">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Días *</label>
+        <input class="form-input" id="lic-dias" type="number" min="1" placeholder="Ej: 7">
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Fecha término <span style="color:var(--text-muted);font-weight:400;">(calculada automáticamente)</span></label>
+      <input class="form-input" id="lic-ftermino" type="date" readonly style="background:var(--bg-muted,#f5f5f5);cursor:default;">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Observaciones</label>
+      <input class="form-input" id="lic-obs" type="text" maxlength="200" placeholder="Opcional">
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button class="btn btn-secondary" onclick="closeMod('modal-licencia')">Cancelar</button>
+    <button class="btn btn-primary" id="btn-save-licencia">Guardar</button>
+  </div>
+</div>
+
+<!-- Modal: vacaciones -->
+<div class="modal" id="modal-vac">
+  <div class="modal-header">
+    <span class="modal-title" id="modal-vac-title">Registrar vacaciones</span>
+    <button class="btn btn-ghost btn-sm" onclick="closeMod('modal-vac')">
+      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+  </div>
+  <div class="modal-body">
+    <input type="hidden" id="vac-id">
+    <div class="form-row cols-2">
+      <div class="form-group">
+        <label class="form-label">Fecha registro *</label>
+        <input class="form-input" id="vac-fevento" type="date">
+      </div>
+      <div class="form-group" style="padding-top:24px;">
+        <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;color:var(--text-secondary);">
+          <input type="checkbox" id="vac-progresiva" style="width:16px;height:16px;">
+          Vacaciones progresivas (Ley 20.764)
+        </label>
+      </div>
+    </div>
+    <div class="form-row cols-2">
+      <div class="form-group">
+        <label class="form-label">Desde *</label>
+        <input class="form-input" id="vac-fdesde" type="date">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Hasta *</label>
+        <input class="form-input" id="vac-fhasta" type="date">
+      </div>
+    </div>
+    <div class="form-row cols-2">
+      <div class="form-group">
+        <label class="form-label">Días otorgados *</label>
+        <input class="form-input" id="vac-dias" type="number" min="0.5" step="0.5" placeholder="0">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Días utilizados</label>
+        <input class="form-input" id="vac-utilizados" type="number" min="0" step="0.5" placeholder="0">
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Descripción</label>
+      <input class="form-input" id="vac-desc" type="text" maxlength="200" placeholder="Opcional">
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button class="btn btn-secondary" onclick="closeMod('modal-vac')">Cancelar</button>
+    <button class="btn btn-primary" id="btn-save-vac">Guardar</button>
+  </div>
+</div>
+
+<div id="toast-container"></div>
+
+<script type="module">
+import api from '/static/js/api.js?v=4';
+import { requireAuth } from '/static/js/auth.js?v=3';
+import { initTheme, openModal, closeModal, setLoading, confirm } from '/static/js/ui.js?v=3';
+import { toast } from '/static/js/toast.js?v=3';
+import { initShellUI } from '/static/js/nav.js';
+
+// ── cierre de modal accesible desde onclick del HTML ─────────────────────────
+window.closeMod = closeModal;
+
+initTheme();
+const user = await requireAuth();
+initShellUI(user);
+
+// ── ID del trabajador ─────────────────────────────────────────────────────────
+const workerId = new URLSearchParams(location.search).get('id');
+if (!workerId) { location.href = '/rrhh/trabajadores.html'; }
+
+// ── Catálogos ─────────────────────────────────────────────────────────────────
+let C = {};   // C.afps, C.isapres, C.regiones, C.sucursales, etc.
+
+function sel(id, arr, valField = 'id', labelField = 'nombre', selected = null) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  const first = el.options[0].cloneNode(true);
+  el.innerHTML = '';
+  el.appendChild(first);
+  arr.forEach(x => {
+    const opt = document.createElement('option');
+    opt.value  = x[valField];
+    opt.text   = x[labelField];
+    if (selected !== null && String(x[valField]) === String(selected)) opt.selected = true;
+    el.appendChild(opt);
+  });
+}
+
+async function loadCatalogs() {
+  const results = await Promise.allSettled([
+    api.get('/nomina/catalogos/afp'),
+    api.get('/nomina/catalogos/isapres'),
+    api.get('/nomina/catalogos/regiones'),
+    api.get('/nomina/catalogos/comunas'),
+    api.get('/nomina/catalogos/bancos'),
+    api.get('/nomina/sucursales?size=200'),
+    api.get('/nomina/centros-costo?size=200'),
+    api.get('/nomina/cargos?size=200'),
+    api.get('/nomina/tipos-contrato?size=200'),
+    api.get('/rrhh/supervisores?size=100'),
+  ]);
+  const ok = r => r.status === 'fulfilled' ? (r.value.items ?? r.value ?? []) : [];
+  C.afps        = ok(results[0]);
+  C.isapres     = ok(results[1]);
+  C.regiones    = ok(results[2]);
+  C.comunas     = ok(results[3]);
+  C.bancos      = ok(results[4]);
+  C.sucursales  = ok(results[5]);
+  C.centrosCosto= ok(results[6]);
+  C.cargos      = ok(results[7]);
+  C.tiposContrato=ok(results[8]);
+  C.supervisores= ok(results[9]);
+}
+
+function findName(arr, id, f = 'nombre') {
+  if (!id) return '—';
+  const x = arr.find(i => String(i.id) === String(id));
+  return x ? x[f] : '—';
+}
+
+// ── Regiones → Comunas (filtra desde caché, sin llamada adicional) ────────────
+function loadComunas(regionId, selectedComuna = null) {
+  const sel_c = document.getElementById('p-comuna');
+  const rid = regionId ? parseInt(regionId) : null;
+  if (!rid) { sel_c.innerHTML = '<option value="">Seleccionar región primero</option>'; return; }
+  const lista = (C.comunas ?? []).filter(c => c.region_id === rid);
+  sel_c.innerHTML = '<option value="">Seleccionar…</option>';
+  lista.forEach(c => {
+    const opt = document.createElement('option');
+    opt.value = c.codigo; opt.text = c.nombre;
+    if (selectedComuna && String(c.codigo) === String(selectedComuna)) opt.selected = true;
+    sel_c.appendChild(opt);
+  });
+}
+
+document.getElementById('p-region').addEventListener('change', e => {
+  loadComunas(e.target.value);
+});
+
+// ── Isapre visibility ─────────────────────────────────────────────────────────
+function syncIsapreVis() {
+  const isIsapre = document.getElementById('v-regsalud').value === 'ISAPRE';
+  ['row-isapre-sel','row-modalidad','row-isapre-montos'].forEach(id => {
+    document.getElementById(id).style.display = isIsapre ? '' : 'none';
+  });
+}
+document.getElementById('v-regsalud').addEventListener('change', syncIsapreVis);
+
+// ── Extranjero visibility ─────────────────────────────────────────────────────
+document.getElementById('p-extranjero').addEventListener('change', e => {
+  document.getElementById('row-nacionalidad').style.display = e.target.checked ? '' : 'none';
+});
+
+// ── Tabs ──────────────────────────────────────────────────────────────────────
+const TABS = ['personal','laboral','previsional','cargas','apv','vacaciones','permisos','licencias','historial'];
+const tabLoaded = {};
+
+document.getElementById('tab-bar').addEventListener('click', e => {
+  const btn = e.target.closest('.tab-btn');
+  if (!btn) return;
+  const tab = btn.dataset.tab;
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById(`tab-${tab}`).classList.add('active');
+  if (!tabLoaded[tab]) { tabLoaded[tab] = true; loadTabData(tab); }
+});
+
+async function loadTabData(tab) {
+  switch (tab) {
+    case 'cargas':       return loadCargas();
+    case 'apv':          return loadApv();
+    case 'vacaciones':   return loadVacaciones();
+    case 'permisos':     return loadPermisos();
+    case 'licencias':    return loadLicencias();
+    case 'historial':    return Promise.all([loadCargosHist(), loadObs()]);
+    case 'evaluaciones': return loadEvaluaciones();
+  }
+}
+
+// ── Cargar trabajador ─────────────────────────────────────────────────────────
+let W = null;   // worker data
+
+async function loadWorker() {
+  W = await api.get(`/rrhh/trabajadores/${workerId}`);
+
+  // Topbar
+  document.getElementById('page-title').textContent = W.nombre_completo;
+  document.getElementById('bc-nombre').textContent  = W.nombre_completo;
+  document.getElementById('topbar-rut').textContent = W.rut;
+  document.getElementById('badge-estado').innerHTML =
+    `<span class="badge ${W.es_activo ? 'badge-success' : 'badge-neutral'}">${W.es_activo ? 'Activo' : 'Inactivo'}</span>`;
+  document.title = `${W.nombre_completo} — Nómina`;
+
+  const btnDes = document.getElementById('btn-desactivar');
+  if (W.es_activo) {
+    btnDes.style.display = '';
+    btnDes.onclick = desactivar;
+  }
+
+  // ── Tab Personal ──────────────────────────────────────────────────────────
+  document.getElementById('p-rut').value    = W.rut;
+  document.getElementById('p-codigo').value = W.codigo;
+  document.getElementById('p-nombres').value= W.nombres;
+  document.getElementById('p-ap').value     = W.apellido_paterno;
+  document.getElementById('p-am').value     = W.apellido_materno ?? '';
+  document.getElementById('p-fnac').value   = W.fecha_nacimiento ?? '';
+  document.getElementById('p-sexo').value   = W.sexo ?? '';
+  document.getElementById('p-ecivil').value = W.estado_civil ? String(W.estado_civil) : '';
+  document.getElementById('p-extranjero').checked = W.es_extranjero;
+  document.getElementById('row-nacionalidad').style.display = W.es_extranjero ? '' : 'none';
+  document.getElementById('p-nacionalidad').value = W.nacionalidad ?? '';
+  document.getElementById('p-email').value  = W.email ?? '';
+  document.getElementById('p-telefono').value= W.telefono ?? '';
+  document.getElementById('p-calle').value  = W.direccion_calle ?? '';
+  document.getElementById('p-numero').value = W.direccion_numero ?? '';
+
+  // Regiones select
+  sel('p-region', C.regiones, 'id', 'nombre', W.region_id);
+  if (W.region_id) await loadComunas(W.region_id, W.comuna_id);
+
+  // ── Tab Laboral ──────────────────────────────────────────────────────────
+  document.getElementById('l-tiposueldo').value  = W.tipo_sueldo;
+  document.getElementById('l-monto').value       = W.monto_sueldo;
+  document.getElementById('l-horas').value       = W.horas_semana ?? '';
+  document.getElementById('l-gratif').value      = W.tipo_gratificacion;
+  document.getElementById('l-monto-gratif').value= W.monto_gratificacion ?? '';
+  document.getElementById('l-movil').value       = W.monto_movilizacion;
+  document.getElementById('l-colac').value       = W.monto_colacion;
+  document.getElementById('l-formapago').value   = W.forma_pago;
+  document.getElementById('l-cuenta').value      = W.nro_cuenta ?? '';
+  document.getElementById('l-fcontrato').value   = W.fecha_contrato ?? '';
+  document.getElementById('l-profesion').value   = W.profesion ?? '';
+  document.getElementById('l-labor').value       = W.labor ?? '';
+
+  sel('l-banco',        C.bancos,        'id', 'nombre',     W.banco_id);
+  sel('l-cargo',        C.cargos,        'id', 'descripcion', W.cargo_id);
+  sel('l-sucursal',     C.sucursales,    'id', 'nombre',      W.sucursal_id);
+  sel('l-cc',           C.centrosCosto,  'id', 'descripcion', W.centro_costo_id);
+  sel('l-supervisor',   C.supervisores,  'id', 'nombre',      W.supervisor_id);
+  sel('l-tipocontrato', C.tiposContrato, 'id', 'nombre',     W.tipo_contrato_id);
+
+  // ── Tab Previsional ──────────────────────────────────────────────────────
+  document.getElementById('v-regprev').value      = String(W.regimen_previsional);
+  document.getElementById('v-cotvol').value       = W.cotizacion_voluntaria_afp;
+  document.getElementById('v-rebaja42').checked   = W.rebaja_imp_cotiz_vol ?? false;
+  document.getElementById('v-nosis').checked      = W.no_cotiza_sis;
+  document.getElementById('v-regsalud').value     = W.regimen_salud;
+  document.getElementById('v-modalidad').value    = W.modalidad_isapre ? String(W.modalidad_isapre) : '';
+  document.getElementById('v-isapre-pesos').value = W.monto_isapre_pesos;
+  document.getElementById('v-isapre-uf').value    = W.monto_isapre_uf;
+  document.getElementById('v-sc').checked         = W.tiene_seg_cesantia;
+  document.getElementById('v-plazo-fijo').checked = W.contrato_plazo_fijo;
+  document.getElementById('v-fesc').value         = W.fecha_ingreso_sc ?? '';
+  document.getElementById('v-fesc-ult').value     = W.fecha_ultimo_mes_sc ?? '';
+  document.getElementById('v-tipotrab').value     = String(W.tipo_trabajador);
+  document.getElementById('v-zona').value         = W.pct_asignacion_zona ?? 0;
+  document.getElementById('v-cchc').checked       = W.tiene_serv_med_cchc;
+
+  sel('v-afp',    C.afps,    'id', 'nombre', W.afp_id);
+  sel('v-isapre', C.isapres, 'id', 'nombre', W.isapre_id);
+  sel('v-afp-sc', C.afps,    'id', 'nombre', W.afp_seg_cesantia_id);
+  sel('apv-afp',  C.afps,    'id', 'nombre', null);  // modal APV
+  syncIsapreVis();
+}
+
+// ── Guardar Personal ──────────────────────────────────────────────────────────
+document.getElementById('btn-save-personal').addEventListener('click', async () => {
+  const btn = document.getElementById('btn-save-personal');
+  setLoading(btn, true);
+  try {
+    const body = {
+      nombres:          document.getElementById('p-nombres').value.trim() || undefined,
+      apellido_paterno: document.getElementById('p-ap').value.trim()     || undefined,
+      apellido_materno: document.getElementById('p-am').value.trim()     || null,
+      fecha_nacimiento: document.getElementById('p-fnac').value          || null,
+      sexo:             document.getElementById('p-sexo').value          || null,
+      estado_civil:     document.getElementById('p-ecivil').value        ? parseInt(document.getElementById('p-ecivil').value) : null,
+      es_extranjero:    document.getElementById('p-extranjero').checked,
+      nacionalidad:     document.getElementById('p-nacionalidad').value.trim() || null,
+      email:            document.getElementById('p-email').value.trim()  || null,
+      telefono:         document.getElementById('p-telefono').value.trim()|| null,
+      direccion_calle:  document.getElementById('p-calle').value.trim()  || null,
+      direccion_numero: document.getElementById('p-numero').value.trim() || null,
+      region_id:        document.getElementById('p-region').value        ? parseInt(document.getElementById('p-region').value)  : null,
+      comuna_id:        document.getElementById('p-comuna').value        ? parseInt(document.getElementById('p-comuna').value)  : null,
+    };
+    W = await api.patch(`/rrhh/trabajadores/${workerId}`, body);
+    toast.success('Datos personales guardados.');
+  } catch (err) { toast.error(err.message); }
+  finally { setLoading(btn, false); }
+});
+
+// ── Guardar Laboral ───────────────────────────────────────────────────────────
+document.getElementById('btn-save-laboral').addEventListener('click', async () => {
+  const btn = document.getElementById('btn-save-laboral');
+  setLoading(btn, true);
+  try {
+    const v = id => document.getElementById(id).value;
+    const body = {
+      tipo_sueldo:        v('l-tiposueldo'),
+      monto_sueldo:       parseFloat(v('l-monto'))  || 0,
+      horas_semana:       v('l-horas')   ? parseFloat(v('l-horas'))   : null,
+      tipo_gratificacion: v('l-gratif'),
+      monto_gratificacion:v('l-monto-gratif') ? parseFloat(v('l-monto-gratif')) : null,
+      monto_movilizacion: parseFloat(v('l-movil'))  || 0,
+      monto_colacion:     parseFloat(v('l-colac'))  || 0,
+      forma_pago:         v('l-formapago'),
+      banco_id:           v('l-banco')       ? parseInt(v('l-banco'))      : null,
+      nro_cuenta:         v('l-cuenta').trim()                             || null,
+      cargo_id:           v('l-cargo')       || null,
+      sucursal_id:        v('l-sucursal')    || null,
+      centro_costo_id:    v('l-cc')          || null,
+      supervisor_id:      v('l-supervisor')  || null,
+      tipo_contrato_id:   v('l-tipocontrato')|| null,
+      fecha_contrato:     v('l-fcontrato')   || null,
+      profesion:          v('l-profesion').trim() || null,
+      labor:              v('l-labor').trim()     || null,
+    };
+    W = await api.patch(`/rrhh/trabajadores/${workerId}`, body);
+    toast.success('Datos laborales guardados.');
+  } catch (err) { toast.error(err.message); }
+  finally { setLoading(btn, false); }
+});
+
+// ── Guardar Previsional ───────────────────────────────────────────────────────
+document.getElementById('btn-save-prev').addEventListener('click', async () => {
+  const btn = document.getElementById('btn-save-prev');
+  setLoading(btn, true);
+  try {
+    const v = id => document.getElementById(id).value;
+    const chk = id => document.getElementById(id).checked;
+    const body = {
+      regimen_previsional:       parseInt(v('v-regprev')),
+      afp_id:                    v('v-afp')       ? parseInt(v('v-afp'))       : null,
+      cotizacion_voluntaria_afp: parseFloat(v('v-cotvol'))  || 0,
+      rebaja_imp_cotiz_vol:      chk('v-rebaja42'),
+      no_cotiza_sis:             chk('v-nosis'),
+      regimen_salud:             v('v-regsalud'),
+      isapre_id:                 v('v-isapre')    ? parseInt(v('v-isapre'))    : null,
+      modalidad_isapre:          v('v-modalidad') ? parseInt(v('v-modalidad')) : null,
+      monto_isapre_pesos:        parseFloat(v('v-isapre-pesos')) || 0,
+      monto_isapre_uf:           parseFloat(v('v-isapre-uf'))    || 0,
+      tiene_seg_cesantia:        chk('v-sc'),
+      contrato_plazo_fijo:       chk('v-plazo-fijo'),
+      afp_seg_cesantia_id:       v('v-afp-sc')   ? parseInt(v('v-afp-sc'))    : null,
+      fecha_ingreso_sc:          v('v-fesc')      || null,
+      fecha_ultimo_mes_sc:       v('v-fesc-ult')  || null,
+      tipo_trabajador:           parseInt(v('v-tipotrab')),
+      pct_asignacion_zona:       parseFloat(v('v-zona')) || 0,
+      tiene_serv_med_cchc:       chk('v-cchc'),
+    };
+    W = await api.patch(`/rrhh/trabajadores/${workerId}`, body);
+    toast.success('Datos previsionales guardados.');
+  } catch (err) { toast.error(err.message); }
+  finally { setLoading(btn, false); }
+});
+
+// ── Desactivar trabajador ─────────────────────────────────────────────────────
+async function desactivar() {
+  const ok = await confirm(`¿Desactivar a ${W.nombre_completo}? Ya no aparecerá en procesos de nómina.`, 'Desactivar trabajador');
+  if (!ok) return;
+  try {
+    await api.patch(`/rrhh/trabajadores/${workerId}/desactivar`, {});
+    toast.success('Trabajador desactivado.');
+    document.getElementById('badge-estado').innerHTML = `<span class="badge badge-neutral">Inactivo</span>`;
+    document.getElementById('btn-desactivar').style.display = 'none';
+  } catch (err) { toast.error(err.message); }
+}
+
+// ── Cargas familiares ─────────────────────────────────────────────────────────
+async function loadCargas() {
+  const tbody = document.getElementById('tbody-cargas');
+  try {
+    const resp = await api.get(`/rrhh/trabajadores/${workerId}/cargas`);
+    const cargas = resp.items ?? resp;
+    if (!cargas.length) {
+      tbody.innerHTML = `<tr><td colspan="7"><div class="empty-state"><div class="empty-state-icon">👨‍👩‍👧</div><h3>Sin cargas</h3><p>No hay cargas familiares registradas.</p></div></td></tr>`;
+      return;
+    }
+    const now = new Date().toISOString().slice(0,10);
+    tbody.innerHTML = cargas.map(c => {
+      const vencido = c.fecha_vencimiento && c.fecha_vencimiento < now;
+      return `<tr>
+        <td class="td-primary">${c.nombres}</td>
+        <td style="font-family:monospace;">${c.rut ?? '—'}</td>
+        <td>${c.parentesco ?? '—'}</td>
+        <td>${c.tipo_carga ?? '—'}</td>
+        <td>${c.fecha_vencimiento ? new Date(c.fecha_vencimiento+'T00:00:00').toLocaleDateString('es-CL') : '—'}</td>
+        <td><span class="badge ${vencido ? 'badge-error' : 'badge-success'}">${vencido ? 'Vencida' : 'Vigente'}</span></td>
+        <td>
+          <button class="btn btn-ghost btn-sm" title="Editar" onclick="editCarga(${JSON.stringify(c).replace(/"/g,'&quot;')})">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+          </button>
+        </td>
+      </tr>`;
+    }).join('');
+  } catch (err) {
+    tbody.innerHTML = `<tr><td colspan="7"><div class="empty-state"><div class="empty-state-icon">⚠</div><h3>Error</h3><p>${err.message}</p></div></td></tr>`;
+  }
+}
+
+window.editCarga = c => {
+  document.getElementById('modal-carga-title').textContent = 'Editar carga familiar';
+  document.getElementById('carga-id').value         = c.id;
+  document.getElementById('carga-nombre').value     = c.nombres ?? '';
+  document.getElementById('carga-rut').value        = c.rut ?? '';
+  document.getElementById('carga-parentesco').value = c.parentesco ?? 'hijo';
+  document.getElementById('carga-tipo').value       = c.tipo_carga ?? 'simple';
+  document.getElementById('carga-fnacimiento').value = c.fecha_nacimiento ?? '';
+  document.getElementById('carga-fvenc').value      = c.fecha_vencimiento ?? '';
+  openModal('modal-carga');
+};
+
+document.getElementById('btn-add-carga').addEventListener('click', () => {
+  document.getElementById('modal-carga-title').textContent = 'Agregar carga familiar';
+  document.getElementById('carga-id').value = '';
+  ['carga-nombre','carga-rut','carga-fnacimiento','carga-fvenc'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('carga-parentesco').value = 'hijo';
+  document.getElementById('carga-tipo').value = 'simple';
+  openModal('modal-carga');
+});
+
+document.getElementById('btn-save-carga').addEventListener('click', async () => {
+  const btn = document.getElementById('btn-save-carga');
+  const id  = document.getElementById('carga-id').value;
+  const nombres           = document.getElementById('carga-nombre').value.trim();
+  const rut               = document.getElementById('carga-rut').value.trim();
+  const fecha_nacimiento  = document.getElementById('carga-fnacimiento').value;
+  const fecha_vencimiento = document.getElementById('carga-fvenc').value;
+  if (!nombres)           { toast.error('El nombre es obligatorio.');           return; }
+  if (!id && !rut)        { toast.error('El RUT es obligatorio.');              return; }
+  if (!id && !fecha_nacimiento) { toast.error('La fecha de nacimiento es obligatoria.'); return; }
+  if (!fecha_vencimiento) { toast.error('La fecha de vencimiento es obligatoria.'); return; }
+  setLoading(btn, true);
+  try {
+    if (id) {
+      const body = { fecha_vencimiento };
+      await api.patch(`/rrhh/trabajadores/${workerId}/cargas/${id}`, body);
+    } else {
+      const body = {
+        nombres,
+        rut,
+        parentesco:        document.getElementById('carga-parentesco').value,
+        tipo_carga:        document.getElementById('carga-tipo').value,
+        fecha_nacimiento,
+        fecha_vencimiento,
+      };
+      await api.post(`/rrhh/trabajadores/${workerId}/cargas`, body);
+    }
+    toast.success('Carga guardada.');
+    closeModal('modal-carga');
+    loadCargas();
+  } catch (err) { toast.error(err.message); }
+  finally { setLoading(btn, false); }
+});
+
+// ── APV ───────────────────────────────────────────────────────────────────────
+async function loadApv() {
+  const tbody = document.getElementById('tbody-apv');
+  try {
+    const apvs = await api.get(`/rrhh/trabajadores/${workerId}/apv`);
+    if (!apvs.length) {
+      tbody.innerHTML = `<tr><td colspan="7"><div class="empty-state"><div class="empty-state-icon">💰</div><h3>Sin APV</h3><p>No hay APV registrados.</p></div></td></tr>`;
+      return;
+    }
+    const now = new Date().toISOString().slice(0,10);
+    tbody.innerHTML = apvs.map(a => {
+      const vencido = a.fecha_termino && a.fecha_termino < now;
+      return `<tr>
+        <td><span class="badge badge-info">${a.tipo_apv}</span></td>
+        <td>${a.moneda_trabajador}</td>
+        <td>${Number(a.monto_trabajador).toLocaleString('es-CL')}</td>
+        <td>${Number(a.monto_empleador ?? 0).toLocaleString('es-CL')}</td>
+        <td>${a.rebaja_art42bis ? '<span class="badge badge-success">Sí</span>' : '—'}</td>
+        <td style="font-size:12px;">
+          ${a.fecha_inicio ?? '—'}${a.fecha_termino ? ' → '+a.fecha_termino : ''}
+          ${vencido ? '<span class="badge badge-error" style="margin-left:4px;">Vencido</span>' : ''}
+        </td>
+        <td>
+          <button class="btn btn-ghost btn-sm" title="Editar" onclick="editApv(${JSON.stringify(a).replace(/"/g,'&quot;')})">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+          </button>
+        </td>
+      </tr>`;
+    }).join('');
+  } catch (err) {
+    tbody.innerHTML = `<tr><td colspan="7"><div class="empty-state"><div class="empty-state-icon">⚠</div><h3>Error</h3><p>${err.message}</p></div></td></tr>`;
+  }
+}
+
+window.editApv = a => {
+  document.getElementById('modal-apv-title').textContent = 'Editar APV';
+  document.getElementById('apv-id').value          = a.id;
+  document.getElementById('apv-tipo').value         = a.tipo_apv;
+  document.getElementById('apv-moneda-trab').value  = a.moneda_trabajador;
+  document.getElementById('apv-monto-trab').value   = a.monto_trabajador;
+  document.getElementById('apv-monto-empl').value   = a.monto_empleador ?? 0;
+  document.getElementById('apv-rebaja').checked     = a.rebaja_art42bis;
+  document.getElementById('apv-finicio').value      = a.fecha_inicio ?? '';
+  document.getElementById('apv-ftermino').value     = a.fecha_termino ?? '';
+  openModal('modal-apv');
+};
+
+document.getElementById('btn-add-apv').addEventListener('click', () => {
+  document.getElementById('modal-apv-title').textContent = 'Agregar APV';
+  document.getElementById('apv-id').value = '';
+  ['apv-monto-trab','apv-monto-empl','apv-ftermino'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('apv-tipo').value = 'normal';
+  document.getElementById('apv-moneda-trab').value = 'CLP';
+  document.getElementById('apv-rebaja').checked = false;
+  document.getElementById('apv-finicio').value = new Date().toISOString().slice(0,10);
+  openModal('modal-apv');
+});
+
+document.getElementById('btn-save-apv').addEventListener('click', async () => {
+  const btn = document.getElementById('btn-save-apv');
+  const id  = document.getElementById('apv-id').value;
+  const finicio = document.getElementById('apv-finicio').value;
+  if (!finicio) { toast.error('La fecha de inicio es obligatoria.'); return; }
+  setLoading(btn, true);
+  try {
+    const body = {
+      tipo_apv:         document.getElementById('apv-tipo').value,
+      moneda_trabajador:document.getElementById('apv-moneda-trab').value,
+      monto_trabajador: parseFloat(document.getElementById('apv-monto-trab').value) || 0,
+      monto_empleador:  parseFloat(document.getElementById('apv-monto-empl').value) || 0,
+      rebaja_art42bis:  document.getElementById('apv-rebaja').checked,
+      fecha_inicio:     finicio,
+      fecha_termino:    document.getElementById('apv-ftermino').value || null,
+    };
+    if (id) await api.patch(`/rrhh/trabajadores/${workerId}/apv/${id}`, body);
+    else    await api.post(`/rrhh/trabajadores/${workerId}/apv`, body);
+    toast.success('APV guardado.');
+    closeModal('modal-apv');
+    loadApv();
+  } catch (err) { toast.error(err.message); }
+  finally { setLoading(btn, false); }
+});
+
+// ── Vacaciones ────────────────────────────────────────────────────────────────
+async function loadVacaciones() {
+  const [vacs, resumen] = await Promise.allSettled([
+    api.get(`/rrhh/trabajadores/${workerId}/vacaciones`),
+    api.get(`/rrhh/trabajadores/${workerId}/vacaciones/resumen`),
+  ]);
+  if (resumen.status === 'fulfilled') {
+    const r = resumen.value;
+    document.getElementById('vac-ganados').textContent     = r.dias_ganados     ?? '—';
+    document.getElementById('vac-usados').textContent      = r.dias_usados      ?? '—';
+    document.getElementById('vac-pendientes').textContent  = r.dias_pendientes  ?? '—';
+    document.getElementById('vac-progresivos').textContent = r.dias_progresivos ?? '—';
+  }
+  const tbody = document.getElementById('tbody-vac');
+  if (vacs.status === 'fulfilled' && vacs.value.items?.length) {
+    tbody.innerHTML = vacs.value.items.map(v => `<tr>
+      <td><span class="badge ${v.es_progresiva ? 'badge-warning' : 'badge-info'}">${v.es_progresiva ? 'Progresiva' : 'Normal'}</span></td>
+      <td>${v.fecha_desde ? new Date(v.fecha_desde+'T00:00:00').toLocaleDateString('es-CL') : '—'}</td>
+      <td>${v.fecha_hasta ? new Date(v.fecha_hasta+'T00:00:00').toLocaleDateString('es-CL') : '—'}</td>
+      <td>${v.dias_otorgados ?? '—'}</td>
+      <td style="font-size:12px;color:var(--text-muted);">${v.descripcion ?? ''}</td>
+      <td style="white-space:nowrap;">
+        <button class="btn btn-ghost btn-sm" title="Editar" onclick="editVac(${JSON.stringify(v).replace(/"/g,'&quot;')})">
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+        </button>
+        <button class="btn btn-ghost btn-sm" title="Eliminar" onclick="deleteVac('${v.id}')">
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+        </button>
+      </td>
+    </tr>`).join('');
+  } else {
+    tbody.innerHTML = `<tr><td colspan="6"><div class="empty-state"><div class="empty-state-icon">🏖</div><h3>Sin registros</h3><p>No hay vacaciones registradas.</p></div></td></tr>`;
+  }
+}
+
+window.editVac = v => {
+  document.getElementById('modal-vac-title').textContent = 'Editar vacaciones';
+  document.getElementById('vac-id').value          = v.id;
+  document.getElementById('vac-fevento').value     = v.fecha_evento  ?? '';
+  document.getElementById('vac-fdesde').value      = v.fecha_desde   ?? '';
+  document.getElementById('vac-fhasta').value      = v.fecha_hasta   ?? '';
+  document.getElementById('vac-dias').value        = v.dias_otorgados  ?? '';
+  document.getElementById('vac-utilizados').value  = v.dias_utilizados ?? 0;
+  document.getElementById('vac-progresiva').checked = v.es_progresiva  ?? false;
+  document.getElementById('vac-desc').value        = v.descripcion    ?? '';
+  openModal('modal-vac');
+};
+
+document.getElementById('btn-add-vac').addEventListener('click', () => {
+  document.getElementById('modal-vac-title').textContent = 'Registrar vacaciones';
+  document.getElementById('vac-id').value          = '';
+  document.getElementById('vac-fevento').value     = new Date().toISOString().slice(0,10);
+  document.getElementById('vac-fdesde').value      = '';
+  document.getElementById('vac-fhasta').value      = '';
+  document.getElementById('vac-dias').value        = '';
+  document.getElementById('vac-utilizados').value  = '0';
+  document.getElementById('vac-progresiva').checked = false;
+  document.getElementById('vac-desc').value        = '';
+  openModal('modal-vac');
+});
+
+document.getElementById('btn-save-vac').addEventListener('click', async () => {
+  const btn     = document.getElementById('btn-save-vac');
+  const id      = document.getElementById('vac-id').value;
+  const fevento = document.getElementById('vac-fevento').value;
+  const fdesde  = document.getElementById('vac-fdesde').value;
+  const fhasta  = document.getElementById('vac-fhasta').value;
+  const dias    = parseFloat(document.getElementById('vac-dias').value);
+  if (!fevento)           { toast.error('La fecha de registro es obligatoria.'); return; }
+  if (!fdesde || !fhasta) { toast.error('Las fechas Desde / Hasta son obligatorias.'); return; }
+  if (!dias || dias <= 0) { toast.error('Los días otorgados deben ser mayores a 0.'); return; }
+  setLoading(btn, true);
+  try {
+    const body = {
+      fecha_evento:    fevento,
+      fecha_desde:     fdesde,
+      fecha_hasta:     fhasta,
+      dias_otorgados:  dias,
+      dias_utilizados: parseFloat(document.getElementById('vac-utilizados').value) || 0,
+      es_progresiva:   document.getElementById('vac-progresiva').checked,
+      descripcion:     document.getElementById('vac-desc').value.trim() || null,
+    };
+    if (id) await api.patch(`/rrhh/trabajadores/${workerId}/vacaciones/${id}`, body);
+    else    await api.post(`/rrhh/trabajadores/${workerId}/vacaciones`, body);
+    toast.success('Vacaciones guardadas.');
+    closeModal('modal-vac');
+    loadVacaciones();
+  } catch (err) { toast.error(err.message); }
+  finally { setLoading(btn, false); }
+});
+
+window.deleteVac = async id => {
+  if (!await confirm('¿Eliminar este registro de vacaciones?', 'Eliminar')) return;
+  try {
+    await api.delete(`/rrhh/trabajadores/${workerId}/vacaciones/${id}`);
+    toast.success('Registro eliminado.');
+    loadVacaciones();
+  } catch (err) { toast.error(err.message); }
+};
+
+// ── Licencias médicas ──────────────────────────────────────────────────────────
+
+function _calcFechaTermino() {
+  const finicio = document.getElementById('lic-finicio').value;
+  const dias    = parseInt(document.getElementById('lic-dias').value, 10);
+  if (finicio && dias >= 1) {
+    const d = new Date(finicio + 'T00:00:00');
+    d.setDate(d.getDate() + dias - 1);
+    document.getElementById('lic-ftermino').value = d.toISOString().slice(0, 10);
+  } else {
+    document.getElementById('lic-ftermino').value = '';
+  }
+}
+
+async function loadLicencias() {
+  const tbody = document.getElementById('tbody-licencias');
+  try {
+    const resp = await api.get(`/rrhh/trabajadores/${workerId}/licencias`);
+    const lics = resp.items ?? resp;
+    if (!lics.length) {
+      tbody.innerHTML = `<tr><td colspan="5"><div class="empty-state"><div class="empty-state-icon">🏥</div><h3>Sin licencias</h3><p>No hay licencias médicas registradas.</p></div></td></tr>`;
+      return;
+    }
+    tbody.innerHTML = lics.map(l => `<tr>
+      <td>${new Date(l.fecha_inicio+'T00:00:00').toLocaleDateString('es-CL')}</td>
+      <td>${l.dias}</td>
+      <td>${new Date(l.fecha_termino+'T00:00:00').toLocaleDateString('es-CL')}</td>
+      <td>${l.observaciones ?? '—'}</td>
+      <td>
+        <button class="btn btn-ghost btn-sm" title="Editar" onclick="editLicencia(${JSON.stringify(l).replace(/"/g,'&quot;')})">
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+        </button>
+        <button class="btn btn-ghost btn-sm" title="Eliminar" style="color:var(--color-error,#e53e3e)" onclick="deleteLicencia('${l.id}')">
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+        </button>
+      </td>
+    </tr>`).join('');
+  } catch (err) {
+    tbody.innerHTML = `<tr><td colspan="5"><div class="empty-state"><div class="empty-state-icon">⚠</div><h3>Error</h3><p>${err.message}</p></div></td></tr>`;
+  }
+}
+
+window.editLicencia = l => {
+  document.getElementById('modal-licencia-title').textContent = 'Editar licencia médica';
+  document.getElementById('lic-id').value       = l.id;
+  document.getElementById('lic-finicio').value  = l.fecha_inicio;
+  document.getElementById('lic-dias').value     = l.dias;
+  document.getElementById('lic-ftermino').value = l.fecha_termino;
+  document.getElementById('lic-obs').value      = l.observaciones ?? '';
+  openModal('modal-licencia');
+};
+
+window.deleteLicencia = async id => {
+  if (!confirm('¿Eliminar esta licencia médica?')) return;
+  try {
+    await api.delete(`/rrhh/trabajadores/${workerId}/licencias/${id}`);
+    toast.success('Licencia eliminada.');
+    loadLicencias();
+  } catch (err) { toast.error(err.message); }
+};
+
+document.getElementById('lic-finicio').addEventListener('input', _calcFechaTermino);
+document.getElementById('lic-dias').addEventListener('input', _calcFechaTermino);
+
+document.getElementById('btn-add-licencia').addEventListener('click', () => {
+  document.getElementById('modal-licencia-title').textContent = 'Agregar licencia médica';
+  document.getElementById('lic-id').value = '';
+  ['lic-finicio', 'lic-ftermino', 'lic-obs'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('lic-dias').value = '';
+  openModal('modal-licencia');
+});
+
+document.getElementById('btn-save-licencia').addEventListener('click', async () => {
+  const btn  = document.getElementById('btn-save-licencia');
+  const id   = document.getElementById('lic-id').value;
+  const fecha_inicio = document.getElementById('lic-finicio').value;
+  const dias         = parseInt(document.getElementById('lic-dias').value, 10);
+  if (!fecha_inicio) { toast.error('La fecha de inicio es obligatoria.'); return; }
+  if (!dias || dias < 1) { toast.error('Los días deben ser al menos 1.'); return; }
+  setLoading(btn, true);
+  try {
+    const body = { fecha_inicio, dias, observaciones: document.getElementById('lic-obs').value.trim() || null };
+    if (id) await api.patch(`/rrhh/trabajadores/${workerId}/licencias/${id}`, body);
+    else    await api.post(`/rrhh/trabajadores/${workerId}/licencias`, body);
+    toast.success('Licencia guardada.');
+    closeModal('modal-licencia');
+    loadLicencias();
+  } catch (err) { toast.error(err.message); }
+  finally { setLoading(btn, false); }
+});
+
+// ── Permisos ──────────────────────────────────────────────────────────────────
+let _tiposPermiso = null;
+async function _loadTiposPermiso() {
+  if (_tiposPermiso) return _tiposPermiso;
+  try {
+    const r = await api.get('/rrhh/tipos-permiso?size=200&solo_activos=true');
+    _tiposPermiso = r.items ?? r;
+  } catch { _tiposPermiso = []; }
+  return _tiposPermiso;
+}
+
+async function loadPermisos() {
+  const tbody = document.getElementById('tbody-permisos');
+  try {
+    const r = await api.get(`/rrhh/trabajadores/${workerId}/permisos`);
+    const permisos = r.items ?? r;
+    if (!permisos.length) {
+      tbody.innerHTML = `<tr><td colspan="6"><div class="empty-state"><div class="empty-state-icon">📋</div><h3>Sin permisos</h3><p>No hay permisos laborales registrados.</p></div></td></tr>`;
+      return;
+    }
+    tbody.innerHTML = permisos.map(p => `<tr>
+      <td>${p.tipo_permiso_nombre ?? '—'}</td>
+      <td>${p.fecha_desde ? new Date(p.fecha_desde+'T00:00:00').toLocaleDateString('es-CL') : '—'}</td>
+      <td>${p.fecha_hasta ? new Date(p.fecha_hasta+'T00:00:00').toLocaleDateString('es-CL') : '—'}</td>
+      <td>${p.dias_otorgados ?? '—'}</td>
+      <td style="font-size:12px;color:var(--text-muted);">${p.observaciones ?? ''}</td>
+      <td style="white-space:nowrap;">
+        <button class="btn btn-ghost btn-sm" title="Editar" onclick="editPermiso(${JSON.stringify(p).replace(/"/g,'&quot;')})">
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+        </button>
+        <button class="btn btn-ghost btn-sm" title="Eliminar" onclick="deletePermiso('${p.id}')">
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+        </button>
+      </td>
+    </tr>`).join('');
+  } catch (err) {
+    tbody.innerHTML = `<tr><td colspan="6"><div class="empty-state"><div class="empty-state-icon">⚠</div><h3>Error</h3><p>${err.message}</p></div></td></tr>`;
+  }
+}
+
+async function _abrirModalPermiso() {
+  const sel = document.getElementById('pm-tipo');
+  if (sel.options.length <= 1) {
+    const tipos = await _loadTiposPermiso();
+    tipos.forEach(t => {
+      const o = document.createElement('option');
+      o.value = t.id; o.textContent = t.descripcion;
+      sel.appendChild(o);
+    });
+  }
+}
+
+window.editPermiso = async p => {
+  document.getElementById('modal-permiso-title').textContent = 'Editar permiso';
+  document.getElementById('pm-id').value     = p.id;
+  document.getElementById('pm-fevento').value = p.fecha_evento  ?? '';
+  document.getElementById('pm-fdesde').value  = p.fecha_desde   ?? '';
+  document.getElementById('pm-fhasta').value  = p.fecha_hasta   ?? '';
+  document.getElementById('pm-dias').value    = p.dias_otorgados ?? '';
+  document.getElementById('pm-obs').value     = p.observaciones  ?? '';
+  await _abrirModalPermiso();
+  document.getElementById('pm-tipo').value = p.tipo_permiso_id ?? '';
+  openModal('modal-permiso');
+};
+
+document.getElementById('btn-add-permiso').addEventListener('click', async () => {
+  document.getElementById('modal-permiso-title').textContent = 'Agregar permiso';
+  document.getElementById('pm-id').value      = '';
+  document.getElementById('pm-fevento').value = new Date().toISOString().slice(0,10);
+  document.getElementById('pm-fdesde').value  = '';
+  document.getElementById('pm-fhasta').value  = '';
+  document.getElementById('pm-dias').value    = '';
+  document.getElementById('pm-obs').value     = '';
+  await _abrirModalPermiso();
+  document.getElementById('pm-tipo').value = '';
+  openModal('modal-permiso');
+});
+
+document.getElementById('btn-save-permiso').addEventListener('click', async () => {
+  const btn     = document.getElementById('btn-save-permiso');
+  const id      = document.getElementById('pm-id').value;
+  const fevento = document.getElementById('pm-fevento').value;
+  const tipoId  = document.getElementById('pm-tipo').value;
+  const fdesde  = document.getElementById('pm-fdesde').value;
+  const fhasta  = document.getElementById('pm-fhasta').value;
+  if (!fevento)          { toast.error('La fecha de registro es obligatoria.'); return; }
+  if (!tipoId)           { toast.error('Debe seleccionar un tipo de permiso.'); return; }
+  if (!fdesde || !fhasta){ toast.error('Las fechas Desde / Hasta son obligatorias.'); return; }
+  if (fhasta < fdesde)   { toast.error('La fecha Hasta debe ser igual o posterior a Desde.'); return; }
+  setLoading(btn, true);
+  try {
+    const body = {
+      fecha_evento:    fevento,
+      tipo_permiso_id: tipoId,
+      fecha_desde:     fdesde,
+      fecha_hasta:     fhasta,
+      dias_otorgados:  parseFloat(document.getElementById('pm-dias').value) || 0,
+      observaciones:   document.getElementById('pm-obs').value.trim() || null,
+    };
+    if (id) await api.patch(`/rrhh/trabajadores/${workerId}/permisos/${id}`, body);
+    else    await api.post(`/rrhh/trabajadores/${workerId}/permisos`, body);
+    toast.success('Permiso guardado.');
+    closeModal('modal-permiso');
+    loadPermisos();
+  } catch (err) { toast.error(err.message); }
+  finally { setLoading(btn, false); }
+});
+
+window.deletePermiso = async id => {
+  if (!await confirm('¿Eliminar este permiso?', 'Eliminar')) return;
+  try {
+    await api.delete(`/rrhh/trabajadores/${workerId}/permisos/${id}`);
+    toast.success('Permiso eliminado.');
+    loadPermisos();
+  } catch (err) { toast.error(err.message); }
+};
+
+// ── Historial: Cargos desempeñados ────────────────────────────────────────────
+let _cargoscat = null;
+async function _loadCargosCat() {
+  if (_cargoscat) return _cargoscat;
+  try {
+    const r = await api.get('/nomina/cargos?size=200&solo_activos=true');
+    _cargoscat = r.items ?? r;
+  } catch { _cargoscat = []; }
+  return _cargoscat;
+}
+
+function _fmtFecha(f) {
+  return f ? new Date(f + 'T00:00:00').toLocaleDateString('es-CL') : '—';
+}
+
+async function loadCargosHist() {
+  const tbody = document.getElementById('tbody-cargos-hist');
+  try {
+    const items = await api.get(`/rrhh/trabajadores/${workerId}/cargos-desempenados`);
+    if (!items.length) {
+      tbody.innerHTML = `<tr><td colspan="5"><div class="empty-state"><div class="empty-state-icon">💼</div><h3>Sin historial</h3><p>No hay cargos desempeñados registrados.</p></div></td></tr>`;
+      return;
+    }
+    tbody.innerHTML = items.map(i => {
+      const nombre = i.cargo_nombre ?? i.cargo_descripcion ?? '—';
+      const vigente = !i.fecha_hasta;
+      return `<tr>
+        <td class="td-primary">${nombre}${vigente ? ' <span class="badge badge-success" style="font-size:10px;">Vigente</span>' : ''}</td>
+        <td>${_fmtFecha(i.fecha_desde)}</td>
+        <td>${_fmtFecha(i.fecha_hasta)}</td>
+        <td style="font-size:12px;color:var(--text-muted);">${i.observaciones ?? ''}</td>
+        <td style="white-space:nowrap;">
+          <button class="btn btn-ghost btn-sm" title="Editar" onclick="editCargoHist(${JSON.stringify(i).replace(/"/g,'&quot;')})">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+          </button>
+          <button class="btn btn-ghost btn-sm" title="Eliminar" onclick="deleteCargoHist('${i.id}')">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+          </button>
+        </td>
+      </tr>`;
+    }).join('');
+  } catch (err) {
+    tbody.innerHTML = `<tr><td colspan="5"><div class="empty-state"><div class="empty-state-icon">⚠</div><h3>Error</h3><p>${err.message}</p></div></td></tr>`;
+  }
+}
+
+async function _abrirModalCargoHist() {
+  const sel = document.getElementById('ch-cargo');
+  if (sel.options.length <= 1) {
+    const cats = await _loadCargosCat();
+    cats.forEach(c => {
+      const o = document.createElement('option');
+      o.value = c.id; o.textContent = c.descripcion;
+      sel.appendChild(o);
+    });
+  }
+}
+
+window.editCargoHist = async i => {
+  document.getElementById('modal-cargo-hist-title').textContent = 'Editar cargo desempeñado';
+  document.getElementById('ch-id').value     = i.id;
+  document.getElementById('ch-fdesde').value = i.fecha_desde  ?? '';
+  document.getElementById('ch-fhasta').value = i.fecha_hasta  ?? '';
+  document.getElementById('ch-obs').value    = i.observaciones ?? '';
+  await _abrirModalCargoHist();
+  document.getElementById('ch-cargo').value  = i.cargo_id     ?? '';
+  document.getElementById('ch-desc').value   = i.cargo_descripcion ?? '';
+  openModal('modal-cargo-hist');
+};
+
+document.getElementById('btn-add-cargo-hist').addEventListener('click', async () => {
+  document.getElementById('modal-cargo-hist-title').textContent = 'Agregar cargo desempeñado';
+  document.getElementById('ch-id').value     = '';
+  document.getElementById('ch-fdesde').value = new Date().toISOString().slice(0,10);
+  document.getElementById('ch-fhasta').value = '';
+  document.getElementById('ch-obs').value    = '';
+  document.getElementById('ch-desc').value   = '';
+  await _abrirModalCargoHist();
+  document.getElementById('ch-cargo').value  = '';
+  openModal('modal-cargo-hist');
+});
+
+document.getElementById('btn-save-cargo-hist').addEventListener('click', async () => {
+  const btn    = document.getElementById('btn-save-cargo-hist');
+  const id     = document.getElementById('ch-id').value;
+  const fdesde = document.getElementById('ch-fdesde').value;
+  const cargoId = document.getElementById('ch-cargo').value;
+  const desc   = document.getElementById('ch-desc').value.trim();
+  if (!fdesde)          { toast.error('La fecha Desde es obligatoria.'); return; }
+  if (!cargoId && !desc){ toast.error('Debe seleccionar un cargo del catálogo o ingresar una descripción.'); return; }
+  setLoading(btn, true);
+  try {
+    const body = {
+      cargo_id:          cargoId || null,
+      cargo_descripcion: desc    || null,
+      fecha_desde:       fdesde,
+      fecha_hasta:       document.getElementById('ch-fhasta').value || null,
+      observaciones:     document.getElementById('ch-obs').value.trim() || null,
+    };
+    if (id) await api.patch(`/rrhh/trabajadores/${workerId}/cargos-desempenados/${id}`, body);
+    else    await api.post(`/rrhh/trabajadores/${workerId}/cargos-desempenados`, body);
+    toast.success('Cargo guardado.');
+    closeModal('modal-cargo-hist');
+    loadCargosHist();
+  } catch (err) { toast.error(err.message); }
+  finally { setLoading(btn, false); }
+});
+
+window.deleteCargoHist = async id => {
+  if (!await confirm('¿Eliminar este cargo desempeñado?', 'Eliminar')) return;
+  try {
+    await api.delete(`/rrhh/trabajadores/${workerId}/cargos-desempenados/${id}`);
+    toast.success('Cargo eliminado.');
+    loadCargosHist();
+  } catch (err) { toast.error(err.message); }
+};
+
+// ── Historial: Observaciones ──────────────────────────────────────────────────
+async function loadObs() {
+  const tbody = document.getElementById('tbody-obs');
+  try {
+    const obs = await api.get(`/rrhh/trabajadores/${workerId}/observaciones`);
+    if (!obs.length) {
+      tbody.innerHTML = `<tr><td colspan="3"><div class="empty-state"><div class="empty-state-icon">📝</div><h3>Sin observaciones</h3></div></td></tr>`;
+      return;
+    }
+    tbody.innerHTML = obs.map(o => `<tr>
+      <td style="font-size:12px;color:var(--text-muted);white-space:nowrap;">
+        ${o.created_at ? new Date(o.created_at).toLocaleDateString('es-CL') : '—'}
+      </td>
+      <td>${o.observacion}</td>
+      <td>
+        <button class="btn btn-ghost btn-sm" onclick="delObs('${o.id}')" title="Eliminar">
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>
+        </button>
+      </td>
+    </tr>`).join('');
+  } catch (err) {
+    tbody.innerHTML = `<tr><td colspan="3"><div class="empty-state"><div class="empty-state-icon">⚠</div><h3>Error</h3><p>${err.message}</p></div></td></tr>`;
+  }
+}
+
+document.getElementById('btn-add-obs').addEventListener('click', () => {
+  document.getElementById('obs-id').value    = '';
+  document.getElementById('obs-texto').value = '';
+  document.getElementById('obs-fecha').value = new Date().toISOString().slice(0,10);
+  openModal('modal-obs');
+});
+
+document.getElementById('btn-save-obs').addEventListener('click', async () => {
+  const btn  = document.getElementById('btn-save-obs');
+  const texto = document.getElementById('obs-texto').value.trim();
+  if (!texto) { toast.error('La observación no puede estar vacía.'); return; }
+  setLoading(btn, true);
+  try {
+    await api.post(`/rrhh/trabajadores/${workerId}/observaciones`, { observacion: texto });
+    toast.success('Observación guardada.');
+    closeModal('modal-obs');
+    loadObs();
+  } catch (err) { toast.error(err.message); }
+  finally { setLoading(btn, false); }
+});
+
+window.delObs = async id => {
+  if (!await confirm('¿Eliminar esta observación?', 'Eliminar')) return;
+  try {
+    await api.delete(`/rrhh/trabajadores/${workerId}/observaciones/${id}`);
+    toast.success('Observación eliminada.');
+    loadObs();
+  } catch (err) { toast.error(err.message); }
+};
+
+document.getElementById('btn-add-cargo-hist').addEventListener('click', () => {
+  toast.info('Formulario de cargo desempeñado próximamente.');
+});
+
+// ── Evaluaciones ──────────────────────────────────────────────────────────────
+let evalCats = { cuantitativas: [], atribsCuant: [], cualitativas: [], atribsCual: [] };
+
+async function loadEvalCatalogs() {
+  if (evalCats.cuantitativas.length) return;
+  const [ec, ac, eq, aq] = await Promise.allSettled([
+    api.get('/rrhh/evaluaciones/cuantitativas'),
+    api.get('/rrhh/evaluaciones/cuantitativas/atributos'),
+    api.get('/rrhh/evaluaciones/cualitativas'),
+    api.get('/rrhh/evaluaciones/cualitativas/atributos'),
+  ]);
+  const ok = r => r.status === 'fulfilled' ? (r.value ?? []) : [];
+  evalCats.cuantitativas  = ok(ec);
+  evalCats.atribsCuant    = ok(ac);
+  evalCats.cualitativas   = ok(eq);
+  evalCats.atribsCual     = ok(aq);
+}
+
+const fmtD = d => d ? new Date(d + 'T00:00:00').toLocaleDateString('es-CL') : '—';
+
+async function loadEvalCuant() {
+  const tbody = document.getElementById('tbody-eval-c');
+  try {
+    const items = await api.get(`/rrhh/trabajadores/${workerId}/evaluaciones/cuantitativas`);
+    const evalMap  = Object.fromEntries(evalCats.cuantitativas.map(e => [e.id, e.descripcion]));
+    const atribMap = Object.fromEntries(evalCats.atribsCuant.map(a => [a.id, a.descripcion]));
+    if (!items.length) {
+      tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;padding:24px;color:var(--text-muted);">Sin evaluaciones cuantitativas registradas.</td></tr>`;
+      return;
+    }
+    tbody.innerHTML = items.map(e => `<tr>
+      <td style="font-size:13px;white-space:nowrap;">${fmtD(e.fecha_evaluacion)}</td>
+      <td style="font-size:13px;">${evalMap[e.evaluacion_id] ?? '—'}</td>
+      <td style="font-size:13px;">${atribMap[e.atributo_id] ?? '—'}</td>
+      <td style="text-align:right;font-family:monospace;font-size:13px;">${e.valor}</td>
+      <td style="font-size:12px;color:var(--text-muted);">${e.observaciones ?? ''}</td>
+    </tr>`).join('');
+  } catch (err) {
+    tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;padding:24px;color:var(--danger);">${err.message}</td></tr>`;
+  }
+}
+
+async function loadEvalCual() {
+  const tbody = document.getElementById('tbody-eval-q');
+  try {
+    const items = await api.get(`/rrhh/trabajadores/${workerId}/evaluaciones/cualitativas`);
+    const evalMap  = Object.fromEntries(evalCats.cualitativas.map(e => [e.id, e.descripcion]));
+    const atribMap = Object.fromEntries(evalCats.atribsCual.map(a => [a.id, a.descripcion]));
+    if (!items.length) {
+      tbody.innerHTML = `<tr><td colspan="4" style="text-align:center;padding:24px;color:var(--text-muted);">Sin evaluaciones cualitativas registradas.</td></tr>`;
+      return;
+    }
+    tbody.innerHTML = items.map(e => `<tr>
+      <td style="font-size:13px;white-space:nowrap;">${fmtD(e.fecha_evaluacion)}</td>
+      <td style="font-size:13px;">${evalMap[e.evaluacion_id] ?? '—'}</td>
+      <td style="font-size:13px;">${atribMap[e.atributo_id] ?? '—'}</td>
+      <td style="font-size:13px;">${e.descripcion ?? ''}</td>
+    </tr>`).join('');
+  } catch (err) {
+    tbody.innerHTML = `<tr><td colspan="4" style="text-align:center;padding:24px;color:var(--danger);">${err.message}</td></tr>`;
+  }
+}
+
+async function loadEvaluaciones() {
+  await loadEvalCatalogs();
+  return Promise.all([loadEvalCuant(), loadEvalCual()]);
+}
+
+function populateEvalOpts(selId, items) {
+  const el = document.getElementById(selId);
+  el.innerHTML = `<option value="">— Seleccionar —</option>` +
+    items.map(x => `<option value="${x.id}">${x.codigo} — ${x.descripcion}</option>`).join('');
+}
+
+document.getElementById('btn-add-eval-c').addEventListener('click', async () => {
+  await loadEvalCatalogs();
+  populateEvalOpts('eval-c-tipo',  evalCats.cuantitativas);
+  populateEvalOpts('eval-c-atrib', evalCats.atribsCuant);
+  document.getElementById('eval-c-fecha').value = new Date().toISOString().slice(0, 10);
+  document.getElementById('eval-c-valor').value = '';
+  document.getElementById('eval-c-obs').value   = '';
+  openModal('modal-eval-c');
+});
+
+document.getElementById('btn-save-eval-c').addEventListener('click', async () => {
+  const btn    = document.getElementById('btn-save-eval-c');
+  const evalId = document.getElementById('eval-c-tipo').value;
+  const atribId= document.getElementById('eval-c-atrib').value;
+  const fecha  = document.getElementById('eval-c-fecha').value;
+  const valor  = parseFloat(document.getElementById('eval-c-valor').value);
+  const obs    = document.getElementById('eval-c-obs').value.trim();
+  if (!evalId)          { toast.error('Selecciona el tipo de evaluación.'); return; }
+  if (!atribId)         { toast.error('Selecciona el atributo.'); return; }
+  if (!fecha)           { toast.error('Ingresa la fecha de evaluación.'); return; }
+  if (isNaN(valor))     { toast.error('Ingresa un valor numérico.'); return; }
+  setLoading(btn, true);
+  try {
+    await api.post(`/rrhh/trabajadores/${workerId}/evaluaciones/cuantitativas`, {
+      evaluacion_id: evalId,
+      atributo_id:   atribId,
+      fecha_evaluacion: fecha,
+      valor,
+      observaciones: obs || null,
+    });
+    toast.success('Evaluación cuantitativa guardada.');
+    closeModal('modal-eval-c');
+    loadEvalCuant();
+  } catch (err) { toast.error(err.message); }
+  finally { setLoading(btn, false); }
+});
+
+document.getElementById('btn-add-eval-q').addEventListener('click', async () => {
+  await loadEvalCatalogs();
+  populateEvalOpts('eval-q-tipo',  evalCats.cualitativas);
+  populateEvalOpts('eval-q-atrib', evalCats.atribsCual);
+  document.getElementById('eval-q-fecha').value = new Date().toISOString().slice(0, 10);
+  document.getElementById('eval-q-desc').value  = '';
+  openModal('modal-eval-q');
+});
+
+document.getElementById('btn-save-eval-q').addEventListener('click', async () => {
+  const btn    = document.getElementById('btn-save-eval-q');
+  const evalId = document.getElementById('eval-q-tipo').value;
+  const atribId= document.getElementById('eval-q-atrib').value;
+  const fecha  = document.getElementById('eval-q-fecha').value;
+  const desc   = document.getElementById('eval-q-desc').value.trim();
+  if (!evalId)  { toast.error('Selecciona el tipo de evaluación.'); return; }
+  if (!atribId) { toast.error('Selecciona el atributo.'); return; }
+  if (!fecha)   { toast.error('Ingresa la fecha de evaluación.'); return; }
+  setLoading(btn, true);
+  try {
+    await api.post(`/rrhh/trabajadores/${workerId}/evaluaciones/cualitativas`, {
+      evaluacion_id:    evalId,
+      atributo_id:      atribId,
+      fecha_evaluacion: fecha,
+      descripcion:      desc || null,
+    });
+    toast.success('Evaluación cualitativa guardada.');
+    closeModal('modal-eval-q');
+    loadEvalCual();
+  } catch (err) { toast.error(err.message); }
+  finally { setLoading(btn, false); }
+});
+
+// ── Init ──────────────────────────────────────────────────────────────────────
+await loadCatalogs();
+await loadWorker();
+// Marcar tab personal como cargado
+tabLoaded['personal'] = true;
+</script>
+</body>
+</html>
