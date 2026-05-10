@@ -21,7 +21,7 @@ from sqlalchemy.orm import Session
 
 from modulos.nomina.models import Finiquito
 from modulos.nomina.repositories import ParametroMensualRepository
-from modulos.rrhh.models import FichaPermiso, LicenciaMedica, Trabajador
+from modulos.rrhh.models import FichaPermiso, LicenciaMedica, TipoPermiso, Trabajador
 from modulos.nomina.repositories_operacional import (
     AnticipoRepository, ContratoRepository,
     FiniquitoRepository, MovimientoMensualRepository, PrestamoRepository,
@@ -181,11 +181,12 @@ def _calcular_situacion_mes(db: Session, tenant_id: UUID, movimiento) -> dict:
         for l in licencias
     )
 
-    permisos = db.query(FichaPermiso).filter(
+    permisos = db.query(FichaPermiso).join(TipoPermiso).filter(
         FichaPermiso.tenant_id == tenant_id,
         FichaPermiso.trabajador_id == movimiento.trabajador_id,
         FichaPermiso.fecha_desde <= periodo_termino,
         FichaPermiso.fecha_hasta >= periodo_inicio,
+        TipoPermiso.con_goce == False,
     ).all()
     dias_permiso = Decimal("0")
     for permiso in permisos:
@@ -204,7 +205,10 @@ def _calcular_situacion_mes(db: Session, tenant_id: UUID, movimiento) -> dict:
         Trabajador.tenant_id == tenant_id,
         Trabajador.id == movimiento.trabajador_id,
     ).first()
-    fecha_inicio = movimiento.fecha_inicio_mov or (trabajador.fecha_contrato if trabajador else None)
+    # La cobertura contractual para nómina se toma desde la ficha del trabajador.
+    # fecha_inicio_mov puede usarse para otros códigos de movimiento y no debe
+    # reemplazar la fecha real de ingreso/contrato al calcular días no contrato.
+    fecha_inicio = trabajador.fecha_contrato if trabajador else None
 
     finiquito = db.query(Finiquito).filter(
         Finiquito.tenant_id == tenant_id,
