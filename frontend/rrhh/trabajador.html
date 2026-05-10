@@ -1162,7 +1162,7 @@ function sel(id, arr, valField = 'id', labelField = 'nombre', selected = null) {
   arr.forEach(x => {
     const opt = document.createElement('option');
     opt.value  = x[valField];
-    opt.text   = x[labelField];
+    opt.text   = x[labelField] ?? x.descripcion ?? x.nombre ?? x.nombre_completo ?? '';
     if (selected !== null && String(x[valField]) === String(selected)) opt.selected = true;
     el.appendChild(opt);
   });
@@ -1320,7 +1320,7 @@ async function loadWorker() {
   sel('l-sucursal',     C.sucursales,    'id', 'nombre',      W.sucursal_id);
   sel('l-cc',           C.centrosCosto,  'id', 'descripcion', W.centro_costo_id);
   sel('l-supervisor',   C.supervisores,  'id', 'nombre',      W.supervisor_id);
-  sel('l-tipocontrato', C.tiposContrato, 'id', 'nombre',     W.tipo_contrato_id);
+  sel('l-tipocontrato', C.tiposContrato, 'id', 'descripcion', W.tipo_contrato_id);
 
   // ── Tab Previsional ──────────────────────────────────────────────────────
   document.getElementById('v-regprev').value      = String(W.regimen_previsional);

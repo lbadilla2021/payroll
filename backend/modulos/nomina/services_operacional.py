@@ -11,6 +11,7 @@ Reglas de negocio chilenas aplicadas:
 """
 
 from datetime import date
+import calendar
 from decimal import Decimal
 from typing import Optional
 from uuid import UUID
@@ -18,7 +19,9 @@ from uuid import UUID
 from fastapi import HTTPException, status
 from sqlalchemy.orm import Session
 
+from modulos.nomina.models import Finiquito
 from modulos.nomina.repositories import ParametroMensualRepository
+from modulos.rrhh.models import FichaPermiso, LicenciaMedica, TipoPermiso, Trabajador
 from modulos.nomina.repositories_operacional import (
     AnticipoRepository, ContratoRepository,
     FiniquitoRepository, MovimientoMensualRepository, PrestamoRepository,
@@ -121,6 +124,22 @@ class ContratoService:
 # MOVIMIENTO MENSUAL
 # ─────────────────────────────────────────────────────────────────────────────
 
+DIAS_MES_NOMINA = Decimal("30")
+
+
+def _periodo_fechas(anio: int, mes: int) -> tuple[date, date]:
+    ultimo_dia = calendar.monthrange(anio, mes)[1]
+    return date(anio, mes, 1), date(anio, mes, ultimo_dia)
+
+
+def _dias_interseccion(inicio: date, termino: date, periodo_inicio: date, periodo_termino: date) -> int:
+    desde = max(inicio, periodo_inicio)
+    hasta = min(termino, periodo_termino)
+    if hasta < desde:
+        return 0
+    return (hasta - desde).days + 1
+
+
 def _dias_no_contratado_de_fecha(fecha_inicio_mov: Optional[date],
                                   anio: int, mes: int) -> Decimal:
     """
@@ -135,6 +154,93 @@ def _dias_no_contratado_de_fecha(fecha_inicio_mov: Optional[date],
         return Decimal("0")
     dia_inicio = min(fecha_inicio_mov.day, 30)
     return Decimal(str(max(0, dia_inicio - 1)))
+
+
+def _dias_no_contratado_fin(fecha_termino: Optional[date], anio: int, mes: int) -> Decimal:
+    if not fecha_termino or fecha_termino.year != anio or fecha_termino.month != mes:
+        return Decimal("0")
+    dia_termino = min(fecha_termino.day, 30)
+    return Decimal(str(max(0, 30 - dia_termino)))
+
+
+def _decimal(value) -> Decimal:
+    return Decimal(str(value or 0))
+
+
+def _calcular_situacion_mes(db: Session, tenant_id: UUID, movimiento) -> dict:
+    periodo_inicio, periodo_termino = _periodo_fechas(movimiento.anio, movimiento.mes)
+
+    licencias = db.query(LicenciaMedica).filter(
+        LicenciaMedica.tenant_id == tenant_id,
+        LicenciaMedica.trabajador_id == movimiento.trabajador_id,
+        LicenciaMedica.fecha_inicio <= periodo_termino,
+        LicenciaMedica.fecha_termino >= periodo_inicio,
+    ).all()
+    dias_licencia = sum(
+        _dias_interseccion(l.fecha_inicio, l.fecha_termino, periodo_inicio, periodo_termino)
+        for l in licencias
+    )
+
+    permisos = db.query(FichaPermiso).join(TipoPermiso).filter(
+        FichaPermiso.tenant_id == tenant_id,
+        FichaPermiso.trabajador_id == movimiento.trabajador_id,
+        FichaPermiso.fecha_desde <= periodo_termino,
+        FichaPermiso.fecha_hasta >= periodo_inicio,
+        TipoPermiso.con_goce == False,
+    ).all()
+    dias_permiso = Decimal("0")
+    for permiso in permisos:
+        dias_periodo = Decimal(str(_dias_interseccion(
+            permiso.fecha_desde, permiso.fecha_hasta, periodo_inicio, periodo_termino
+        )))
+        dias_ficha = _decimal(permiso.dias_otorgados)
+        if permiso.fecha_desde >= periodo_inicio and permiso.fecha_hasta <= periodo_termino and dias_ficha > 0:
+            dias_permiso += dias_ficha
+        elif dias_ficha > 0:
+            dias_permiso += min(dias_ficha, dias_periodo)
+        else:
+            dias_permiso += dias_periodo
+
+    trabajador = db.query(Trabajador).filter(
+        Trabajador.tenant_id == tenant_id,
+        Trabajador.id == movimiento.trabajador_id,
+    ).first()
+    # La cobertura contractual para nómina se toma desde la ficha del trabajador.
+    # fecha_inicio_mov puede usarse para otros códigos de movimiento y no debe
+    # reemplazar la fecha real de ingreso/contrato al calcular días no contrato.
+    fecha_inicio = trabajador.fecha_contrato if trabajador else None
+
+    finiquito = db.query(Finiquito).filter(
+        Finiquito.tenant_id == tenant_id,
+        Finiquito.trabajador_id == movimiento.trabajador_id,
+        Finiquito.fecha_finiquito >= periodo_inicio,
+        Finiquito.fecha_finiquito <= periodo_termino,
+    ).order_by(Finiquito.fecha_finiquito.asc()).first()
+    fecha_termino = movimiento.fecha_termino_mov or (finiquito.fecha_finiquito if finiquito else None)
+
+    dias_no_contratado = (
+        _dias_no_contratado_de_fecha(fecha_inicio, movimiento.anio, movimiento.mes)
+        + _dias_no_contratado_fin(fecha_termino, movimiento.anio, movimiento.mes)
+    )
+    dias_no_contratado = min(dias_no_contratado, DIAS_MES_NOMINA)
+
+    dias_licencia = Decimal(str(min(dias_licencia, 30)))
+    dias_ausentes = min(dias_licencia + dias_permiso + dias_no_contratado, DIAS_MES_NOMINA)
+    dias_trabajados = max(DIAS_MES_NOMINA - dias_ausentes, Decimal("0"))
+
+    return {
+        "dias_permiso": dias_permiso,
+        "dias_no_contratado": dias_no_contratado,
+        "dias_licencia": dias_licencia,
+        "dias_ausentes": dias_ausentes,
+        "dias_trabajados": dias_trabajados,
+    }
+
+
+def _aplicar_situacion_mes(db: Session, tenant_id: UUID, movimiento) -> None:
+    situacion = _calcular_situacion_mes(db, tenant_id, movimiento)
+    for key, value in situacion.items():
+        setattr(movimiento, key, value)
 
 
 class MovimientoMensualService:
@@ -152,6 +258,7 @@ class MovimientoMensualService:
         obj = MovimientoMensualRepository.get_by_id(db, tenant_id, movimiento_id)
         if not obj:
             raise HTTPException(status_code=404, detail="Movimiento mensual no encontrado.")
+        _aplicar_situacion_mes(db, tenant_id, obj)
         return obj
 
     @staticmethod
@@ -186,8 +293,10 @@ class MovimientoMensualService:
             )
 
         obj = MovimientoMensualRepository.create(db, tenant_id, data)
+        _aplicar_situacion_mes(db, tenant_id, obj)
         db.commit()
         db.refresh(obj)
+        _aplicar_situacion_mes(db, tenant_id, obj)
         return obj
 
     @staticmethod
@@ -201,14 +310,15 @@ class MovimientoMensualService:
             )
         _verificar_periodo_no_bloqueado(db, tenant_id, obj.anio, obj.mes)
         data = body.model_dump(exclude_unset=True)
-        # Si se actualiza fecha_inicio_mov, recalcular días no contratados.
-        if "fecha_inicio_mov" in data:
-            data["dias_no_contratado"] = _dias_no_contratado_de_fecha(
-                data["fecha_inicio_mov"], obj.anio, obj.mes
-            )
+        # Estos campos se calculan desde la ficha del trabajador y no deben quedar
+        # a criterio de edición manual en el movimiento mensual.
+        for campo_calculado in ("dias_ausentes", "dias_no_contratado", "dias_licencia", "dias_vacaciones"):
+            data.pop(campo_calculado, None)
         updated = MovimientoMensualRepository.update(db, obj, data)
+        _aplicar_situacion_mes(db, tenant_id, updated)
         db.commit()
         db.refresh(updated)
+        _aplicar_situacion_mes(db, tenant_id, updated)
         return updated
 
     @staticmethod

@@ -265,11 +265,12 @@ class MotorCalculo:
                                m: DatosMovimiento) -> Decimal:
         """
         Proporcionaliza el sueldo base según días trabajados.
-        Días trabajados = 30 - días_ausentes - días_no_contratado - días_licencia
-        (los días de vacaciones SÍ se pagan — no se descuentan del sueldo)
+        Días trabajados = 30 - días ausentes.
+        Desde la situación mensual, días ausentes ya consolida licencia, permisos
+        y días no cubiertos por contrato; las vacaciones SÍ se pagan y no se
+        descuentan del sueldo.
         """
-        dias_descuento = m.dias_ausentes + m.dias_no_contratado + m.dias_licencia
-        dias_trabajados = DIAS_MES - dias_descuento
+        dias_trabajados = DIAS_MES - m.dias_ausentes
         if dias_trabajados < 0:
             dias_trabajados = Decimal("0")
 
@@ -313,8 +314,8 @@ class MotorCalculo:
         Colación y movilización son EXENTAS de imposiciones y tributación.
         Se pagan proporcionalmente a los días de colación/movilización.
         """
-        dias_col = m.dias_colacion if m.dias_colacion > 0 else (DIAS_MES - m.dias_ausentes - m.dias_no_contratado)
-        dias_mov = m.dias_movilizacion if m.dias_movilizacion > 0 else (DIAS_MES - m.dias_ausentes - m.dias_no_contratado)
+        dias_col = m.dias_colacion if m.dias_colacion > 0 else (DIAS_MES - m.dias_ausentes)
+        dias_mov = m.dias_movilizacion if m.dias_movilizacion > 0 else (DIAS_MES - m.dias_ausentes)
 
         if t.tipo_sueldo in ("D", "H"):
             colacion    = _redondear(t.monto_colacion * dias_col)
