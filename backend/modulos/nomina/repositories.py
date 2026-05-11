@@ -15,7 +15,7 @@ from sqlalchemy.orm import Session
 
 from modulos.nomina.models import (
     Afp, Banco, CausalFiniquito, Ccaf, CentroCosto, ClausulaAdicional,
-    Cargo, ConceptoRemuneracion, EmpresaConfig, FactorActualizacion,
+    Cargo, ClasificacionLre, ConceptoRemuneracion, EmpresaConfig, FactorActualizacion,
     Isapre, Mutualidad, ParametroMensual, Region, Comuna,
     ServMedCchc, Sucursal, TipoContrato, TipoMoneda,
     TipoMovimientoBancario, TramoAsignacionFamiliar, TramoImpuestoUnicoUTM,
@@ -673,6 +673,65 @@ class ClausulaAdicionalRepository:
     def delete(db: Session, obj: ClausulaAdicional) -> None:
         db.delete(obj)
         db.flush()
+
+
+class ClasificacionLreRepository:
+
+    @staticmethod
+    def get_all(db: Session, tenant_id: UUID, page: int = 1, size: int = 50,
+                search: str = "", solo_activos: bool = True):
+        _set_tenant(db, tenant_id)
+        q = db.query(ClasificacionLre).filter(ClasificacionLre.tenant_id == tenant_id)
+        if solo_activos:
+            q = q.filter(ClasificacionLre.es_activo == True)
+        if search:
+            q = q.filter(
+                ClasificacionLre.descripcion.ilike(f"%{search}%") |
+                ClasificacionLre.codigo.ilike(f"%{search}%")
+            )
+        total = q.count()
+        items = q.order_by(ClasificacionLre.codigo)\
+                 .offset((page - 1) * size).limit(size).all()
+        return items, total
+
+    @staticmethod
+    def get_by_id(db: Session, tenant_id: UUID, clasificacion_id: UUID) -> Optional[ClasificacionLre]:
+        _set_tenant(db, tenant_id)
+        return db.query(ClasificacionLre).filter(
+            ClasificacionLre.tenant_id == tenant_id,
+            ClasificacionLre.id == clasificacion_id
+        ).first()
+
+    @staticmethod
+    def get_by_codigo(db: Session, tenant_id: UUID, codigo: str) -> Optional[ClasificacionLre]:
+        _set_tenant(db, tenant_id)
+        return db.query(ClasificacionLre).filter(
+            ClasificacionLre.tenant_id == tenant_id,
+            ClasificacionLre.codigo == codigo
+        ).first()
+
+    @staticmethod
+    def create(db: Session, tenant_id: UUID, data: dict) -> ClasificacionLre:
+        _set_tenant(db, tenant_id)
+        obj = ClasificacionLre(tenant_id=tenant_id, **data)
+        db.add(obj)
+        db.flush()
+        db.refresh(obj)
+        return obj
+
+    @staticmethod
+    def update(db: Session, obj: ClasificacionLre, data: dict) -> ClasificacionLre:
+        for k, v in data.items():
+            setattr(obj, k, v)
+        db.flush()
+        db.refresh(obj)
+        return obj
+
+    @staticmethod
+    def delete(db: Session, obj: ClasificacionLre) -> None:
+        db.delete(obj)
+        db.flush()
+
 
 
 class ConceptoRemuneracionRepository:
