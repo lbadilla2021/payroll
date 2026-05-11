@@ -143,6 +143,7 @@ initShellUI(user);
 const MESES = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
 const fmtCLP = n => n != null ? `$\u00A0${Number(n).toLocaleString('es-CL')}` : '—';
 const fmtDT  = d => d ? new Date(d).toLocaleString('es-CL', { dateStyle:'short', timeStyle:'short' }) : '—';
+const num = n => Number(n ?? 0);
 const ESTADO_CLASS = { pendiente:'badge-warning', calculado:'badge-success', cerrado:'badge-neutral' };
 
 const now = new Date();
@@ -204,12 +205,12 @@ async function loadList() {
       return;
     }
     tbody.innerHTML = items.map(m => `
-      <tr style="cursor:pointer;" data-id="${m.id}">
+      <tr style="cursor:pointer;" data-id="${m.id}" data-estado="${m.estado}">
         <td class="td-primary">${lookup(m.trabajador_id)}</td>
-        <td style="text-align:right;font-family:monospace;font-size:13px;">—</td>
-        <td style="text-align:right;font-family:monospace;font-size:13px;">—</td>
-        <td style="text-align:right;font-family:monospace;font-size:13px;">—</td>
-        <td style="text-align:right;font-family:monospace;font-size:13px;font-weight:600;">${fmtCLP(m.liquido_pagar)}</td>
+        <td class="js-total-haberes" style="text-align:right;font-family:monospace;font-size:13px;">${fmtCLP(m.total_haberes)}</td>
+        <td class="js-desc-prevision" style="text-align:right;font-family:monospace;font-size:13px;">—</td>
+        <td class="js-imp-unico" style="text-align:right;font-family:monospace;font-size:13px;">${fmtCLP(m.impuesto_unico)}</td>
+        <td class="js-liquido" style="text-align:right;font-family:monospace;font-size:13px;font-weight:600;">${fmtCLP(m.liquido_pagar)}</td>
         <td><span class="badge ${ESTADO_CLASS[m.estado] ?? 'badge-neutral'}">${m.estado}</span></td>
         <td style="font-size:12px;color:var(--text-muted);">${fmtDT(m.calculado_en)}</td>
         <td>
@@ -218,6 +219,8 @@ async function loadList() {
           </button>
         </td>
       </tr>`).join('');
+
+    enrichCalculatedRows(tbody);
 
     tbody.querySelectorAll('tr[data-id]').forEach(row =>
       row.addEventListener('click', e => {
@@ -242,6 +245,24 @@ async function loadList() {
   } catch (err) {
     tbody.innerHTML = `<tr><td colspan="8"><div class="empty-state"><div class="empty-state-icon">⚠</div><h3>Error</h3><p>${err.message}</p></div></td></tr>`;
   }
+}
+
+async function getCalculoDetalle(movId) {
+  return api.get(`/nomina/calculo/movimiento/${movId}/preview`);
+}
+
+async function enrichCalculatedRows(tbody) {
+  const rows = [...tbody.querySelectorAll('tr[data-id]')]
+    .filter(row => row.dataset.estado === 'calculado' || row.dataset.estado === 'cerrado');
+  await Promise.allSettled(rows.map(async row => {
+    const detalle = await getCalculoDetalle(row.dataset.id);
+    row.querySelector('.js-total-haberes').textContent = fmtCLP(detalle.total_haberes);
+    row.querySelector('.js-desc-prevision').textContent = fmtCLP(
+      num(detalle.descuento_afp) + num(detalle.descuento_salud) + num(detalle.descuento_seg_cesantia_t)
+    );
+    row.querySelector('.js-imp-unico').textContent = fmtCLP(detalle.impuesto_unico);
+    row.querySelector('.js-liquido').textContent = fmtCLP(detalle.liquido_a_pagar);
+  }));
 }
 
 // ── Panel desglose ────────────────────────────────────────────────────────────
@@ -274,6 +295,19 @@ async function openDesglose(movId) {
       return;
     }
 
+    const detalle = await getCalculoDetalle(movId);
+    const otrosHaberes = num(detalle.total_haberes)
+      - num(detalle.sueldo_base_proporcional)
+      - num(detalle.gratificacion)
+      - num(detalle.total_horas_extra)
+      - num(detalle.movilizacion)
+      - num(detalle.colacion);
+    const otrosDescuentos = num(detalle.total_descuentos)
+      - num(detalle.descuento_afp)
+      - num(detalle.descuento_salud)
+      - num(detalle.descuento_seg_cesantia_t)
+      - num(detalle.impuesto_unico);
+
     const fila = (label, val, sep=false, bold=false) => `
       <div style="display:flex;justify-content:space-between;padding:5px 0;
         ${sep?'border-top:2px solid var(--border);margin-top:4px;padding-top:8px;':'border-bottom:1px solid var(--border-light,var(--border))'}
@@ -285,19 +319,26 @@ async function openDesglose(movId) {
     document.getElementById('liq-content').innerHTML = `
       <div style="margin-bottom:var(--space-4);">
         <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--text-muted);margin-bottom:8px;">Haberes</div>
-        ${fila('Sueldo base', fmtCLP(mov.total_haberes))}
-        ${fila('Total haberes', fmtCLP(mov.total_haberes), false, true)}
+        ${fila('Sueldo base', fmtCLP(detalle.sueldo_base_proporcional))}
+        ${fila('Gratificación', fmtCLP(detalle.gratificacion))}
+        ${fila('Horas extras', fmtCLP(detalle.total_horas_extra))}
+        ${fila('Movilización', fmtCLP(detalle.movilizacion))}
+        ${fila('Colación', fmtCLP(detalle.colacion))}
+        ${fila('Haberes', fmtCLP(otrosHaberes))}
+        ${fila('Total haberes', fmtCLP(detalle.total_haberes), false, true)}
       </div>
       <div style="margin-bottom:var(--space-4);">
-        <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--text-muted);margin-bottom:8px;">Descuentos previsionales</div>
-        ${fila('Descuento AFP', fmtCLP(mov.descuento_afp))}
-        ${fila('Descuento salud', fmtCLP(mov.descuento_salud))}
-        ${fila('Impuesto único', fmtCLP(mov.impuesto_unico))}
-        ${fila('Total descuentos', fmtCLP(mov.total_descuentos), false, true)}
+        <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--text-muted);margin-bottom:8px;">Descuentos</div>
+        ${fila('Descuento AFP', fmtCLP(detalle.descuento_afp))}
+        ${fila('Descuento salud', fmtCLP(detalle.descuento_salud))}
+        ${fila('Seguro cesantía', fmtCLP(detalle.descuento_seg_cesantia_t))}
+        ${fila('Impuesto único', fmtCLP(detalle.impuesto_unico))}
+        ${fila('Otros descuentos', fmtCLP(otrosDescuentos))}
+        ${fila('Total descuentos', fmtCLP(detalle.total_descuentos), false, true)}
       </div>
       <div>
-        ${fila('Anticipo', fmtCLP(mov.anticipo))}
-        ${fila('LÍQUIDO A PAGAR', fmtCLP(mov.liquido_pagar), true, true)}
+        ${fila('Anticipo', fmtCLP(detalle.anticipo))}
+        ${fila('LÍQUIDO A PAGAR', fmtCLP(detalle.liquido_a_pagar), true, true)}
       </div>
       <div style="margin-top:var(--space-3);font-size:11px;color:var(--text-muted);">
         Calculado: ${fmtDT(mov.calculado_en)}
