@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Libro de Remuneraciones — Nómina</title>
+  <link rel="stylesheet" href="/static/css/main.css?v=4">
+</head>
+<body data-page="reportes-libro-remuneraciones">
+
+<div id="app-shell">
+  <nav class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <div class="brand-mark">N</div>
+      <span class="brand-name">Nómina SaaS</span>
+    </div>
+    <div class="sidebar-nav" id="sidebar-nav"></div>
+    <div class="sidebar-footer">
+      <div class="profile-trigger" id="profile-trigger">
+        <div class="avatar" id="sidebar-avatar">?</div>
+        <div class="profile-info">
+          <div class="profile-name" id="sidebar-name">…</div>
+          <div class="profile-role" id="sidebar-role"></div>
+        </div>
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <div class="profile-menu" id="profile-menu">
+        <div class="menu-item" onclick="window.location.href='/settings.html'">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+          Configuración
+        </div>
+        <div class="menu-item" id="theme-toggle-btn">
+          <svg id="theme-icon-sun" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+          <svg id="theme-icon-moon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none;"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+          <span id="theme-label">Modo oscuro</span>
+        </div>
+        <div class="menu-divider"></div>
+        <div class="menu-item" id="help-btn">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          Ayuda
+        </div>
+        <div class="menu-divider"></div>
+        <div class="menu-item danger" id="logout-btn">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+          Cerrar sesión
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <div class="main-content">
+    <header class="topbar">
+      <span class="topbar-title">Libro de Remuneraciones</span>
+      <div class="topbar-spacer"></div>
+      <button class="btn btn-primary btn-sm" id="btn-libro">
+        <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="13" y2="17"/></svg>
+        Generar libro
+      </button>
+    </header>
+
+    <main class="page-area">
+      <div style="max-width:960px;">
+        <div class="card" style="padding:var(--space-5);">
+          <h2 style="margin:0 0 var(--space-2);font-size:18px;">Libro de Remuneraciones</h2>
+          <p style="color:var(--text-secondary);font-size:14px;line-height:1.55;margin:0 0 var(--space-4);">
+            Genera un informe imprimible del período seleccionado con detalle por trabajador, clasificaciones LRE,
+            totales por página y totales generales del informe.
+          </p>
+          <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--space-3);">
+            <div class="card" style="padding:var(--space-4);background:var(--surface-muted);">
+              <strong>Vertical</strong>
+              <p style="font-size:13px;color:var(--text-muted);margin:6px 0 0;">Una o más filas por trabajador. El nombre se repite en cada línea.</p>
+            </div>
+            <div class="card" style="padding:var(--space-4);background:var(--surface-muted);">
+              <strong>Horizontal</strong>
+              <p style="font-size:13px;color:var(--text-muted);margin:6px 0 0;">Una fila consolidada por trabajador con columnas de haberes, descuentos y líquido.</p>
+            </div>
+            <div class="card" style="padding:var(--space-4);background:var(--surface-muted);">
+              <strong>Totales</strong>
+              <p style="font-size:13px;color:var(--text-muted);margin:6px 0 0;">Incluye subtotal al pie de cada página y total general al final.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<div class="modal" id="modal-libro">
+  <div class="modal-header">
+    <span class="modal-title">Generar Libro de Remuneraciones</span>
+    <button class="btn btn-ghost btn-sm" id="modal-libro-close">
+      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+  </div>
+  <div class="modal-body">
+    <div class="form-row cols-2" style="margin-bottom:var(--space-3);">
+      <div class="form-group">
+        <label class="form-label">Año</label>
+        <input class="form-input" id="rep-anio" type="number" min="2000" max="2100">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Mes</label>
+        <select class="form-input form-select" id="rep-mes"></select>
+      </div>
+    </div>
+    <div class="form-group" style="margin-bottom:var(--space-3);">
+      <label class="form-label">Formato</label>
+      <select class="form-input form-select" id="rep-formato">
+        <option value="vertical">Vertical — detalle en varias filas por trabajador</option>
+        <option value="horizontal">Horizontal — una fila consolidada por trabajador</option>
+      </select>
+    </div>
+    <div id="rep-msg" style="font-size:13px;color:var(--text-muted);"></div>
+  </div>
+  <div class="modal-footer">
+    <button class="btn btn-secondary" id="modal-libro-cancel">Cancelar</button>
+    <button class="btn btn-primary" id="modal-libro-generar">Generar informe</button>
+  </div>
+</div>
+
+<div id="toast-container"></div>
+
+<script type="module">
+import api from '/static/js/api.js?v=4';
+import { requireAuth } from '/static/js/auth.js?v=3';
+import { initTheme, openModal, closeModal, setLoading } from '/static/js/ui.js?v=3';
+import { toast } from '/static/js/toast.js?v=3';
+import { initShellUI } from '/static/js/nav.js';
+
+initTheme();
+const user = await requireAuth();
+initShellUI(user);
+
+const MESES = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+const VERTICAL_ROWS_PER_PAGE = 22;
+const HORIZONTAL_ROWS_PER_PAGE = 26;
+const now = new Date();
+let empresa = null;
+let conceptos = [];
+let conceptoMap = new Map();
+let clasificaciones = [];
+let clasificacionMap = new Map();
+
+const num = n => Number(n ?? 0);
+const fmtCLP = n => `$ ${Math.round(num(n)).toLocaleString('es-CL')}`;
+const esc = v => String(v ?? '—').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const sumBy = (items, key) => items.reduce((acc, item) => acc + num(item[key]), 0);
+
+function fillPeriodo() {
+  document.getElementById('rep-mes').innerHTML = MESES.map((m, i) => `<option value="${i + 1}">${m}</option>`).join('');
+  document.getElementById('rep-anio').value = now.getFullYear();
+  document.getElementById('rep-mes').value = now.getMonth() + 1;
+}
+
+async function loadCatalogos() {
+  const [emp, con, lre] = await Promise.allSettled([
+    api.get('/nomina/empresa'),
+    api.get('/nomina/conceptos?size=200&solo_activos=false'),
+    api.get('/nomina/lre-clasificaciones?size=200&solo_activos=false'),
+  ]);
+  empresa = emp.status === 'fulfilled' ? emp.value : null;
+  conceptos = con.status === 'fulfilled' ? (con.value.items ?? con.value ?? []) : [];
+  clasificaciones = lre.status === 'fulfilled' ? (lre.value.items ?? lre.value ?? []) : [];
+  conceptoMap = new Map(conceptos.map(c => [String(c.id), c]));
+  clasificacionMap = new Map(clasificaciones.map(c => [c.codigo, c]));
+}
+
+async function fetchMovimientos(anio, mes) {
+  const out = [];
+  let page = 1;
+  while (true) {
+    const p = new URLSearchParams({ page, size: 100, anio, mes });
+    const data = await api.get(`/nomina/movimientos?${p}`);
+    out.push(...(data.items ?? []));
+    if (out.length >= (data.total ?? 0) || !(data.items ?? []).length) break;
+    page += 1;
+  }
+  return out;
+}
+
+async function buildMovimientoLibro(item) {
+  const mov = await api.get(`/nomina/movimientos/${item.id}`);
+  const [detalle, trabajador, movConceptos] = await Promise.all([
+    api.get(`/nomina/calculo/movimiento/${mov.id}/preview`),
+    api.get(`/rrhh/trabajadores/${mov.trabajador_id}`),
+    api.get(`/nomina/movimientos/${mov.id}/conceptos`),
+  ]);
+  const lineas = buildLineas(detalle, movConceptos ?? []);
+  return { mov, detalle, trabajador, lineas };
+}
+
+function clasificacionLabel(codigo) {
+  if (!codigo) return 'Sin clasificación LRE';
+  const clasificacion = clasificacionMap.get(codigo);
+  return clasificacion ? `${codigo} — ${clasificacion.descripcion}` : codigo;
+}
+
+function pushLinea(lineas, concepto, label, tipo, monto) {
+  const valor = num(monto);
+  if (!valor) return;
+  const codigo = concepto?.clasificacion_lre || 'SIN-LRE';
+  lineas.push({
+    clasificacion: codigo,
+    clasificacionLabel: codigo === 'SIN-LRE' ? 'Sin clasificación LRE' : clasificacionLabel(codigo),
+    concepto: concepto?.descripcion || label,
+    tipo,
+    haber: tipo === 'H' ? valor : 0,
+    descuento: tipo === 'D' ? valor : 0,
+  });
+}
+
+function buildLineas(detalle, movConceptos) {
+  const lineas = [];
+  pushLinea(lineas, null, 'Sueldo base proporcional', 'H', detalle.sueldo_base_proporcional);
+  pushLinea(lineas, null, 'Gratificación', 'H', detalle.gratificacion);
+  pushLinea(lineas, null, 'Horas extras', 'H', detalle.total_horas_extra);
+  pushLinea(lineas, null, 'Movilización', 'H', detalle.movilizacion);
+  pushLinea(lineas, null, 'Colación', 'H', detalle.colacion);
+  movConceptos.forEach(mc => {
+    const concepto = conceptoMap.get(String(mc.concepto_id));
+    pushLinea(lineas, concepto, concepto?.descripcion || `Concepto ${String(mc.concepto_id).slice(0, 8)}`, mc.tipo, mc.monto_calculado ?? (num(mc.valor) * num(mc.cantidad)));
+  });
+  pushLinea(lineas, null, 'Descuento AFP', 'D', detalle.descuento_afp);
+  pushLinea(lineas, null, 'Descuento salud', 'D', detalle.descuento_salud);
+  pushLinea(lineas, null, 'Seguro cesantía trabajador', 'D', detalle.descuento_seg_cesantia_t);
+  pushLinea(lineas, null, 'Impuesto único', 'D', detalle.impuesto_unico);
+
+  const descuentosLineas = sumBy(lineas, 'descuento');
+  const otrosDescuentos = num(detalle.total_descuentos) - descuentosLineas;
+  pushLinea(lineas, null, 'Otros descuentos', 'D', otrosDescuentos);
+  return lineas;
+}
+
+function verticalRows(items) {
+  return items.flatMap(item => item.lineas.map(linea => ({
+    trabajador: item.trabajador,
+    mov: item.mov,
+    detalle: item.detalle,
+    ...linea,
+  })));
+}
+
+function horizontalRows(items) {
+  return items.map(item => ({
+    trabajador: item.trabajador,
+    mov: item.mov,
+    imponible: num(item.detalle.total_imponible),
+    haberes: num(item.detalle.total_haberes),
+    descuentos: num(item.detalle.total_descuentos),
+    liquido: num(item.detalle.liquido_a_pagar),
+  }));
+}
+
+function chunk(items, size) {
+  const chunks = [];
+  for (let i = 0; i < items.length; i += size) chunks.push(items.slice(i, i + size));
+  return chunks;
+}
+
+function totals(rows) {
+  return {
+    imponible: sumBy(rows, 'imponible'),
+    haberes: sumBy(rows, 'haberes') || sumBy(rows, 'haber'),
+    descuentos: sumBy(rows, 'descuentos') || sumBy(rows, 'descuento'),
+    liquido: sumBy(rows, 'liquido'),
+  };
+}
+
+function totalsBar(label, t, formato) {
+  const extra = formato === 'horizontal'
+    ? `<span>Imponible: <b>${fmtCLP(t.imponible)}</b></span><span>Líquido: <b>${fmtCLP(t.liquido)}</b></span>`
+    : '';
+  return `<div class="totals-bar">
+    <strong>${esc(label)}</strong>
+    ${extra}
+    <span>Haberes: <b>${fmtCLP(t.haberes)}</b></span>
+    <span>Descuentos: <b>${fmtCLP(t.descuentos)}</b></span>
+  </div>`;
+}
+
+function pageHeader(anio, mes, formato, page, pages) {
+  return `<header class="doc-head">
+    <div>
+      <div class="brand">${esc(empresa?.mapi_nombre_remitente || 'Empresa')}</div>
+      <div class="muted">${esc(empresa?.giro || 'Giro no informado')}</div>
+      <div class="muted">Representante legal: ${esc(empresa?.nombre_rep_legal || '—')} · RUT: ${esc(empresa?.rut_rep_legal || '—')}</div>
+    </div>
+    <div class="periodo">
+      <div>Libro de Remuneraciones</div>
+      <strong>${MESES[mes - 1]} ${anio}</strong>
+      <span>Formato ${formato === 'vertical' ? 'vertical' : 'horizontal'} · Página ${page} de ${pages}</span>
+    </div>
+  </header>`;
+}
+
+function verticalTable(rows) {
+  return `<table class="report-table">
+    <thead><tr>
+      <th>Trabajador</th><th>RUT</th><th>Clasificación LRE</th><th>Concepto</th><th>Tipo</th><th>Haber</th><th>Descuento</th>
+    </tr></thead>
+    <tbody>${rows.map(r => `<tr>
+      <td>${esc(r.trabajador.nombre_completo)}</td>
+      <td>${esc(r.trabajador.rut)}</td>
+      <td>${esc(r.clasificacionLabel)}</td>
+      <td>${esc(r.concepto)}</td>
+      <td>${r.tipo === 'H' ? 'Haber' : 'Descuento'}</td>
+      <td class="money">${fmtCLP(r.haber)}</td>
+      <td class="money">${fmtCLP(r.descuento)}</td>
+    </tr>`).join('')}</tbody>
+  </table>`;
+}
+
+function horizontalTable(rows) {
+  return `<table class="report-table compact">
+    <thead><tr>
+      <th>Trabajador</th><th>RUT</th><th>Días trab.</th><th>Imponible</th><th>Total haberes</th><th>Total descuentos</th><th>Líquido</th>
+    </tr></thead>
+    <tbody>${rows.map(r => `<tr>
+      <td>${esc(r.trabajador.nombre_completo)}</td>
+      <td>${esc(r.trabajador.rut)}</td>
+      <td class="num">${esc(r.mov.dias_trabajados ?? '—')}</td>
+      <td class="money">${fmtCLP(r.imponible)}</td>
+      <td class="money">${fmtCLP(r.haberes)}</td>
+      <td class="money">${fmtCLP(r.descuentos)}</td>
+      <td class="money strong">${fmtCLP(r.liquido)}</td>
+    </tr>`).join('')}</tbody>
+  </table>`;
+}
+
+function printLibro(printWindow, items, anio, mes, formato) {
+  const rows = formato === 'vertical' ? verticalRows(items) : horizontalRows(items);
+  const perPage = formato === 'vertical' ? VERTICAL_ROWS_PER_PAGE : HORIZONTAL_ROWS_PER_PAGE;
+  const pages = chunk(rows, perPage);
+  const totalGeneral = totals(rows);
+  const content = pages.map((pageRows, idx) => `<section class="page ${formato}">
+    ${pageHeader(anio, mes, formato, idx + 1, pages.length)}
+    ${formato === 'vertical' ? verticalTable(pageRows) : horizontalTable(pageRows)}
+    ${totalsBar(`Totales página ${idx + 1}`, totals(pageRows), formato)}
+    <footer>Generado el ${new Date().toLocaleString('es-CL')}</footer>
+  </section>`).join('') + `<section class="page resumen">
+    ${pageHeader(anio, mes, formato, pages.length + 1, pages.length + 1)}
+    <h1>Total general del informe</h1>
+    ${totalsBar('Total informe', totalGeneral, formato)}
+    <footer>Generado el ${new Date().toLocaleString('es-CL')}</footer>
+  </section>`;
+
+  printWindow.document.open();
+  printWindow.document.write(`<!doctype html><html><head><meta charset="utf-8"><title>Libro Remuneraciones ${MESES[mes - 1]} ${anio}</title>
+    <style>
+      @page { size: ${formato === 'vertical' ? 'A4 portrait' : 'A4 landscape'}; margin: 10mm; }
+      * { box-sizing: border-box; }
+      body { margin: 0; color: #172033; font-family: Arial, Helvetica, sans-serif; background: #fff; }
+      .page { min-height: ${formato === 'vertical' ? '277mm' : '190mm'}; page-break-after: always; position: relative; padding-bottom: 18mm; }
+      .page:last-child { page-break-after: auto; }
+      .doc-head { display: flex; justify-content: space-between; gap: 24px; border-bottom: 3px solid #1f4e79; padding-bottom: 10px; margin-bottom: 12px; }
+      .brand { font-size: 18px; font-weight: 800; color: #12385b; text-transform: uppercase; }
+      .muted { color: #64748b; font-size: 11px; margin-top: 3px; }
+      .periodo { text-align: right; color: #334155; text-transform: uppercase; font-size: 11px; }
+      .periodo strong { display: block; color: #0f172a; font-size: 18px; margin: 4px 0; }
+      .periodo span { display: block; color: #64748b; text-transform: none; }
+      .report-table { width: 100%; border-collapse: collapse; font-size: 10.5px; }
+      .report-table th { background: #12385b; color: #fff; padding: 6px 5px; text-align: left; font-weight: 700; }
+      .report-table td { border-bottom: 1px solid #dbe3ef; padding: 5px; vertical-align: top; }
+      .report-table tr:nth-child(even) td { background: #f8fafc; }
+      .report-table.compact { font-size: 11px; }
+      .money, .num { text-align: right; font-family: 'Courier New', monospace; white-space: nowrap; }
+      .strong { font-weight: 800; }
+      .totals-bar { display: flex; flex-wrap: wrap; gap: 10px 18px; align-items: center; justify-content: flex-end; margin-top: 10px; padding: 8px 10px; border: 1px solid #dbe3ef; background: #f8fafc; font-size: 11px; }
+      .totals-bar strong { margin-right: auto; color: #12385b; text-transform: uppercase; }
+      .resumen h1 { color: #12385b; margin: 24px 0 14px; font-size: 20px; }
+      footer { position: absolute; left: 0; right: 0; bottom: 0; color: #94a3b8; font-size: 10px; border-top: 1px solid #e2e8f0; padding-top: 6px; }
+    </style></head><body>${content}<script>window.onload=()=>setTimeout(()=>window.print(),250)<\/script></body></html>`);
+  printWindow.document.close();
+}
+
+async function generarLibro() {
+  const btn = document.getElementById('modal-libro-generar');
+  const msg = document.getElementById('rep-msg');
+  const anio = parseInt(document.getElementById('rep-anio').value, 10);
+  const mes = parseInt(document.getElementById('rep-mes').value, 10);
+  const formato = document.getElementById('rep-formato').value;
+  if (!anio || !mes) { toast.error('Selecciona año y mes.'); return; }
+  const printWindow = window.open('', '_blank');
+  if (!printWindow) { toast.error('El navegador bloqueó la ventana del informe. Permite ventanas emergentes e inténtalo nuevamente.'); return; }
+  printWindow.document.write('<p style="font-family:Arial;padding:24px;">Preparando Libro de Remuneraciones…</p>');
+  setLoading(btn, true);
+  msg.textContent = 'Buscando movimientos y preparando libro…';
+  try {
+    await loadCatalogos();
+    const movimientos = await fetchMovimientos(anio, mes);
+    if (!movimientos.length) { printWindow.close(); toast.error('No hay movimientos para el período seleccionado.'); return; }
+    const items = [];
+    for (let i = 0; i < movimientos.length; i += 1) {
+      msg.textContent = `Preparando ${i + 1} de ${movimientos.length}…`;
+      items.push(await buildMovimientoLibro(movimientos[i]));
+    }
+    closeModal('modal-libro');
+    printLibro(printWindow, items, anio, mes, formato);
+  } catch (err) { printWindow.close(); toast.error(err.message); }
+  finally { setLoading(btn, false); msg.textContent = ''; }
+}
+
+fillPeriodo();
+document.getElementById('btn-libro').addEventListener('click', () => openModal('modal-libro'));
+document.getElementById('modal-libro-close').addEventListener('click', () => closeModal('modal-libro'));
+document.getElementById('modal-libro-cancel').addEventListener('click', () => closeModal('modal-libro'));
+document.getElementById('modal-libro-generar').addEventListener('click', generarLibro);
+</script>
+</body>
+</html>
