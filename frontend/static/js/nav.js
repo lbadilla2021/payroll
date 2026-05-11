@@ -61,6 +61,7 @@ function getGroups(user) {
       type: 'group', id: 'reportes', label: 'Reportes', icon: I.reports,
       items: [
         { page: 'reportes', label: 'Liquidaciones PDF', href: '/nomina/reportes/liquidaciones.html', icon: I.reports },
+        { page: 'reportes-libro-remuneraciones', label: 'Libro Remuneraciones', href: '/nomina/reports/libro-remuneraciones.html', icon: I.reports },
       ],
     },
     {

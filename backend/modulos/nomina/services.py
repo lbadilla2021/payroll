@@ -14,7 +14,7 @@ from sqlalchemy.orm import Session
 from modulos.nomina.repositories import (
     AfpRepository, BancoRepository, CargoRepository,
     CausalFiniquitoRepository, CcafRepository, CentroCostoRepository,
-    ClausulaAdicionalRepository, ConceptoRemuneracionRepository,
+    ClausulaAdicionalRepository, ClasificacionLreRepository, ConceptoRemuneracionRepository,
     EmpresaConfigRepository, FactorActualizacionRepository,
     IsapreRepository, MutualidadRepository, ParametroMensualRepository,
     RegionRepository, ComunaRepository, ServMedCchcRepository,
@@ -26,6 +26,7 @@ from modulos.nomina.schemas import (
     AfpUpdate, CausalFiniquitoCreate, CausalFiniquitoUpdate,
     CargoCreate, CargoUpdate, CentroCostoCreate, CentroCostoUpdate,
     ClausulaAdicionalCreate, ClausulaAdicionalUpdate,
+    ClasificacionLreCreate, ClasificacionLreUpdate,
     ConceptoRemuneracionCreate, ConceptoRemuneracionUpdate,
     EmpresaConfigCreate, EmpresaConfigUpdate,
     FactorActualizacionCreate, FactorActualizacionUpdate,
@@ -570,6 +571,58 @@ class ClausulaAdicionalService:
         obj = ClausulaAdicionalService.get_or_404(db, tenant_id, clausula_id)
         ClausulaAdicionalRepository.delete(db, obj)
         db.commit()
+
+
+class ClasificacionLreService:
+
+    @staticmethod
+    def list(db: Session, tenant_id: UUID, page: int, size: int,
+             search: str, solo_activos: bool):
+        return ClasificacionLreRepository.get_all(
+            db, tenant_id, page, size, search, solo_activos
+        )
+
+    @staticmethod
+    def get_or_404(db: Session, tenant_id: UUID, clasificacion_id: UUID):
+        obj = ClasificacionLreRepository.get_by_id(db, tenant_id, clasificacion_id)
+        if not obj:
+            raise HTTPException(status_code=404, detail="Clasificación LRE no encontrada.")
+        return obj
+
+    @staticmethod
+    def create(db: Session, tenant_id: UUID, body: ClasificacionLreCreate):
+        if ClasificacionLreRepository.get_by_codigo(db, tenant_id, body.codigo):
+            raise HTTPException(status_code=400,
+                                detail=f"Ya existe una clasificación LRE con código '{body.codigo}'.")
+        obj = ClasificacionLreRepository.create(db, tenant_id, body.model_dump())
+        db.commit()
+        db.refresh(obj)
+        return obj
+
+    @staticmethod
+    def update(db: Session, tenant_id: UUID, clasificacion_id: UUID,
+               body: ClasificacionLreUpdate):
+        obj = ClasificacionLreService.get_or_404(db, tenant_id, clasificacion_id)
+        data = body.model_dump(exclude_unset=True)
+        nuevo_codigo = data.get("codigo")
+        if nuevo_codigo and nuevo_codigo != obj.codigo:
+            existente = ClasificacionLreRepository.get_by_codigo(db, tenant_id, nuevo_codigo)
+            if existente:
+                raise HTTPException(status_code=400,
+                                    detail=f"Ya existe una clasificación LRE con código '{nuevo_codigo}'.")
+        updated = ClasificacionLreRepository.update(
+            db, obj, data
+        )
+        db.commit()
+        db.refresh(updated)
+        return updated
+
+    @staticmethod
+    def delete(db: Session, tenant_id: UUID, clasificacion_id: UUID):
+        obj = ClasificacionLreService.get_or_404(db, tenant_id, clasificacion_id)
+        ClasificacionLreRepository.delete(db, obj)
+        db.commit()
+
 
 
 class ConceptoRemuneracionService:

@@ -583,6 +583,41 @@ class ClausulaAdicionalList(BaseModel):
 
 
 # ─────────────────────────────────────────────────────────────────────────────
+# CLASIFICACIONES LRE
+# ─────────────────────────────────────────────────────────────────────────────
+
+class ClasificacionLreCreate(BaseModel):
+    codigo:      str = Field(..., min_length=1, max_length=50)
+    descripcion: str = Field(..., min_length=2, max_length=200)
+    es_activo:   bool = True
+
+
+class ClasificacionLreUpdate(BaseModel):
+    codigo:      Optional[str]  = Field(None, min_length=1, max_length=50)
+    descripcion: Optional[str]  = Field(None, min_length=2, max_length=200)
+    es_activo:   Optional[bool] = None
+
+
+class ClasificacionLreRead(BaseModel):
+    id:          UUID
+    tenant_id:   UUID
+    codigo:      str
+    descripcion: str
+    es_activo:   bool
+    created_at:  datetime
+    updated_at:  datetime
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class ClasificacionLreList(BaseModel):
+    items: list[ClasificacionLreRead]
+    total: int
+    page:  int
+    size:  int
+
+
+# ─────────────────────────────────────────────────────────────────────────────
 # CONCEPTO REMUNERACIÓN (Haberes y Descuentos)
 # ─────────────────────────────────────────────────────────────────────────────
 
