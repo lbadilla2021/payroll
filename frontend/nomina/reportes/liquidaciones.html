@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reportes — Nómina</title>
+  <link rel="stylesheet" href="/static/css/main.css?v=4">
+</head>
+<body data-page="reportes">
+
+<div id="app-shell">
+  <nav class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <div class="brand-mark">N</div>
+      <span class="brand-name">Nómina SaaS</span>
+    </div>
+    <div class="sidebar-nav" id="sidebar-nav"></div>
+    <div class="sidebar-footer">
+      <div class="profile-trigger" id="profile-trigger">
+        <div class="avatar" id="sidebar-avatar">?</div>
+        <div class="profile-info">
+          <div class="profile-name" id="sidebar-name">…</div>
+          <div class="profile-role" id="sidebar-role"></div>
+        </div>
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <div class="profile-menu" id="profile-menu">
+        <div class="menu-item" onclick="window.location.href='/settings.html'">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+          Configuración
+        </div>
+        <div class="menu-item" id="theme-toggle-btn"><span id="theme-label">Modo oscuro</span></div>
+        <div class="menu-divider"></div>
+        <div class="menu-item" id="help-btn">Ayuda</div>
+        <div class="menu-divider"></div>
+        <div class="menu-item danger" id="logout-btn">Cerrar sesión</div>
+      </div>
+    </div>
+  </nav>
+
+  <div class="main-content">
+    <header class="topbar">
+      <span class="topbar-title">Reportes</span>
+    </header>
+
+    <main class="page-area">
+      <div style="max-width:1100px;">
+        <div class="card" style="padding:var(--space-5);display:flex;gap:var(--space-4);align-items:flex-start;justify-content:space-between;">
+          <div>
+            <div style="font-size:16px;font-weight:700;margin-bottom:6px;">Liquidación de sueldo</div>
+            <div style="font-size:13px;color:var(--text-muted);max-width:620px;line-height:1.5;">
+              Genera un PDF imprimible con formato estándar de liquidación: encabezado de empresa y trabajador, detalle de haberes, descuentos y resumen final de renta líquida.
+            </div>
+          </div>
+          <button class="btn btn-primary" id="btn-liquidacion">
+            Generar PDF
+          </button>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<div class="modal" id="modal-liquidacion" style="max-width:560px;">
+  <div class="modal-header">
+    <span class="modal-title">Generar liquidación de sueldo</span>
+    <button class="btn btn-ghost btn-sm" id="modal-liquidacion-close">×</button>
+  </div>
+  <div class="modal-body">
+    <div class="form-group">
+      <label class="form-label">Trabajador</label>
+      <select class="form-input form-select" id="rep-trabajador">
+        <option value="">Todos los trabajadores</option>
+      </select>
+    </div>
+    <div class="form-row cols-2">
+      <div class="form-group">
+        <label class="form-label">Año</label>
+        <input class="form-input" id="rep-anio" type="number" min="2020" max="2100">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Mes</label>
+        <select class="form-input form-select" id="rep-mes"></select>
+      </div>
+    </div>
+    <div id="rep-msg" style="font-size:13px;color:var(--text-muted);"></div>
+  </div>
+  <div class="modal-footer">
+    <button class="btn btn-secondary" id="modal-liquidacion-cancel">Cancelar</button>
+    <button class="btn btn-primary" id="modal-liquidacion-generar">Generar PDF</button>
+  </div>
+</div>
+
+<div id="toast-container"></div>
+
+<script type="module">
+import api from '/static/js/api.js?v=4';
+import { requireAuth } from '/static/js/auth.js?v=3';
+import { initTheme, openModal, closeModal, setLoading } from '/static/js/ui.js?v=3';
+import { toast } from '/static/js/toast.js?v=3';
+import { initShellUI } from '/static/js/nav.js';
+
+initTheme();
+const user = await requireAuth();
+initShellUI(user);
+
+const MESES = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+const fmtCLP = n => n != null ? `$ ${Math.round(Number(n)).toLocaleString('es-CL')}` : '$ 0';
+const num = n => Number(n ?? 0);
+const esc = v => String(v ?? '—').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const now = new Date();
+let trabajadores = [];
+let empresa = null;
+
+function fillMeses() {
+  document.getElementById('rep-mes').innerHTML = MESES.map((m, i) =>
+    `<option value="${i + 1}">${m}</option>`).join('');
+  document.getElementById('rep-anio').value = now.getFullYear();
+  document.getElementById('rep-mes').value = now.getMonth() + 1;
+}
+
+async function loadData() {
+  fillMeses();
+  const [tw, emp] = await Promise.allSettled([
+    api.get('/rrhh/trabajadores?size=500&solo_activos=true'),
+    api.get('/nomina/empresa'),
+  ]);
+  trabajadores = tw.status === 'fulfilled' ? (tw.value.items ?? []) : [];
+  empresa = emp.status === 'fulfilled' ? emp.value : null;
+  document.getElementById('rep-trabajador').innerHTML = '<option value="">Todos los trabajadores</option>' +
+    trabajadores.map(t => `<option value="${t.id}">${esc(t.nombre_completo)} (${esc(t.rut)})</option>`).join('');
+}
+
+async function fetchMovimientos(anio, mes, trabajadorId) {
+  const out = [];
+  let page = 1;
+  while (true) {
+    const p = new URLSearchParams({ page, size: 100, anio, mes });
+    if (trabajadorId) p.set('trabajador_id', trabajadorId);
+    const data = await api.get(`/nomina/movimientos?${p}`);
+    out.push(...(data.items ?? []));
+    if (out.length >= (data.total ?? 0) || !(data.items ?? []).length) break;
+    page += 1;
+  }
+  return out;
+}
+
+async function buildLiquidacion(item) {
+  const mov = await api.get(`/nomina/movimientos/${item.id}`);
+  const [detalle, trabajador] = await Promise.all([
+    api.get(`/nomina/calculo/movimiento/${mov.id}/preview`),
+    api.get(`/rrhh/trabajadores/${mov.trabajador_id}`),
+  ]);
+  return { mov, detalle, trabajador };
+}
+
+function rows(items) {
+  return items.map(([label, value, strong=false]) => `
+    <tr class="${strong ? 'strong' : ''}">
+      <td>${esc(label)}</td>
+      <td class="money">${fmtCLP(value)}</td>
+    </tr>`).join('');
+}
+
+function liquidacionHtml(item, idx, total, anio, mes) {
+  const { mov, detalle, trabajador } = item;
+  const otrosHaberes = num(detalle.total_haberes) - num(detalle.sueldo_base_proporcional) - num(detalle.gratificacion) - num(detalle.total_horas_extra) - num(detalle.movilizacion) - num(detalle.colacion);
+  const otrosDescuentos = num(detalle.total_descuentos) - num(detalle.descuento_afp) - num(detalle.descuento_salud) - num(detalle.descuento_seg_cesantia_t) - num(detalle.impuesto_unico);
+  return `
+    <section class="page">
+      <header class="doc-head">
+        <div>
+          <div class="brand">${esc(empresa?.mapi_nombre_remitente || 'Empresa')}</div>
+          <div class="muted">${esc(empresa?.giro || 'Giro no informado')}</div>
+          <div class="muted">Representante legal: ${esc(empresa?.nombre_rep_legal || '—')} · RUT: ${esc(empresa?.rut_rep_legal || '—')}</div>
+        </div>
+        <div class="periodo">
+          <div>Liquidación de sueldo</div>
+          <strong>${MESES[mes - 1]} ${anio}</strong>
+          <span>Mov. ${esc(mov.nro_movimiento)}</span>
+        </div>
+      </header>
+
+      <div class="info-grid">
+        <div class="box">
+          <h3>Datos del trabajador</h3>
+          <p><b>Nombre:</b> ${esc(trabajador.nombre_completo)}</p>
+          <p><b>RUT:</b> ${esc(trabajador.rut)}</p>
+          <p><b>Fecha contrato:</b> ${esc(trabajador.fecha_contrato || '—')}</p>
+          <p><b>Forma pago:</b> ${esc(trabajador.forma_pago || '—')}</p>
+        </div>
+        <div class="box">
+          <h3>Situación del mes</h3>
+          <p><b>Días trabajados:</b> ${esc(mov.dias_trabajados ?? '—')}</p>
+          <p><b>Días ausentes:</b> ${esc(mov.dias_ausentes ?? '—')}</p>
+          <p><b>Días licencia:</b> ${esc(mov.dias_licencia ?? '—')}</p>
+          <p><b>Días no contrato:</b> ${esc(mov.dias_no_contratado ?? '—')}</p>
+        </div>
+      </div>
+
+      <div class="tables">
+        <div>
+          <h2>Haberes</h2>
+          <table>${rows([
+            ['Sueldo base', detalle.sueldo_base_proporcional],
+            ['Gratificación', detalle.gratificacion],
+            ['Horas extras', detalle.total_horas_extra],
+            ['Movilización', detalle.movilizacion],
+            ['Colación', detalle.colacion],
+            ['Otros haberes', otrosHaberes],
+            ['Total haberes', detalle.total_haberes, true],
+          ])}</table>
+        </div>
+        <div>
+          <h2>Descuentos</h2>
+          <table>${rows([
+            ['AFP', detalle.descuento_afp],
+            ['Salud', detalle.descuento_salud],
+            ['Seguro cesantía', detalle.descuento_seg_cesantia_t],
+            ['Impuesto único', detalle.impuesto_unico],
+            ['Otros descuentos', otrosDescuentos],
+            ['Total descuentos', detalle.total_descuentos, true],
+          ])}</table>
+        </div>
+      </div>
+
+      <div class="bottom">
+        <div class="firma">
+          <div></div>
+          <p>Recibí conforme</p>
+        </div>
+        <table class="summary">${rows([
+          ['Total haberes', detalle.total_haberes],
+          ['Asignación familiar', detalle.asignacion_familiar],
+          ['Total descuentos', detalle.total_descuentos],
+          ['Anticipo', detalle.anticipo],
+          ['Líquido a pagar', detalle.liquido_a_pagar, true],
+        ])}</table>
+      </div>
+      <footer>Generado el ${new Date().toLocaleString('es-CL')} · ${idx + 1} de ${total}</footer>
+    </section>`;
+}
+
+function printPdf(printWindow, items, anio, mes) {
+  const content = items.map((it, idx) => liquidacionHtml(it, idx, items.length, anio, mes)).join('');
+  const w = printWindow;
+  w.document.open();
+  w.document.write(`<!doctype html><html><head><meta charset="utf-8"><title>Liquidaciones ${MESES[mes - 1]} ${anio}</title>
+    <style>
+      @page { size: A4; margin: 12mm; }
+      * { box-sizing: border-box; }
+      body { margin: 0; color: #172033; font-family: Arial, Helvetica, sans-serif; background: #fff; }
+      .page { min-height: 270mm; page-break-after: always; padding: 0; position: relative; }
+      .page:last-child { page-break-after: auto; }
+      .doc-head { display: flex; justify-content: space-between; gap: 24px; border-bottom: 3px solid #1f4e79; padding-bottom: 14px; margin-bottom: 18px; }
+      .brand { font-size: 20px; font-weight: 800; color: #12385b; text-transform: uppercase; }
+      .muted { color: #64748b; font-size: 12px; margin-top: 4px; }
+      .periodo { text-align: right; color: #334155; text-transform: uppercase; font-size: 12px; }
+      .periodo strong { display: block; color: #0f172a; font-size: 20px; margin: 4px 0; }
+      .periodo span { display: block; color: #64748b; text-transform: none; }
+      .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 20px; }
+      .box { border: 1px solid #dbe3ef; border-radius: 10px; padding: 12px 14px; background: #f8fafc; }
+      h3 { margin: 0 0 8px; font-size: 12px; color: #1f4e79; text-transform: uppercase; letter-spacing: .5px; }
+      p { margin: 4px 0; font-size: 12px; }
+      .tables { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; align-items: start; }
+      h2 { margin: 0 0 8px; font-size: 13px; color: #0f172a; text-transform: uppercase; letter-spacing: .6px; }
+      table { width: 100%; border-collapse: collapse; font-size: 12px; }
+      td { padding: 8px 8px; border-bottom: 1px solid #e2e8f0; }
+      tr.strong td { border-top: 2px solid #1f4e79; font-weight: 800; color: #0f172a; background: #f8fafc; }
+      .money { text-align: right; font-family: 'Courier New', monospace; white-space: nowrap; }
+      .bottom { display: grid; grid-template-columns: 1fr 280px; gap: 24px; align-items: end; margin-top: 36px; }
+      .summary { border: 1px solid #dbe3ef; border-radius: 10px; overflow: hidden; }
+      .summary tr:last-child td { font-size: 15px; color: #0f172a; }
+      .firma { padding-top: 55px; text-align: center; color: #64748b; font-size: 12px; }
+      .firma div { border-top: 1px solid #94a3b8; width: 260px; margin: 0 auto; }
+      footer { position: absolute; left: 0; right: 0; bottom: 0; color: #94a3b8; font-size: 10px; border-top: 1px solid #e2e8f0; padding-top: 6px; }
+    </style></head><body>${content}<script>window.onload=()=>setTimeout(()=>window.print(),250)<\/script></body></html>`);
+  w.document.close();
+}
+
+async function generarLiquidaciones() {
+  const btn = document.getElementById('modal-liquidacion-generar');
+  const msg = document.getElementById('rep-msg');
+  const trabajadorId = document.getElementById('rep-trabajador').value;
+  const anio = parseInt(document.getElementById('rep-anio').value, 10);
+  const mes = parseInt(document.getElementById('rep-mes').value, 10);
+  if (!anio || !mes) { toast.error('Selecciona año y mes.'); return; }
+  const printWindow = window.open('', '_blank');
+  if (!printWindow) { toast.error('El navegador bloqueó la ventana del PDF. Permite ventanas emergentes e inténtalo nuevamente.'); return; }
+  printWindow.document.write('<p style="font-family:Arial;padding:24px;">Preparando liquidación…</p>');
+  setLoading(btn, true);
+  msg.textContent = 'Buscando movimientos y preparando liquidaciones…';
+  try {
+    const movimientos = await fetchMovimientos(anio, mes, trabajadorId);
+    if (!movimientos.length) { printWindow.close(); toast.error('No hay movimientos para el criterio seleccionado.'); return; }
+    const items = [];
+    for (let i = 0; i < movimientos.length; i += 1) {
+      msg.textContent = `Preparando ${i + 1} de ${movimientos.length}…`;
+      items.push(await buildLiquidacion(movimientos[i]));
+    }
+    closeModal('modal-liquidacion');
+    printPdf(printWindow, items, anio, mes);
+  } catch (err) { printWindow.close(); toast.error(err.message); }
+  finally { setLoading(btn, false); msg.textContent = ''; }
+}
+
+document.getElementById('btn-liquidacion').addEventListener('click', () => openModal('modal-liquidacion'));
+document.getElementById('modal-liquidacion-close').addEventListener('click', () => closeModal('modal-liquidacion'));
+document.getElementById('modal-liquidacion-cancel').addEventListener('click', () => closeModal('modal-liquidacion'));
+document.getElementById('modal-liquidacion-generar').addEventListener('click', generarLiquidaciones);
+
+await loadData();
+</script>
+</body>
+</html>
