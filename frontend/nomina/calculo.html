@@ -302,6 +302,11 @@ async function openDesglose(movId) {
       - num(detalle.total_horas_extra)
       - num(detalle.movilizacion)
       - num(detalle.colacion);
+    const otrosDescuentos = num(detalle.total_descuentos)
+      - num(detalle.descuento_afp)
+      - num(detalle.descuento_salud)
+      - num(detalle.descuento_seg_cesantia_t)
+      - num(detalle.impuesto_unico);
 
     const fila = (label, val, sep=false, bold=false) => `
       <div style="display:flex;justify-content:space-between;padding:5px 0;
@@ -323,11 +328,12 @@ async function openDesglose(movId) {
         ${fila('Total haberes', fmtCLP(detalle.total_haberes), false, true)}
       </div>
       <div style="margin-bottom:var(--space-4);">
-        <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--text-muted);margin-bottom:8px;">Descuentos previsionales</div>
+        <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--text-muted);margin-bottom:8px;">Descuentos</div>
         ${fila('Descuento AFP', fmtCLP(detalle.descuento_afp))}
         ${fila('Descuento salud', fmtCLP(detalle.descuento_salud))}
         ${fila('Seguro cesantía', fmtCLP(detalle.descuento_seg_cesantia_t))}
         ${fila('Impuesto único', fmtCLP(detalle.impuesto_unico))}
+        ${fila('Otros descuentos', fmtCLP(otrosDescuentos))}
         ${fila('Total descuentos', fmtCLP(detalle.total_descuentos), false, true)}
       </div>
       <div>
