@@ -52,6 +52,12 @@ NOMINA_PERMISSIONS = [
     ("nomina.clausulas.update", "Editar cláusulas adicionales",   "nomina"),
     ("nomina.clausulas.delete", "Eliminar cláusulas adicionales", "nomina"),
 
+    # Clasificaciones LRE
+    ("nomina.lre_clasificaciones.read",   "Ver clasificaciones LRE",      "nomina"),
+    ("nomina.lre_clasificaciones.create", "Crear clasificaciones LRE",    "nomina"),
+    ("nomina.lre_clasificaciones.update", "Editar clasificaciones LRE",   "nomina"),
+    ("nomina.lre_clasificaciones.delete", "Eliminar clasificaciones LRE", "nomina"),
+
     # Conceptos de remuneración (haberes y descuentos)
     ("nomina.conceptos.read",   "Ver conceptos de remuneración",      "nomina"),
     ("nomina.conceptos.create", "Crear conceptos de remuneración",    "nomina"),

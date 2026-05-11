@@ -63,6 +63,7 @@
 
         <div class="tab-bar" id="tab-bar">
           <button class="tab-btn active" data-tab="conceptos">Conceptos</button>
+          <button class="tab-btn" data-tab="lre">LRE</button>
           <button class="tab-btn" data-tab="causales">Causales finiquito</button>
           <button class="tab-btn" data-tab="clausulas">Cláusulas</button>
           <button class="tab-btn" data-tab="sucursales">Sucursales</button>
@@ -103,6 +104,25 @@
                 </thead>
                 <tbody id="tbody-conceptos">
                   <tr><td colspan="8"><div style="padding:32px;text-align:center;"><div class="spinner" style="margin:0 auto;"></div></div></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── CLASIFICACIONES LRE ─────────────────────────────────── -->
+        <div class="tab-panel" id="tab-lre">
+          <div style="font-size:12px;color:var(--text-muted);margin-bottom:var(--space-3);">
+            Maestro de códigos para clasificar conceptos en el Libro de Remuneraciones Electrónico.
+          </div>
+          <div class="card">
+            <div class="table-wrapper">
+              <table>
+                <thead>
+                  <tr><th>Código</th><th>Descripción</th><th>Estado</th><th></th></tr>
+                </thead>
+                <tbody id="tbody-lre">
+                  <tr><td colspan="4"><div style="padding:32px;text-align:center;"><div class="spinner" style="margin:0 auto;"></div></div></td></tr>
                 </tbody>
               </table>
             </div>
@@ -342,7 +362,9 @@
       </div>
       <div class="form-group">
         <label class="form-label">Clasificación LRE</label>
-        <input class="form-input" id="con-lre" type="text" maxlength="50" placeholder="Ej: 2510">
+        <select class="form-input form-select" id="con-lre">
+          <option value="">Sin clasificación LRE</option>
+        </select>
       </div>
     </div>
 
@@ -557,6 +579,7 @@ const user = await requireAuth();
 initShellUI(user);
 
 const fmtPct = n => n != null ? `${(Number(n) * 100).toFixed(2)}%` : '—';
+const esc = v => String(v ?? '').replace(/[&<>"']/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]));
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 function spinner(cols) {
@@ -588,6 +611,7 @@ function btnToggle(id, activo) {
 // CONCEPTOS DE REMUNERACIÓN
 // ═══════════════════════════════════════════════════════════════════════════════
 let conceptos = [];
+let clasificacionesLre = [];
 let filtroTipoConcepto = '';
 
 async function loadConceptos() {
@@ -637,14 +661,42 @@ function bindConceptosActions() {
   }, { once: true });
 }
 
+function renderLreSelect(selected = '') {
+  const sel = document.getElementById('con-lre');
+  const current = selected ?? '';
+  const options = ['<option value="">Sin clasificación LRE</option>'];
+  let hasCurrent = !current;
+  clasificacionesLre.forEach(item => {
+    const value = item.codigo;
+    if (value === current) hasCurrent = true;
+    const estado = item.es_activo ? '' : ' (inactiva)';
+    options.push(`<option value="${esc(value)}" ${value === current ? 'selected' : ''}>${esc(item.codigo)} — ${esc(item.descripcion)}${estado}</option>`);
+  });
+  if (!hasCurrent) {
+    options.push(`<option value="${esc(current)}" selected>${esc(current)} — no registrada en maestro</option>`);
+  }
+  sel.innerHTML = options.join('');
+}
+
+async function ensureLreClasificaciones() {
+  if (clasificacionesLre.length) return;
+  try {
+    const data = await api.get('/nomina/lre-clasificaciones?size=200&solo_activos=false');
+    clasificacionesLre = data.items ?? data ?? [];
+  } catch (err) {
+    toast.error(`No se pudo cargar maestro LRE: ${err.message}`);
+  }
+}
+
 // Panel Concepto
-function openConceptoPanel(c = null) {
+async function openConceptoPanel(c = null) {
   document.getElementById('panel-con-title').textContent = c ? 'Editar concepto' : 'Nuevo concepto';
   document.getElementById('con-id').value          = c?.id ?? '';
   document.getElementById('con-codigo').value      = c?.codigo ?? '';
   document.getElementById('con-descripcion').value = c?.descripcion ?? '';
   document.getElementById('con-tipo').value        = c?.tipo ?? 'H';
-  document.getElementById('con-lre').value         = c?.clasificacion_lre ?? '';
+  await ensureLreClasificaciones();
+  renderLreSelect(c?.clasificacion_lre ?? '');
 
   const setChk = (id, val) => { document.getElementById(id).checked = val ?? false; };
   setChk('con-imponible',     c?.es_imponible ?? true);
@@ -694,7 +746,7 @@ document.getElementById('panel-con-save').addEventListener('click', async () => 
     es_prestamo:            getChk('con-prestamo'),
     es_prestamo_ccaf:       getChk('con-prestamo-ccaf'),
     exportable_lre:         getChk('con-exportable-lre'),
-    clasificacion_lre:      document.getElementById('con-lre').value.trim() || null,
+    clasificacion_lre:      document.getElementById('con-lre').value || null,
     es_activo:              getChk('con-activo'),
   };
   setLoading(btn, true);
@@ -726,7 +778,7 @@ let catEndpoint = '';
 let catActivo   = 'es_activa';
 
 function openCatModal(item = null, mode = 'causal') {
-  const LABELS = { causal: 'causal', clausula: 'cláusula', cargo: 'cargo', tipocontrato: 'tipo de contrato', centrocosto: 'centro de costo' };
+  const LABELS = { causal: 'causal', clausula: 'cláusula', cargo: 'cargo', tipocontrato: 'tipo de contrato', centrocosto: 'centro de costo', lre: 'clasificación LRE' };
   const label = LABELS[mode] ?? mode;
   document.getElementById('cat-mode').value        = mode;
   document.getElementById('cat-id').value          = item?.id ?? '';
@@ -774,6 +826,7 @@ document.getElementById('modal-cat-save').addEventListener('click', async () => 
     else    { await api.post(catEndpoint, body); toast.success('Creado.'); }
     closeModal('modal-cat');
     if (mode === 'causal')       loadCausales();
+    if (mode === 'lre')          { clasificacionesLre = []; loadLreClasificaciones(); }
     if (mode === 'clausula')     loadClausulas();
     if (mode === 'cargo')        loadCargos();
     if (mode === 'tipocontrato') loadTiposContrato();
@@ -783,6 +836,43 @@ document.getElementById('modal-cat-save').addEventListener('click', async () => 
 });
 document.getElementById('modal-cat-close').addEventListener('click',  () => closeModal('modal-cat'));
 document.getElementById('modal-cat-cancel').addEventListener('click', () => closeModal('modal-cat'));
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// CLASIFICACIONES LRE
+// ═══════════════════════════════════════════════════════════════════════════════
+async function loadLreClasificaciones() {
+  catEndpoint = '/nomina/lre-clasificaciones';
+  catActivo   = 'es_activo';
+  const tbody = document.getElementById('tbody-lre');
+  tbody.innerHTML = spinner(4);
+  try {
+    const data = await api.get('/nomina/lre-clasificaciones?size=200&solo_activos=false');
+    clasificacionesLre = data.items ?? data ?? [];
+    if (!clasificacionesLre.length) { tbody.innerHTML = emptyRow(4, 'Sin clasificaciones LRE'); return; }
+    tbody.innerHTML = clasificacionesLre.map(c => `<tr>
+      <td><code style="font-size:12px;color:var(--text-muted);">${esc(c.codigo)}</code></td>
+      <td class="td-primary">${esc(c.descripcion)}</td>
+      <td>${badgeActivo(c.es_activo)}</td>
+      <td style="display:flex;gap:4px;justify-content:flex-end;">${btnEdit(c.id)}${btnToggle(c.id, c.es_activo)}</td>
+    </tr>`).join('');
+    document.getElementById('tbody-lre').addEventListener('click', async e => {
+      const btn = e.target.closest('[data-action]');
+      if (!btn) return;
+      const id = btn.dataset.id;
+      const item = clasificacionesLre.find(x => String(x.id) === id);
+      if (!item) return;
+      if (btn.dataset.action === 'edit') { catEndpoint = '/nomina/lre-clasificaciones'; catActivo = 'es_activo'; openCatModal(item, 'lre'); }
+      else if (btn.dataset.action === 'toggle') {
+        try {
+          await api.patch(`/nomina/lre-clasificaciones/${id}`, { es_activo: btn.dataset.activo !== 'true' });
+          toast.success('Actualizado.');
+          clasificacionesLre = [];
+          loadLreClasificaciones();
+        } catch (err) { toast.error(err.message); }
+      }
+    }, { once: true });
+  } catch (err) { tbody.innerHTML = emptyRow(4, err.message); }
+}
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // CAUSALES FINIQUITO
@@ -1239,6 +1329,11 @@ const TAB_CFG = {
     label:  'Concepto',
     nuevo:  () => openConceptoPanel(null),
     load:   loadConceptos,
+  },
+  lre: {
+    label:  'Clasificación LRE',
+    nuevo:  () => { catEndpoint = '/nomina/lre-clasificaciones'; catActivo = 'es_activo'; openCatModal(null, 'lre'); },
+    load:   loadLreClasificaciones,
   },
   causales: {
     label:  'Causal',

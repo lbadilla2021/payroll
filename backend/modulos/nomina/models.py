@@ -361,6 +361,24 @@ class ClausulaAdicional(Base):
     created_at  = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
 
 
+class ClasificacionLre(Base):
+    """Clasificaciones del Libro de Remuneraciones Electrónico por tenant."""
+    __tablename__ = "clasificacion_lre"
+    __table_args__ = (
+        UniqueConstraint("tenant_id", "codigo"),
+        Index("ix_clasificacion_lre_tenant", "tenant_id"),
+        {"schema": "nomina"},
+    )
+
+    id          = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    tenant_id   = Column(UUID(as_uuid=True), ForeignKey("tenants.id", ondelete="CASCADE"), nullable=False)
+    codigo      = Column(String(50), nullable=False)
+    descripcion = Column(String(200), nullable=False)
+    es_activo   = Column(Boolean, nullable=False, default=True)
+    created_at  = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+    updated_at  = Column(DateTime(timezone=True), server_default=func.now(), onupdate=utcnow, nullable=False)
+
+
 class ConceptoRemuneracion(Base):
     """
     Haberes y descuentos configurables por tenant (cap. 4.7).

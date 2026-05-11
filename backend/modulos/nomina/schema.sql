@@ -493,6 +493,24 @@ CREATE POLICY clausula_adicional_tenant_isolation ON nomina.clausula_adicional
     USING (tenant_id = current_setting('app.current_tenant_id', TRUE)::UUID);
 
 
+-- ─── CLASIFICACIONES LRE ─────────────────────────────────────────────────────
+CREATE TABLE nomina.clasificacion_lre (
+    id          UUID        PRIMARY KEY DEFAULT gen_random_uuid(),
+    tenant_id   UUID        NOT NULL REFERENCES public.tenants(id) ON DELETE CASCADE,
+    codigo      VARCHAR(50) NOT NULL,
+    descripcion VARCHAR(200) NOT NULL,
+    es_activo   BOOLEAN     NOT NULL DEFAULT TRUE,
+    created_at  TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at  TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    UNIQUE (tenant_id, codigo)
+);
+
+ALTER TABLE nomina.clasificacion_lre ENABLE ROW LEVEL SECURITY;
+CREATE POLICY clasificacion_lre_tenant_isolation ON nomina.clasificacion_lre
+    USING (tenant_id = current_setting('app.current_tenant_id', TRUE)::UUID);
+
+CREATE INDEX ix_clasificacion_lre_tenant ON nomina.clasificacion_lre(tenant_id);
+
 -- ─── HABERES Y DESCUENTOS (conceptos) ────────────────────────────────────────
 -- Fuente: Manual cap. 4.7 — extensa descripción de campos
 CREATE TABLE nomina.concepto_remuneracion (

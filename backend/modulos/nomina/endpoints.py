@@ -29,6 +29,7 @@ from modulos.nomina.schemas import (
     CargoCreate, CargoList, CargoRead, CargoUpdate,
     CentroCostoCreate, CentroCostoList, CentroCostoRead, CentroCostoUpdate,
     ClausulaAdicionalCreate, ClausulaAdicionalList, ClausulaAdicionalRead, ClausulaAdicionalUpdate,
+    ClasificacionLreCreate, ClasificacionLreList, ClasificacionLreRead, ClasificacionLreUpdate,
     ComunaCreate, ComunaRead, ComunaUpdate,
     ConceptoRemuneracionCreate, ConceptoRemuneracionList,
     ConceptoRemuneracionRead, ConceptoRemuneracionUpdate,
@@ -48,7 +49,7 @@ from modulos.nomina.schemas import (
 from modulos.nomina.services import (
     AfpService, BancoService, CargoService,
     CausalFiniquitoService, CcafService, CentroCostoService,
-    ClausulaAdicionalService, ConceptoRemuneracionService,
+    ClausulaAdicionalService, ClasificacionLreService, ConceptoRemuneracionService,
     ComunaService, EmpresaConfigService, FactorActualizacionService,
     IsapreService, MutualidadService, ParametroMensualService,
     RegionService, ServMedCchcService, SucursalService,
@@ -874,6 +875,77 @@ def delete_clausula(
 
 
 # ─────────────────────────────────────────────────────────────────────────────
+# CLASIFICACIONES LRE
+# ─────────────────────────────────────────────────────────────────────────────
+
+router_lre_clasificacion = APIRouter(
+    prefix="/nomina/lre-clasificaciones",
+    tags=["Nómina - Clasificaciones LRE"],
+)
+
+
+@router_lre_clasificacion.get("", response_model=ClasificacionLreList)
+def list_lre_clasificaciones(
+    page: int = Query(1, ge=1),
+    size: int = Query(50, ge=1, le=200),
+    search: str = Query(""),
+    solo_activos: bool = Query(True),
+    db: Session = Depends(get_db),
+    actor: User = Depends(require_permission("nomina.lre_clasificaciones.read")),
+):
+    items, total = ClasificacionLreService.list(
+        db, _tenant_id(actor), page, size, search, solo_activos
+    )
+    return ClasificacionLreList(items=[ClasificacionLreRead.model_validate(i) for i in items],
+                                total=total, page=page, size=size)
+
+
+@router_lre_clasificacion.post("", response_model=ClasificacionLreRead,
+                               status_code=status.HTTP_201_CREATED)
+def create_lre_clasificacion(
+    body: ClasificacionLreCreate,
+    db: Session = Depends(get_db),
+    actor: User = Depends(require_permission("nomina.lre_clasificaciones.create")),
+):
+    return ClasificacionLreRead.model_validate(
+        ClasificacionLreService.create(db, _tenant_id(actor), body)
+    )
+
+
+@router_lre_clasificacion.get("/{clasificacion_id}", response_model=ClasificacionLreRead)
+def get_lre_clasificacion(
+    clasificacion_id: UUID,
+    db: Session = Depends(get_db),
+    actor: User = Depends(require_permission("nomina.lre_clasificaciones.read")),
+):
+    return ClasificacionLreRead.model_validate(
+        ClasificacionLreService.get_or_404(db, _tenant_id(actor), clasificacion_id)
+    )
+
+
+@router_lre_clasificacion.patch("/{clasificacion_id}", response_model=ClasificacionLreRead)
+def update_lre_clasificacion(
+    clasificacion_id: UUID,
+    body: ClasificacionLreUpdate,
+    db: Session = Depends(get_db),
+    actor: User = Depends(require_permission("nomina.lre_clasificaciones.update")),
+):
+    return ClasificacionLreRead.model_validate(
+        ClasificacionLreService.update(db, _tenant_id(actor), clasificacion_id, body)
+    )
+
+
+@router_lre_clasificacion.delete("/{clasificacion_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_lre_clasificacion(
+    clasificacion_id: UUID,
+    db: Session = Depends(get_db),
+    actor: User = Depends(require_permission("nomina.lre_clasificaciones.delete")),
+):
+    ClasificacionLreService.delete(db, _tenant_id(actor), clasificacion_id)
+
+
+
+# ─────────────────────────────────────────────────────────────────────────────
 # CONCEPTOS DE REMUNERACIÓN (Haberes y Descuentos)
 # ─────────────────────────────────────────────────────────────────────────────
 
@@ -1041,6 +1113,7 @@ router.include_router(router_cargo)
 router.include_router(router_tipo_contrato)
 router.include_router(router_causal)
 router.include_router(router_clausula)
+router.include_router(router_lre_clasificacion)
 router.include_router(router_concepto)
 router.include_router(router_parametro)
 router.include_router(router_operacional)  # Iteración 3
